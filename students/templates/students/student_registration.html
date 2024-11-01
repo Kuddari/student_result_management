@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa; /* Light background for contrast */
+        }
+
+        .container {
+            max-width: 900px; /* Limit the width of the form */
+            margin: auto; /* Center the form */
+            padding: 20px;
+            background: white; /* White background for the form */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+
+        h2 {
+            color: #343a40; /* Darker text color */
+            margin-bottom: 30px; /* Space below the header */
+        }
+
+        .form-control {
+            border-radius: 5px; /* Slightly rounded corners for inputs */
+            border: 1px solid #ced4da; /* Border color */
+            box-shadow: none; /* Remove input shadow */
+        }
+
+        .form-control:focus {
+            border-color: #80bdff; /* Focus border color */
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); /* Bootstrap focus shadow */
+        }
+
+        .btn-primary {
+            background-color: #007bff; /* Bootstrap primary button color */
+            border: none; /* Remove default border */
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3; /* Darker button color on hover */
+        }
+
+        .form-row {
+            margin-bottom: 15px; /* Space between form rows */
+        }
+
+        .form-check {
+            margin-top: 10px; /* Space above checkboxes */
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px; /* Less padding on smaller screens */
+            }
+
+            h2 {
+                font-size: 1.5rem; /* Smaller header on mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <h2 class="text-center mb-5">Student Registration Form</h2>
+        <form method="POST" enctype="multipart/form-data" class="p-4 bg-white rounded shadow-sm">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.first_name.label_tag }} {{ form.first_name }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.last_name.label_tag }} {{ form.last_name }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.english_name.label_tag }} {{ form.english_name }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.arabic_name.label_tag }} {{ form.arabic_name }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.date_of_birth.label_tag }}
+                    <input type="text" class="form-control" name="date_of_birth" id="date_of_birth" required>
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.id_number.label_tag }} {{ form.id_number }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.house_number.label_tag }} {{ form.house_number }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.street.label_tag }} {{ form.street }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.subdistrict.label_tag }} {{ form.subdistrict }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.district.label_tag }} {{ form.district }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.province.label_tag }} {{ form.province }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.postal_code.label_tag }} {{ form.postal_code }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.contact_number.label_tag }} {{ form.contact_number }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.school_name.label_tag }} {{ form.school_name }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.school_english_name.label_tag }} {{ form.school_english_name }}
+                </div>
+                <div class="form-group col-md-6">
+                    {{ form.current_education_status.label_tag }} {{ form.current_education_status }}
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    {{ form.education_district.label_tag }} {{ form.education_district }}
+                </div>
+            </div>
+
+            
+            <h4 class="mt-4">Special Status</h4>
+            <div class="form-row">
+                {{ form.special_status.label_tag }} 
+                {% for choice in form.special_status %}
+                    <div class="form-check">
+                        {{ choice.tag }} {{ choice.choice_label }}
+                    </div>
+                {% endfor %}
+            </div>
+
+    
+
+            <div class="form-group">
+                <label for="profile_picture">Profile Picture</label>
+                {{ form.profile_picture }}
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Register</button>
+        </form>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function(){
+            $('#date_of_birth').datepicker({
+                format: 'yyyy-mm-dd',  // Date format
+                autoclose: true,
+                todayHighlight: true
+            });
+        });
+    </script>
+</body>
+</html>
