@@ -24,7 +24,8 @@ from students import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('students.urls')),  # Include student app URLs
+    path('grappelli/', include('grappelli.urls')), # grappelli URLS
+    path('', include('students.urls')), # grappelli URLS
 ]
 
 # Serve media files during development
