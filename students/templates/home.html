@@ -1,0 +1,110 @@
+{% include 'navbar.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js" defer></script>
+    <title>หน้าแรก</title>
+</head>
+<body>
+    <div class="min-h-screen bg-green-800 px-4 sm:px-6"> 
+        <!-- Header Section -->
+        <header class="py-8 md:py-20 flex flex-col md:flex-row justify-between items-center lg:max-w-5xl mx-auto space-y-6 md:space-y-0">
+            <div class="flex flex-col sm:flex-row items-center text-white text-center md:text-left">
+                <img class="w-16 h-16 md:w-20 md:h-20" src="https://dummyimage.com/70x70.png" alt="">
+                <div class="mt-4 sm:mt-0 sm:ml-8">
+                    <h1 class="text-2xl md:text-3xl">ระบบการจัดการหน่วยสอบ</h1>
+                    <span class="text-lg md:text-xl block mt-2">สมาคมครูสัมพันธ์ หน่วยสอบ 86</span>
+                </div>
+            </div>
+
+            <div class="flex flex-row gap-4">
+                <a href="/register" class="inline-flex items-center justify-center px-4 py-2 bg-white text-green-900 hover:bg-gray-200 hover:text-green-700 rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:scale-105">
+                    <span class="mr-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-pen">
+                        <path d="M11.5 15H7a4 4 0 0 0-4 4v2"></path>
+                        <path d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"></path>
+                        <circle cx="10" cy="7" r="4"></circle>
+                      </svg>
+                    </span>
+                    ลงทะเบียน
+                </a>
+                <a href="/edit-profile" class="inline-flex items-center justify-center px-4 py-2 bg-[#06D001] text-white rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:bg-[#04a801] hover:scale-105">
+                    <span class="mr-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notepad-text">
+                        <path d="M8 2v4"></path>
+                        <path d="M12 2v4"></path>
+                        <path d="M16 2v4"></path>
+                        <rect width="16" height="18" x="4" y="4" rx="2"></rect>
+                        <path d="M8 10h6"></path>
+                        <path d="M8 14h8"></path>
+                        <path d="M8 18h5"></path>
+                      </svg>
+                    </span>
+                    แก้ไขข้อมูล
+                </a>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="lg:max-w-3xl mx-auto pb-8 md:mt-20">
+            <!-- First Row Stats -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-5 mb-5">
+                <a href="/students" class="block group">
+                    <div class="bg-white h-48  md:h-48 pt-10 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
+                        <h1 class="text-6xl font-bold group-hover:text-green-700">85</h1>
+                        <h2 class="text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">นักเรียน</h2>
+                    </div>
+                </a>
+                <a href="/male-students" class="block group">
+                    <div class="bg-white h-48  md:h-48 pt-10 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
+                        <h1 class="text-6xl font-bold group-hover:text-green-700">10</h1>
+                        <h2 class="text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">ชาย</h2>
+                    </div>
+                </a>
+                <a href="/female-students" class="block group">
+                    <div class="bg-white h-48  md:h-48 pt-10 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
+                        <h1 class="text-6xl font-bold group-hover:text-green-700">145</h1>
+                        <h2 class="text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">หญิง</h2>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Second Row Stats -->
+            <div class="bg-white rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 hover:bg-slate-100 p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <a href="/orphans" class="group">
+                        <div class="text-center transition-all duration-300 group-hover:scale-105">
+                            <h1 class="text-4xl lg:text-5xl font-bold group-hover:text-green-700">263</h1>
+                            <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กกำพร้า</h1>
+                        </div>
+                    </a>
+                    <a href="/poor" class="group">
+                        <div class="text-center transition-all duration-300 group-hover:scale-105">
+                            <h1 class="text-4xl lg:text-5xl font-bold group-hover:text-green-700">85</h1>
+                            <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กยากไร้</h1>
+                        </div>
+                    </a>
+                    <a href="/disabled" class="group">
+                        <div class="text-center transition-all duration-300 group-hover:scale-105">
+                            <h1 class="text-4xl lg:text-5xl font-bold group-hover:text-green-700">10</h1>
+                            <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กพิการ</h1>
+                        </div>
+                    </a>
+                    <a href="/muallaf" class="group">
+                        <div class="text-center transition-all duration-300 group-hover:scale-105">
+                            <h1 class="text-4xl lg:text-5xl font-bold group-hover:text-green-700">45</h1>
+                            <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กมุอัลลัฟ</h1>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-28 text-3xl text-green-300 underline">
+            <a href="">สมาคมคุรุสัมพันธ์อิสลามแห่งประเทศไทยในพระบรมราชูปถัมภ์</a>
+        </div>
+    </div>
+</body>
+</html>

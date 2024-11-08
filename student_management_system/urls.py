@@ -24,8 +24,8 @@ from students import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('grappelli/', include('grappelli.urls')), # grappelli URLS
-    path('', include('students.urls')), # grappelli URLS
+    path('', include('students.urls')),
+    path("__reload__/", include("django_browser_reload.urls")),
 ]
 
 # Serve media files during development
