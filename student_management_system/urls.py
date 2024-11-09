@@ -26,7 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('students.urls')),
     path("__reload__/", include("django_browser_reload.urls")),
-    path('', include('admin_soft.urls')),
+    path("set_language/", include("django.conf.urls.i18n")),  # Add this line
 ]
 
 # Serve media files during development
