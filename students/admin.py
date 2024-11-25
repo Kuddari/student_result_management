@@ -21,4 +21,5 @@ admin.site.register(Mother)
 admin.site.register(Guardian)
 admin.site.register(Father)
 admin.site.register(CurrentStudy)
+admin.site.register(CurrentSemester)
 
