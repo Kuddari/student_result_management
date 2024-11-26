@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js" defer></script>
+    {% load static %}
     <title>หน้าแรก</title>
 </head>
 <body>
@@ -12,8 +13,8 @@
         <!-- Header Section -->
         <header class="py-8 md:py-20 flex flex-col  lg:flex-row justify-between items-center lg:max-w-5xl mx-auto space-y-6 md:space-y-0">
             <div class="flex flex-col sm:flex-row items-center text-white text-center md:text-left">
-                <img class="w-16 h-16 md:w-28 md:h-28" src="https://dummyimage.com/70x70.png" alt="">
-                <div class="mt-4 sm:mt-0 sm:ml-8">
+                <img class="w-24 h-24 md:w-32 md:h-32" src="{% static 'images/logo.png' %}" alt="">
+                <div class="mt-4 sm:mt-0 sm:ml-4">
                     <h1 class="text-3xl md:text-4xl">ระบบการจัดการหน่วยสอบ</h1>
                     <span class="text-xl md:text-2xl block mt-2">สมาคมครูสัมพันธ์ หน่วยสอบ 86</span>
                 </div>
