@@ -6,12 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js" defer></script>
     {% load static %}
+    <link rel="stylesheet" href="{% static 'css/font.css' %}">
+
     <title>หน้าแรก</title>
 </head>
 <body>
-    <div class="min-h-screen bg-green-800 px-4 sm:px-6"> 
+    <div class="min-h-screen bg-green-800 px-4 sm:px-6 font-prompt"> 
         <!-- Header Section -->
-        <header class="py-8 md:py-20 flex flex-col  lg:flex-row justify-between items-center lg:max-w-5xl mx-auto space-y-6 md:space-y-0">
+        <header class="py-8 md:py-20 flex flex-col  lg:flex-row justify-between items-center lg:max-w-5xl mx-auto space-y-6 md:space-y-0 z-30">
             <div class="flex flex-col sm:flex-row items-center text-white text-center md:text-left">
                 <img class="w-24 h-24 md:w-32 md:h-32" src="{% static 'images/logo.png' %}" alt="">
                 <div class="mt-4 sm:mt-0 sm:ml-4">
@@ -49,63 +51,144 @@
         </header>
 
         <!-- Stats Grid -->
-        <div class="lg:max-w-3xl mx-auto pb-8 lg:mt-14">
+        <div class="lg:max-w-3xl mx-auto pb-8 lg:mt-14 z-30">
             <!-- First Row Stats -->
             <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-5 mb-5">
                 <a href="/students" class="block group">
-                    <div class="bg-white h-48  md:h-48 pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
-                        <h1 class="text-5xl font-bold group-hover:text-green-700">85</h1>
-                        <h2 class="text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">นักเรียน</h2>
+                    <div class="bg-white h-48 md:h-48 pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
+                        <h1 class="text-6xl font-bold group-hover:text-green-700 counter" data-target="85">0</h1>
+                        <h2 class="text-5xl  text-green-900 mt-2 group-hover:text-green-700">นักเรียน</h2>
                     </div>
                 </a>
                 <a href="/male-students" class="block group">
-                    <div class="bg-white h-48  md:h-48 pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
-                        <h1 class="text-5xl font-bold group-hover:text-green-700">10</h1>
-                        <h2 class="text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">ชาย</h2>
+                    <div class="bg-white h-48 md:h-48 pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
+                        <h1 class="text-6xl font-bold group-hover:text-green-700  counter" data-target="10">0</h1>
+                        <div class="flex flex-row gap-x-2 justify-center">
+                            <img class="mt-1 w-14 transition-all duration-200 group-hover:brightness-150" src="{% static 'images/male.png' %}" alt="40*40">
+                            <h2 class="text-5xl  text-green-900 mt-2 group-hover:text-green-700">ชาย</h2>
+                        </div>                    
                     </div>
                 </a>
                 <a href="/female-students" class="block group">
-                    <div class="bg-white h-48  md:h-48 pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
-                        <h1 class="text-5xl font-bold group-hover:text-green-700">145</h1>
-                        <h2 class="text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">หญิง</h2>
+                    <div class="bg-white h-48 md:h-48 pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
+                        <h1 class="text-6xl font-bold group-hover:text-green-700 counter" data-target="145">0</h1>
+                        <div class="flex flex-row gap-x-2 justify-center">
+                            <img class="mt-1 w-14 transition-all duration-200 group-hover:brightness-150" 
+                                 src="{% static 'images/female.png' %}" 
+                                 alt="Female Icon">
+                            <h2 class="text-5xl text-green-900 mt-2 group-hover:text-green-700">หญิง</h2>
+                        </div>
                     </div>
                 </a>
             </div>
-
+    
             <!-- Second Row Stats -->
-            <div class="bg-white rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 hover:bg-slate-100 p-6">
+            <div class="bg-white rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 hover:bg-slate-100 p-6 relative z-10"">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     <a href="/orphans" class="group">
                         <div class="text-center transition-all duration-300 group-hover:scale-105">
-                            <h1 class="text-4xl lg:text-5xl font-bold group-hover:text-green-700">263</h1>
-                            <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กกำพร้า</h1>
+                            <h1 class="text-5xl lg:text-5xl font-bold group-hover:text-green-700 counter" data-target="263">0</h1>
+                            <h1 class="text-2xl lg:text-3xl text-green-900 mt-2 group-hover:text-green-700">เด็กกำพร้า</h1>
                         </div>
                     </a>
                     <a href="/poor" class="group">
                         <div class="text-center transition-all duration-300 group-hover:scale-105">
-                            <h1 class="text-4xl lg:text-5xl font-bold group-hover:text-green-700">85</h1>
-                            <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กยากไร้</h1>
+                            <h1 class="text-5xl lg:text-5xl font-bold group-hover:text-green-700 counter" data-target="85">0</h1>
+                            <h1 class="text-2xl lg:text-3xl text-green-900 mt-2 group-hover:text-green-700">เด็กยากไร้</h1>
                         </div>
                     </a>
                     <a href="/disabled" class="group">
                         <div class="text-center transition-all duration-300 group-hover:scale-105">
-                            <h1 class="text-4xl lg:text-5xl font-bold group-hover:text-green-700">10</h1>
-                            <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กพิการ</h1>
+                            <h1 class="text-5xl lg:text-5xl font-bold group-hover:text-green-700 counter" data-target="10">0</h1>
+                            <h1 class="text-2xl lg:text-3xl text-green-900 mt-2 group-hover:text-green-700">เด็กพิการ</h1>
                         </div>
                     </a>
                     <a href="/muallaf" class="group">
                         <div class="text-center transition-all duration-300 group-hover:scale-105">
-                            <h1 class="text-4xl lg:text-5xl font-bold group-hover:text-green-700">45</h1>
-                            <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กมุอัลลัฟ</h1>
+                            <h1 class="text-4xl lg:text-5xl font-bold group-hover:text-green-700 counter" data-target="45">0</h1>
+                            <h1 class="text-2xl lg:text-3xl text-green-900 mt-2 group-hover:text-green-700">เด็กมุอัลลัฟ</h1>
                         </div>
                     </a>
                 </div>
             </div>
         </div>
+        <!-- <div class="fixed top-[30rem] left-0 opacity-50
+                w-[200px] 
+                sm:w-[250px] 
+                md:w-[450px]
+                lg:w-[350px] 
+                xl:w-[400px] 
+                2xl:w-[450px]">
+        <img class="w-full h-auto object-contain" 
+            src="{% static 'images/bg-left.png' %}" 
+            alt="Background Left">
+    </div>
+
+    <div class="fixed top-[30rem] right-0 opacity-50
+                w-[200px] 
+                sm:w-[250px] 
+                md:w-[450px] 
+                lg:w-[350px] 
+                xl:w-[400px] 
+                2xl:w-[450px]">
+        <img class="w-full h-auto object-contain" 
+            src="{% static 'images/bg-right.png' %}" 
+            alt="Background Right">
+    </div> -->
 
         <div class="text-center pb-8 sm:mt-40 lg:mt-28 text-lg sm:text-base md:text-3xl text-green-300 underline">
             <a href="">สมาคมคุรุสัมพันธ์อิสลามแห่งประเทศไทยในพระบรมราชูปถัมภ์</a>
         </div>
+        
     </div>
+
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // เลือกทุก element ที่มี class 'counter'
+            const counters = document.querySelectorAll('.counter');
+            
+            // ฟังก์ชันสำหรับ animate ตัวเลข
+            const animateCounter = (counter) => {
+                const target = +counter.getAttribute('data-target');
+                const duration = 2500; // ระยะเวลา animation (2 วินาที)
+                const stepTime = 20; // อัพเดททุกๆ 20ms
+                const steps = duration / stepTime;
+                const increment = target / steps;
+                let current = 0;
+                
+                const updateCounter = () => {
+                    current += increment;
+                    if (current < target) {
+                        counter.innerText = Math.ceil(current);
+                        setTimeout(updateCounter, stepTime);
+                    } else {
+                        counter.innerText = target;
+                    }
+                };
+                
+                updateCounter();
+            };
+        
+            // เริ่ม animation เมื่อ element มาถึงจุดที่มองเห็น
+            const observerOptions = {
+                threshold: 0.1
+            };
+        
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateCounter(entry.target);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+        
+            // เริ่มสังเกตทุก counter
+            counters.forEach(counter => {
+                observer.observe(counter);
+            });
+        });
+        </script>
 </body>
 </html>

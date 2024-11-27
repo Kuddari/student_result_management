@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js" defer></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/font.css' %}">
     <title>ดูผลการเรียน</title>
     <style>
         /* Custom Scrollbar Styles */
@@ -44,7 +46,7 @@
     </style>
 </head>
 <body>
-    <div class="min-h-screen bg-gradient-to-b from-green-100 to-green-900">
+    <div class="min-h-screen bg-gradient-to-b from-green-100 to-green-900 font-prompt">
         <!-- Header -->
         <div class="bg-green-800">
             <h1 class="text-4xl md:text-7xl text-white font-bold py-4 md:py-8 text-center drop-shadow-md shadow-md shadow-green-900">
@@ -57,7 +59,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 mb-6">
                 <!-- เขตการศึกษา (ขนาดใหญ่กว่า) -->
                 <div class="lg:col-span-3">
-                    <select class="w-full bg-white px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none">
+                    <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md hover:shadow-green-700">
                         <option value="" disabled selected>เลือกเขตการศึกษา/หน่วยสอบ</option>
                         <option value="1">หน่วยสอบ 1</option>
                         <option value="2">หน่วยสอบ 2</option>
@@ -66,7 +68,7 @@
         
                 <!-- โรงเรียน -->
                 <div class="lg:col-span-3">
-                    <select class="w-full bg-white px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none">
+                    <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md hover:shadow-green-700">
                         <option value="" disabled selected>โรงเรียน</option>
                         <option value="school1">โรงเรียน A</option>
                         <option value="school2">โรงเรียน B</option>
@@ -75,7 +77,7 @@
         
                 <!-- ชั้นเรียน -->
                 <div class="lg:col-span-2">
-                    <select class="w-full bg-white px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none">
+                    <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md hover:shadow-green-700">
                         <option value="" disabled selected>ชั้นเรียน</option>
                         <option value="grade1">ชั้นปีที่ 1</option>
                         <option value="grade2">ชั้นปีที่ 2</option>
@@ -84,7 +86,7 @@
         
                 <!-- ปีการศึกษา -->
                 <div class="lg:col-span-2">
-                    <select class="w-full bg-white px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none">
+                    <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md hover:shadow-green-700">
                         <option value="" disabled selected>ปีการศึกษา</option>
                         <option value="2567">2567</option>
                         <option value="2566">2566</option>
@@ -93,7 +95,7 @@
         
                 <!-- ปุ่มยืนยัน -->
                 <div class="lg:col-span-2 col-span-2">
-                    <button class="w-full bg-green-800 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200">
+                    <button class="w-full bg-green-800 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300 text-xl">
                         ยืนยัน
                     </button>
                 </div>
@@ -105,19 +107,19 @@
                     <table class="w-full text-sm text-left text-gray-800">
                         <thead class="bg-gray-50 text-base whitespace-nowrap">
                             <tr>
-                                <th scope="col" class="px-4 py-3 border-b font-medium w-16">ลำดับ</th>
-                                <th scope="col" class="px-4 py-3 border-b font-medium w-72 text-center">ชื่อ-สกุล</th>
-                                <th scope="col" class="px-4 py-3 border-b font-medium text-center w-32">อ่านอัลกุรอาน</th>
-                                <th scope="col" class="px-4 py-3 border-b font-medium text-center w-32">ท่องจำอัลกุรอาน</th>
-                                <th scope="col" class="px-4 py-3 border-b font-medium text-center w-32">ท่องจำซูเราะห์</th>
-                                <th scope="col" class="px-4 py-3 border-b font-medium text-center w-48">ภาษาไทย</th>\
-                                <th scope="col" class="px-4 py-3 border-b font-medium text-center w-48">คณิตศาสตร์</th>
-                                <th scope="col" class="px-4 py-3 border-b font-medium text-center w-48">อังกฤษ</th>
-                                <th scope="col" class="px-4 py-3 border-b font-medium text-center w-48">ชีววิทยา</th>
-                                <th scope="col" class="px-4 py-3 border-b font-medium text-center w-48">วิทยาศาสตร์</th>
-                                <th scope="col" class="px-4 py-3 border-b font-medium text-center w-48">สังคมศาสตร์</th>
-                                <th scope="col" class="px-4 py-3 border-b font-medium text-center w-48">เคมี</th>
-                                <th scope="col" class="px-4 py-3 border-b font-medium text-center w-24">ฟิสิกส์</th>
+                                <th scope="col" class="px-4 py-3 border-b   w-16">ลำดับ</th>
+                                <th scope="col" class="px-4 py-3 border-b   w-72 text-center">ชื่อ-สกุล</th>
+                                <th scope="col" class="px-4 py-3 border-b   text-center w-32">อ่านอัลกุรอาน</th>
+                                <th scope="col" class="px-4 py-3 border-b   text-center w-32">ท่องจำอัลกุรอาน</th>
+                                <th scope="col" class="px-4 py-3 border-b   text-center w-32">ท่องจำซูเราะห์</th>
+                                <th scope="col" class="px-4 py-3 border-b   text-center w-48">ภาษาไทย</th>\
+                                <th scope="col" class="px-4 py-3 border-b   text-center w-48">คณิตศาสตร์</th>
+                                <th scope="col" class="px-4 py-3 border-b   text-center w-48">อังกฤษ</th>
+                                <th scope="col" class="px-4 py-3 border-b   text-center w-48">ชีววิทยา</th>
+                                <th scope="col" class="px-4 py-3 border-b   text-center w-48">วิทยาศาสตร์</th>
+                                <th scope="col" class="px-4 py-3 border-b   text-center w-48">สังคมศาสตร์</th>
+                                <th scope="col" class="px-4 py-3 border-b   text-center w-48">เคมี</th>
+                                <th scope="col" class="px-4 py-3 border-b   text-center w-24">ฟิสิกส์</th>
                             </tr>
                         </thead>
                         <tbody class="whitespace-nowrap">
@@ -128,7 +130,7 @@
                                 <td class="px-4 py-3 border-b text-center">20</td>
                                 <td class="px-4 py-3 border-b text-center">20</td>
                                 <td class="px-4 py-3 border-b text-center">40</td>
-                                <td class="px-4 py-3 border-b text-center bg-green-400 font-medium">100</td>
+                                <td class="px-4 py-3 border-b text-center bg-green-400  ">100</td>
                             </tr>
                             <tr class="hover:bg-gray-50">
                                 <td class="px-4 py-3 border-b">2</td>
@@ -137,7 +139,7 @@
                                 <td class="px-4 py-3 border-b text-center">20</td>
                                 <td class="px-4 py-3 border-b text-center">20</td>
                                 <td class="px-4 py-3 border-b text-center">40</td>
-                                <td class="px-4 py-3 border-b text-center bg-green-400 font-medium">100</td>
+                                <td class="px-4 py-3 border-b text-center bg-green-400  ">100</td>
                             </tr>
                             <!-- ... rows เพิ่มเติม ... -->
                         </tbody>

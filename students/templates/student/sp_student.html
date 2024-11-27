@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js" defer></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/font.css' %}">
     <title>รายงานนักเรียนพิเศษ</title>
     <style>
         /* Custom Scrollbar Styles */
@@ -54,7 +56,7 @@
     </style>
 </head>
 <body>
-    <div class="min-h-screen bg-gradient-to-b from-green-200 to-green-900"> 
+    <div class="min-h-screen bg-gradient-to-b from-green-200 to-green-900 font-prompt"> 
         <!-- Header -->
         <div class="bg-green-900">
             <h1 class="text-4xl md:text-7xl text-white font-bold py-4 md:py-8 text-center drop-shadow-md shadow-md shadow-green-900">
@@ -78,27 +80,27 @@
                         <input 
                             type="text" 
                             placeholder="ค้นหานักเรียน..." 
-                            class="w-full pl-10 pr-4 py-3 bg-white rounded-lg border border-gray-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                            class="w-full pl-10 pr-4 py-3 bg-white rounded-lg border border-gray-300 duration-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 cursor-pointer hover:shadow-md hover:shadow-green-700"
                         >
                     </div>
 
                     <!-- Filters as Selects -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none">
+                        <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 duration-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md hover:shadow-green-700">
                             <option value="" disabled selected>เลือกโรงเรียน</option>
                             <option value="school1">โรงเรียน A</option>
                             <option value="school2">โรงเรียน B</option>
                             <option value="school3">โรงเรียน C</option>
                         </select>
 
-                        <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none">
+                        <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 duration-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md hover:shadow-green-700">
                             <option value="" disabled selected>เลือกชั้นเรียน</option>
                             <option value="grade1">ประถมศึกษาปีที่ 1</option>
                             <option value="grade2">ประถมศึกษาปีที่ 2</option>
                             <option value="grade3">ประถมศึกษาปีที่ 3</option>
                         </select>
 
-                        <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none">
+                        <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 duration-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md hover:shadow-green-700">
                             <option value="" disabled selected>เลือกปีการศึกษา</option>
                             <option value="2567">2567</option>
                             <option value="2566">2566</option>
@@ -109,46 +111,46 @@
 
                 <!-- Stats -->
                 <div class="grid grid-cols-3 gap-3 w-full lg:w-auto">
-                    <div class="bg-white rounded-lg p-3 text-center shadow-sm pt-6">
-                        <div class="text-2xl md:text-4xl font-bold">155</div>
+                    <div class="bg-white rounded-lg p-3 text-center shadow-sm pt-6 duration-500 hover:drop-shadow-md hover:shadow-lg hover:shadow-green-700 hover:scale-105">
+                        <div class="text-2xl md:text-4xl font-bold counter" data-target="155">0</div>
                         <div class="text-sm md:text-base text-gray-600">นักเรียนทั้งหมด</div>
                     </div>
-                    <div class="bg-white rounded-lg p-3 text-center shadow-sm pt-6">
-                        <div class="text-2xl md:text-4xl font-bold">57</div>
+                    <div class="bg-white rounded-lg p-3 text-center shadow-sm pt-6 duration-500 hover:drop-shadow-md hover:shadow-lg hover:shadow-green-700 hover:scale-105">
+                        <div class="text-2xl md:text-4xl font-bold counter" data-target="57">0</div>
                         <div class="text-sm md:text-base text-gray-600">ชาย</div>
                     </div>
-                    <div class="bg-white rounded-lg p-3 text-center shadow-sm pt-6">
-                        <div class="text-2xl md:text-4xl font-bold">98</div>
+                    <div class="bg-white rounded-lg p-3 text-center shadow-sm pt-6 duration-500 hover:drop-shadow-md hover:shadow-lg hover:shadow-green-700 hover:scale-105">
+                        <div class="text-2xl md:text-4xl font-bold counter" data-target="98">0</div>
                         <div class="text-sm md:text-base text-gray-600">หญิง</div>
                     </div>
                 </div>
             </div>
 
             <!-- Mobile Table View with Actions -->
-            <div class="md:hidden space-y-4">
+            <div class="lg:hidden space-y-4">
                 <div class="bg-white rounded-lg shadow-sm p-4 space-y-3">
                     <div class="flex justify-between items-center border-b pb-2">
-                        <span class="font-medium">ลำดับ:</span>
+                        <span class=" ">ลำดับ:</span>
                         <span>1</span>
                     </div>
                     <div class="flex justify-between items-center border-b pb-2">
-                        <span class="font-medium">ชื่อ-สกุล:</span>
+                        <span class=" ">ชื่อ-สกุล:</span>
                         <span>ชื่อนักเรียน 1</span>
                     </div>
                     <div class="flex justify-between items-center border-b pb-2">
-                        <span class="font-medium">เขตการศึกษา:</span>
+                        <span class=" ">เขตการศึกษา:</span>
                         <span>เขต 1</span>
                     </div>
                     <div class="flex justify-between items-center border-b pb-2">
-                        <span class="font-medium">โรงเรียน:</span>
+                        <span class=" ">โรงเรียน:</span>
                         <span>โรงเรียน A</span>
                     </div>
                     <div class="flex justify-between items-center border-b pb-2">
-                        <span class="font-medium">สถานะ:</span>
+                        <span class=" ">สถานะ:</span>
                         <span>กำลังศึกษา</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="font-medium">จัดการ:</span>
+                        <span class=" ">จัดการ:</span>
                         <div class="flex gap-2">
                             <!-- Profile Button -->
                             <div class="tooltip-container relative">
@@ -159,7 +161,7 @@
                                         <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/>
                                     </svg>
                                 </a>
-                                <div class="tooltip absolute -top-1 left-1/2 -translate-x-1/2 px-2 py-1  text-white text-xs rounded whitespace-nowrap">
+                                <div class="tooltip absolute -top-1 left-1/2 -translate-x-1/2 px-2 py-1  text-white text-base rounded whitespace-nowrap">
                                     โปรไฟล์
                                 </div>
                             </div>
@@ -172,7 +174,7 @@
                                         <path d="m15 5 4 4"/>
                                     </svg>
                                 </a>
-                                <div class="tooltip absolute -top-1 left-1/2 -translate-x-1/2 px-2 py-1  text-white text-xs rounded whitespace-nowrap">
+                                <div class="tooltip absolute -top-1 left-1/2 -translate-x-1/2 px-2 py-1  text-white text-base rounded whitespace-nowrap">
                                     แก้ไข
                                 </div>
                             </div>
@@ -188,17 +190,18 @@
                                         <line x1="14" y1="11" x2="14" y2="17"/>
                                     </svg>
                                 </a>
-                                <div class="tooltip absolute -top-1 left-1/2 -translate-x-1/2 px-2 py-1  text-white text-xs rounded whitespace-nowrap">
+                                <div class="tooltip absolute -top-1 left-1/2 -translate-x-1/2 px-2 py-1  text-white text-base rounded whitespace-nowrap">
                                     ลบ
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
 
             <!-- Desktop Table View -->
-            <div class="hidden md:block bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="hidden lg:block bg-white rounded-lg shadow-sm overflow-hidden">
                 <div class="overflow-x-auto relative">
                     <!-- Scroll Indicator Shadows -->
                     <div class="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-white to-transparent pointer-events-none z-10"></div>
@@ -208,26 +211,26 @@
                     <div class="overflow-x-auto bg-white rounded-lg shadow-sm">
                         <div class="min-w-[768px]">
                             <table class="w-full text-sm">
-                                <thead class="bg-gray-50 sticky top-0 z-10">
+                                <thead class="bg-gray-50 sticky top-0 z-10 text-lg">
                                     <tr>
-                                        <th class="px-4 py-3 text-left font-medium text-gray-600 border-b w-16">ลำดับ</th>
-                                        <th class="px-4 py-3 text-left font-medium text-gray-600 border-b w-48">ชื่อ-สกุล</th>
-                                        <th class="px-4 py-3 text-left font-medium text-gray-600 border-b w-32">เขตการศึกษา</th>
-                                        <th class="px-4 py-3 text-left font-medium text-gray-600 border-b w-48">โรงเรียน</th>
-                                        <th class="px-4 py-3 text-left font-medium text-gray-600 border-b w-32">สถานะ</th>
-                                        <th class="px-4 py-3 text-left font-medium text-gray-600 border-b w-40">จัดการ</th>
+                                        <th class="px-2 py-3 text-center text-gray-600 border-b w-16">ลำดับ</th>
+                                        <th class="px-2 py-3 text-center text-gray-600 border-b w-48">ชื่อ-สกุล</th>
+                                        <th class="px-2 py-3 text-center text-gray-600 border-b w-32">เขตการศึกษา</th>
+                                        <th class="px-2 py-3 text-center text-gray-600 border-b w-48">โรงเรียน</th>
+                                        <th class="px-2 py-3 text-center text-gray-600 border-b w-32">สถานะ</th>
+                                        <th class="px-2 py-3 text-center text-gray-600 border-b w-40">จัดการ</th>
                                         
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-200">
+                                <tbody class="divide-y divide-gray-200 text-lg">
                                     <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-3">1</td>
-                                        <td class="px-4 py-3">ชื่อนักเรียน 1</td>
-                                        <td class="px-4 py-3">เขต 1</td>
-                                        <td class="px-4 py-3">โรงเรียนเทศ3 (โศภนพิทยาคุศานุสรณ์)</td>
-                                        <td class="px-4 py-3">กำลังศึกษา</td>
-                                        <td class="px-4 py-3">
-                                            <div class="flex gap-2">
+                                        <td class="px-2 py-2 text-center">1</td>
+                                        <td class="px-2 py-2 w-[25%] text-center">ชื่อนักเรียน 1</td>
+                                        <td class="px-2 py-2 text-center">เขต 1</td>
+                                        <td class="px-2 py-2 w-[35%] text-center">โรงเรียนเทศ3 (โศภนพิทยาคุศานุสรณ์)</td>
+                                        <td class="px-2 py-2 text-center">กำลังศึกษา</td>
+                                        <td class="px-2 py-2">
+                                            <div class="flex gap-2 justify-center">
                                                 <!-- Profile Button -->
                                                 <div class="tooltip-container relative">
                                                     <a href="" class="p-2 text-blue-600  rounded-full transition-colors duration-200">
@@ -273,7 +276,7 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    <!-- สามารถเพิ่มแถวข้อมูลเพิ่มเติมตรงนี้ -->
+                                                                         
                                 </tbody>
                             </table>
                         </div>
@@ -282,5 +285,43 @@
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const animateValue = (element, start, end, duration) => {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    const currentValue = Math.floor(progress * (end - start) + start);
+                    element.textContent = currentValue;
+                    
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        element.textContent = end;
+                    }
+                };
+                window.requestAnimationFrame(step);
+            };
+    
+            // สร้าง Intersection Observer สำหรับ lazy loading animation
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !entry.target.dataset.animated) {
+                        const target = parseInt(entry.target.dataset.target);
+                        animateValue(entry.target, 0, target, 2500); // 2000ms = 2 seconds
+                        entry.target.dataset.animated = true;
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+    
+            // เริ่มสังเกตทุก counter elements
+            document.querySelectorAll('.counter').forEach(counter => {
+                observer.observe(counter);
+            });
+        });
+        </script>
 </body>
 </html>

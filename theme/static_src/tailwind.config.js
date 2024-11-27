@@ -43,7 +43,11 @@ module.exports = {
         '../../**/*.py'
     ],
     theme: {
-        extend: {},
+        extend: {
+            fontFamily: {
+              prompt: ['Prompt-Medium', 'sans-serif'],
+            }
+    },
     },
     plugins: [
         /**
