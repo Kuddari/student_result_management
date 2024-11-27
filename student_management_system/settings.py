@@ -199,5 +199,5 @@ JAZZMIN_UI_TWEAKS = {
         "success": "btn-success"
     },
     "actions_sticky_top": False,
-
+    
 }

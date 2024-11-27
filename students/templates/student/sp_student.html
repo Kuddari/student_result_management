@@ -70,57 +70,71 @@
                 <!-- Search and Filters -->
                 <div class="flex flex-col gap-3 w-full lg:w-[65%]">
                     <!-- Search Box -->
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <path d="m21 21-4.3-4.3"></path>
-                            </svg>
+                    <form method="get" id="filterForm">
+                        <!-- Input Box -->
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.3-4.3"></path>
+                                </svg>
+                            </div>
+                            <input 
+                                type="text" 
+                                name="search" 
+                                placeholder="ค้นหานักเรียน..." 
+                                class="w-full pl-10 pr-4 py-3 bg-white rounded-lg border border-gray-300 duration-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 cursor-pointer hover:shadow-md hover:shadow-green-700"
+                                value="{{ request.GET.search|default:'' }}"
+                            >
                         </div>
-                        <input 
-                            type="text" 
-                            placeholder="ค้นหานักเรียน..." 
-                            class="w-full pl-10 pr-4 py-3 bg-white rounded-lg border border-gray-300 duration-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 cursor-pointer hover:shadow-md hover:shadow-green-700"
-                        >
-                    </div>
-
-                    <!-- Filters as Selects -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 duration-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md hover:shadow-green-700">
-                            <option value="" disabled selected>เลือกโรงเรียน</option>
-                            <option value="school1">โรงเรียน A</option>
-                            <option value="school2">โรงเรียน B</option>
-                            <option value="school3">โรงเรียน C</option>
-                        </select>
-
-                        <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 duration-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md hover:shadow-green-700">
-                            <option value="" disabled selected>เลือกชั้นเรียน</option>
-                            <option value="grade1">ประถมศึกษาปีที่ 1</option>
-                            <option value="grade2">ประถมศึกษาปีที่ 2</option>
-                            <option value="grade3">ประถมศึกษาปีที่ 3</option>
-                        </select>
-
-                        <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 duration-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md hover:shadow-green-700">
-                            <option value="" disabled selected>เลือกปีการศึกษา</option>
-                            <option value="2567">2567</option>
-                            <option value="2566">2566</option>
-                            <option value="2565">2565</option>
-                        </select>
-                    </div>
+                    
+                        <!-- Filters as Selects -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                            <!-- Select for School -->
+                            <select name="school" class="w-full bg-white px-4 py-3 rounded-lg border" onchange="this.form.submit()">
+                                <option value="">เลือกโรงเรียน</option>
+                                {% for school in schools %}
+                                    <option value="{{ school.id }}" {% if request.GET.school == school.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ school.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                    
+                            <!-- Select for Level -->
+                            <select name="level" class="w-full bg-white px-4 py-3 rounded-lg border" onchange="this.form.submit()">
+                                <option value="">เลือกชั้นเรียน</option>
+                                {% for level in levels %}
+                                    <option value="{{ level.id }}" {% if request.GET.level == level.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ level.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                    
+                            <!-- Select for Academic Year -->
+                            <select name="academic_year" class="w-full bg-white px-4 py-3 rounded-lg border" onchange="this.form.submit()">
+                                <option value="">เลือกปีการศึกษา</option>
+                                {% for year in academic_years %}
+                                    <option value="{{ year }}" {% if request.GET.academic_year == year|stringformat:"s" %}selected{% endif %}>
+                                        {{ year }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
                 </div>
 
                 <!-- Stats -->
                 <div class="grid grid-cols-3 gap-3 w-full lg:w-auto">
                     <div class="bg-white rounded-lg p-3 text-center shadow-sm pt-6 duration-500 hover:drop-shadow-md hover:shadow-lg hover:shadow-green-700 hover:scale-105">
-                        <div class="text-2xl md:text-4xl font-bold counter" data-target="155">0</div>
+                        <div class="text-2xl md:text-4xl font-bold counter" data-target="{{ total_students }}">0</div>
                         <div class="text-sm md:text-base text-gray-600">นักเรียนทั้งหมด</div>
                     </div>
                     <div class="bg-white rounded-lg p-3 text-center shadow-sm pt-6 duration-500 hover:drop-shadow-md hover:shadow-lg hover:shadow-green-700 hover:scale-105">
-                        <div class="text-2xl md:text-4xl font-bold counter" data-target="57">0</div>
+                        <div class="text-2xl md:text-4xl font-bold counter" data-target="{{ male_students }}">0</div>
                         <div class="text-sm md:text-base text-gray-600">ชาย</div>
                     </div>
                     <div class="bg-white rounded-lg p-3 text-center shadow-sm pt-6 duration-500 hover:drop-shadow-md hover:shadow-lg hover:shadow-green-700 hover:scale-105">
-                        <div class="text-2xl md:text-4xl font-bold counter" data-target="98">0</div>
+                        <div class="text-2xl md:text-4xl font-bold counter" data-target="{{ female_students }}">0</div>
                         <div class="text-sm md:text-base text-gray-600">หญิง</div>
                     </div>
                 </div>
@@ -210,7 +224,7 @@
                     <!-- Table with minimum width to ensure scroll on smaller screens -->
                     <div class="overflow-x-auto bg-white rounded-lg shadow-sm">
                         <div class="min-w-[768px]">
-                            <table class="w-full text-sm">
+                            <table id="studentTable" class="w-full text-sm">
                                 <thead class="bg-gray-50 sticky top-0 z-10 text-lg">
                                     <tr>
                                         <th class="px-2 py-3 text-center text-gray-600 border-b w-16">ลำดับ</th>
@@ -223,12 +237,13 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-200 text-lg">
+                                    {% for student in students %}
                                     <tr class="hover:bg-gray-50">
-                                        <td class="px-2 py-2 text-center">1</td>
-                                        <td class="px-2 py-2 w-[25%] text-center">ชื่อนักเรียน 1</td>
-                                        <td class="px-2 py-2 text-center">เขต 1</td>
-                                        <td class="px-2 py-2 w-[35%] text-center">โรงเรียนเทศ3 (โศภนพิทยาคุศานุสรณ์)</td>
-                                        <td class="px-2 py-2 text-center">กำลังศึกษา</td>
+                                        <td class="px-2 py-2 text-center">{{ forloop.counter }}</td>
+                                        <td class="px-2 py-2 text-center">{{ student.first_name }} {{ student.last_name }}</td>
+                                        <td class="px-2 py-2 text-center">{{ student.current_study.school.education_district.name }}</td>
+                                        <td class="px-2 py-2 text-center">{{ student.current_study.school.name }}</td>
+                                        <td class="px-2 py-2 text-center">{{ student.status }}</td>
                                         <td class="px-2 py-2">
                                             <div class="flex gap-2 justify-center">
                                                 <!-- Profile Button -->
@@ -276,7 +291,11 @@
                                             </div>
                                         </td>
                                     </tr>
-                                                                         
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="px-2 py-4 text-center text-gray-500">ไม่มีข้อมูล</td>
+                                    </tr>
+                                {% endfor %}                                 
                                 </tbody>
                             </table>
                         </div>
@@ -323,5 +342,34 @@
             });
         });
         </script>
+
+    <script>
+        function submitFilterForm() {
+            // เก็บค่าที่เลือกในฟิลเตอร์
+            const school = document.getElementById('schoolFilter').value;
+            const level = document.getElementById('levelFilter').value;
+            const year = document.getElementById('yearFilter').value;
+
+            // สร้าง URL พร้อมพารามิเตอร์
+            const url = new URL(window.location.href);
+            url.searchParams.set('school', school);
+            url.searchParams.set('level', level);
+            url.searchParams.set('academic_year', year);
+
+            // ส่งคำร้องขอไปยังเซิร์ฟเวอร์
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+                .then(response => response.text()) // รับ HTML ที่ส่งกลับมา
+                .then(html => {
+                    // อัปเดตส่วนตารางนักเรียน
+                    document.getElementById('studentTable').innerHTML = html;
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
 </body>
 </html>

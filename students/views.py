@@ -5,6 +5,9 @@ from django.db.models import Q
 from django.contrib import messages
 from decimal import Decimal
 from django.core.files.storage import FileSystemStorage
+from django.http import JsonResponse
+
+
 
 def Home(request):
     # Get student data
@@ -29,52 +32,52 @@ def Home(request):
     }
     return render(request, 'home.html', context)
 
-def Homes (request):
-    return render(request, 'home.html')
+
 
 def Student_Rp(request):
-    # Get the filter values from the request
+    # รับค่าฟิลเตอร์
+    search = request.GET.get('search', '').strip()
     school = request.GET.get('school')
     level = request.GET.get('level')
     academic_year = request.GET.get('academic_year')
 
-    # Base query for students
-    students = Student.objects.all()
+    # Query นักเรียน
+    students = Student.objects.filter(current_study__isnull=False)
 
-    # Filter by CurrentStudy
+    # กรองตามคำค้นหา
+    if search:
+        students = students.filter(
+            Q(first_name__icontains=search) | Q(last_name__icontains=search)
+        )
+
+    # กรองตามโรงเรียน
     if school:
-        students = students.filter(current_study__school__name=school)
-    
+        students = students.filter(current_study__school__id=school)
+
+    # กรองตามระดับชั้น
     if level:
-        students = students.filter(current_study__level__name=level)
-    
-    #if academic_year:
-       # students = students.filter(current_study__current_semester__academic_year=academic_year)
+        students = students.filter(current_study__level__id=level)
 
-    # Count stats (Total, Male, Female)
-    total_students = students.count()
-    male_students = students.filter(gender='Male').count()
-    female_students = students.filter(gender='Female').count()
+    # กรองตามปีการศึกษา
+    if academic_year:
+        students = students.filter(current_study__current_semester__year=academic_year)
 
-    # Get distinct levels, schools, and academic years for filters
+    # ดึงข้อมูลสำหรับตัวเลือก
     levels = Level.objects.all()
     schools = School.objects.all()
     academic_years = CurrentSemester.objects.values_list('year', flat=True).distinct()
 
     context = {
         'students': students,
-        'total_students': total_students,
-        'male_students': male_students,
-        'female_students': female_students,
+        'total_students': students.count(),
+        'male_students': students.filter(gender='ชาย').count(),
+        'female_students': students.filter(gender='หญิง').count(),
         'levels': levels,
         'schools': schools,
         'academic_years': academic_years,
     }
+    return render(request, 'student/sp_student.html', context)
 
-    return render(request, 'student_report.html', context)
-
-def Student_Rp (request):
-    return render(request, 'student/sp_student.html')
 
 def GR_Student (request):
     return render(request, 'student/gr_student.html')

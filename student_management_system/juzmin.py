@@ -135,4 +135,16 @@ JAZZMIN_SETTINGS = {
     "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
     # Add a language dropdown into the admin
     "language_chooser": True,
+    "icons": {
+        "students.Student": "fas fa-user-graduate",  # ไอคอนสำหรับโมเดลนักเรียน
+        "students.Father": "fas fa-male",           # ไอคอนสำหรับบิดา
+        "students.Mother": "fas fa-female",         # ไอคอนสำหรับมารดา
+        "students.Guardian": "fas fa-user-shield",  # ไอคอนสำหรับผู้ปกครอง
+        "students.CurrentStudy": "fas fa-book",     # ไอคอนสำหรับการศึกษาในปัจจุบัน
+        "students.Subject": "fas fa-book-open",     # ไอคอนสำหรับวิชา
+        "students.School": "fas fa-school",         # ไอคอนสำหรับโรงเรียน
+        "students.Level": "fas fa-layer-group",     # ไอคอนสำหรับระดับชั้น
+        "students.EducationDistrict": "fas fa-map-marker-alt",  # ไอคอนสำหรับเขตการศึกษา
+        "students.CurrentSemester": "fas fa-calendar",          # ไอคอนสำหรับภาคการศึกษา
+    },
 }
