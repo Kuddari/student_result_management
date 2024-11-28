@@ -50,9 +50,15 @@ class SemesterAdmin(admin.ModelAdmin):
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('name_info', 'gender_icon', 'address_info', 'status_icon')
+    list_display = ('name_info','english_name','arabic_name','gender_icon', 'address_info', 'status_icon')
     list_filter = ('status', 'gender')
-    search_fields = ('first_name', 'last_name', 'id_number')
+    search_fields = ('first_name', 'last_name', 'id_number','english_name','arabic_name')
+
+    def name_info(self, obj):
+        if obj.first_name:
+            return f"{obj.first_name} {obj.last_name}"
+        return "ไม่มีข้อมูลที่อยู่"
+        
 
     def name_info(self, obj):
         if obj.first_name:
@@ -67,7 +73,7 @@ class StudentAdmin(admin.ModelAdmin):
         if obj.gender == "ชาย":
             return format_html('<i class="fas fa-mars" style="color: blue; font-size: 1.5em;"></i>')
         elif obj.gender == "หญิง":
-            return format_html('<i class="fas fa-venus" style="color: pink; font-size: 1.5em;"></i>')
+            return format_html('<i class="fas fa-venus" style="color: red; font-size: 1.5em;"></i>')
         return format_html('<i class="fas fa-genderless" style="color: gray; font-size: 1.5em;"></i>')
 
     gender_icon.short_description = "เพศ"

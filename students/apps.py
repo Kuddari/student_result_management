@@ -3,4 +3,4 @@ from django.apps import AppConfig
 
 class StudentsConfig(AppConfig):
     name = 'students'
-    verbose_name = "Student Management"
+    verbose_name = "จัดการข้อมูล"
