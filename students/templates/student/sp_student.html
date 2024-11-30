@@ -10,6 +10,13 @@
     <title>รายงานนักเรียนพิเศษ</title>
     <style>
         /* Custom Scrollbar Styles */
+        @font-face {
+            font-family: 'THSarabunNew';
+            src: url('{% static "fonts/THSarabunNew.ttf" %}') format('truetype');
+        }
+        body {
+            font-family: 'THSarabunNew', sans-serif;
+        }
         ::-webkit-scrollbar {
             width: 12px;
             height: 12px;
@@ -54,6 +61,40 @@
             opacity: 1;
         }
     </style>
+     <script>
+        async function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('landscape');
+            const content = document.getElementById('content'); // Table content
+
+            // Capture table as an image
+            const canvas = await html2canvas(content, { scale: 2 });
+            const imgData = canvas.toDataURL('image/png');
+            const imgProps = doc.getImageProperties(imgData);
+            const pdfWidth = doc.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+            // Add image to PDF
+            doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+            // Add date to the filename
+            const date = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            doc.save(`students_report_${date}.pdf`);
+        }
+
+        function printTable() {
+            const printWindow = window.open('', '', 'width=800,height=600');
+            const content = document.getElementById('content').outerHTML;
+
+            printWindow.document.write('<html><head><title>Print</title>');
+            printWindow.document.write('<style>@font-face { font-family: "THSarabunNew"; src: url("{% static "fonts/thsarabun.ttf" %}"); } body { font-family: "THSarabunNew"; }</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(content);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+    </script>
 </head>
 <body>
     <div class="min-h-screen bg-gradient-to-b from-green-200 to-green-900 font-prompt"> 
@@ -140,77 +181,121 @@
                 </div>
             </div>
 
+            <div class="flex justify-center lg:justify-end gap-3 mb-8">
+                <!-- Download PDF Button -->
+                <a
+                    href="{% url 'download_students_pdf' %}?search={{ request.GET.search|default:'' }}&school={{ request.GET.school|default:'' }}&level={{ request.GET.level|default:'' }}&academic_year={{ request.GET.academic_year|default:'' }}"
+                    class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md ">
+                    ดาวน์โหลดเป็น PDF
+                </a>
+                
+            </div>
+
             <!-- Mobile Table View with Actions -->
             <div class="lg:hidden space-y-4">
-                <div class="bg-white rounded-lg shadow-sm p-4 space-y-3">
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <span class=" ">ลำดับ:</span>
-                        <span>1</span>
+                {% for student in students %}
+                <div class="bg-white rounded-lg shadow-sm p-4 space-y-3 relative top-6 mb-8">
+                    <!-- Profile Image -->
+                    <div class="absolute left-1/2 transform -translate-x-1/2 -top-10">
+                        {% if student.profile_picture %}
+                        <img 
+                            src="{{ student.profile_picture.url }}" 
+                            alt="Profile Image" 
+                            class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md"
+                        >
+                    {% elif student.gender == 'ชาย' %}
+                        <img 
+                            src="{% static 'images/male.png' %}" 
+                            alt="Default Male Image" 
+                            class="bg-gray-300 border-4 border-white w-20 h-20 rounded-full object-cover"
+                        >
+                    {% elif student.gender == 'หญิง' %}
+                        <img 
+                            src="{% static 'images/female.png' %}" 
+                            alt="Default Female Image" 
+                            class="bg-gray-300 border-4 border-white w-20 h-20 rounded-full object-cover"
+                        >
+                    {% else %}
+                        <img 
+                            src="{% static 'images/default_profile.png' %}" 
+                            alt="Default Profile Image" 
+                            class="bg-white border-4 border-white w-20 h-20 rounded-full object-cover"
+                        >
+                    {% endif %}
                     </div>
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <span class=" ">ชื่อ-สกุล:</span>
-                        <span>ชื่อนักเรียน 1</span>
-                    </div>
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <span class=" ">เขตการศึกษา:</span>
-                        <span>เขต 1</span>
-                    </div>
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <span class=" ">โรงเรียน:</span>
-                        <span>โรงเรียน A</span>
-                    </div>
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <span class=" ">สถานะ:</span>
-                        <span>กำลังศึกษา</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class=" ">จัดการ:</span>
-                        <div class="flex gap-2">
-                            <!-- Profile Button -->
-                            <div class="tooltip-container relative">
-                                <a href="" class="p-2 text-blue-600  rounded-full transition-colors duration-200">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="10"/>
-                                        <circle cx="12" cy="10" r="3"/>
-                                        <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/>
-                                    </svg>
-                                </a>
-                                <div class="tooltip absolute -top-1 left-1/2 -translate-x-1/2 px-2 py-1  text-white text-base rounded whitespace-nowrap">
-                                    โปรไฟล์
-                                </div>
-                            </div>
 
-                            <!-- Edit Button -->
-                            <div class="tooltip-container relative">
-                                <a href="" class="p-2 text-green-600  rounded-full transition-colors duration-200">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                                        <path d="m15 5 4 4"/>
-                                    </svg>
-                                </a>
-                                <div class="tooltip absolute -top-1 left-1/2 -translate-x-1/2 px-2 py-1  text-white text-base rounded whitespace-nowrap">
-                                    แก้ไข
+                    <!-- Card Content -->
+                    <div class="pt-14"> <!-- เพิ่ม Padding ด้านบนเพื่อรองรับโปรไฟล์ -->
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <span class="">ลำดับ:</span>
+                            <span>{{ forloop.counter }}</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <span class="">ชื่อ-สกุล:</span>
+                            <span>{{ student.first_name }} {{ student.last_name }}</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <span class="">เขตการศึกษา:</span>
+                            <span>{{ student.current_study.school.education_district.name }}</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <span class="">โรงเรียน:</span>
+                            <span>{{ student.current_study.school.name }}</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b pb-2">
+                            <span class="">สถานะ:</span>
+                            <span>{{ student.status }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="">จัดการ:</span>
+                            <div class="flex gap-2">
+                                <!-- Profile Button -->
+                                <div class="tooltip-container relative">
+                                    <a href="" class="p-2 text-blue-600 rounded-full transition-colors duration-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <circle cx="12" cy="10" r="3"/>
+                                            <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/>
+                                        </svg>
+                                    </a>
+                                    <div class="tooltip absolute -top-1 left-1/2 -translate-x-1/2 px-2 py-1 text-white text-base rounded whitespace-nowrap">
+                                        โปรไฟล์
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Delete Button -->
-                            <div class="tooltip-container relative">
-                                <a href="" class="p-2 text-red-600  rounded-full transition-colors duration-200">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M3 6h18"/>
-                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                                        <line x1="10" y1="11" x2="10" y2="17"/>
-                                        <line x1="14" y1="11" x2="14" y2="17"/>
-                                    </svg>
-                                </a>
-                                <div class="tooltip absolute -top-1 left-1/2 -translate-x-1/2 px-2 py-1  text-white text-base rounded whitespace-nowrap">
-                                    ลบ
+                                <!-- Edit Button -->
+                                <div class="tooltip-container relative">
+                                    <a href="" class="p-2 text-green-600 rounded-full transition-colors duration-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                                            <path d="m15 5 4 4"/>
+                                        </svg>
+                                    </a>
+                                    <div class="tooltip absolute -top-1 left-1/2 -translate-x-1/2 px-2 py-1 text-white text-base rounded whitespace-nowrap">
+                                        แก้ไข
+                                    </div>
+                                </div>
+
+                                <!-- Delete Button -->
+                                <div class="tooltip-container relative">
+                                    <a href="" class="p-2 text-red-600 rounded-full transition-colors duration-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M3 6h18"/>
+                                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                            <line x1="10" y1="11" x2="10" y2="17"/>
+                                            <line x1="14" y1="11" x2="14" y2="17"/>
+                                        </svg>
+                                    </a>
+                                    <div class="tooltip absolute -top-1 left-1/2 -translate-x-1/2 px-2 py-1 text-white text-base rounded whitespace-nowrap">
+                                        ลบ
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                {% endfor %}
 
             </div>
 
@@ -228,7 +313,8 @@
                                 <thead class="bg-gray-50 sticky top-0 z-10 text-lg">
                                     <tr>
                                         <th class="px-2 py-3 text-center text-gray-600 border-b w-16">ลำดับ</th>
-                                        <th class="px-2 py-3 text-center text-gray-600 border-b w-48">ชื่อ-สกุล</th>
+                                        <th class="px-2 py-3 text-center text-gray-600 border-b w-10"></th>
+                                        <th class="px-2 py-3 text-left pl-8 text-gray-600 border-b w-48">ชื่อ-สกุล</th>
                                         <th class="px-2 py-3 text-center text-gray-600 border-b w-32">เขตการศึกษา</th>
                                         <th class="px-2 py-3 text-center text-gray-600 border-b w-48">โรงเรียน</th>
                                         <th class="px-2 py-3 text-center text-gray-600 border-b w-32">สถานะ</th>
@@ -240,7 +326,24 @@
                                     {% for student in students %}
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-2 py-2 text-center">{{ forloop.counter }}</td>
-                                        <td class="px-2 py-2 text-center">{{ student.first_name }} {{ student.last_name }}</td>
+                                        <td class="">
+                                            <img 
+                                            src="{% if student.profile_picture %}
+                                                    {{ student.profile_picture.url }}
+                                                {% elif student.gender == 'ชาย' %}
+                                                    {% static 'images/male.png' %}
+                                                {% elif student.gender == 'หญิง' %}
+                                                    {% static 'images/female.png' %}
+                                                {% else %}
+                                                    {% static 'images/default_profile.png' %}
+                                                {% endif %}" 
+                                            alt="Profile Image" 
+                                            class="w-12 h-12 rounded-full object-cover  shadow-md"
+                                        >
+                                        </td>
+                                        <td class="px-2 py-2 text-left">
+                                           {{ student.first_name }} {{ student.last_name }}
+                                        </td>
                                         <td class="px-2 py-2 text-center">{{ student.current_study.school.education_district.name }}</td>
                                         <td class="px-2 py-2 text-center">{{ student.current_study.school.name }}</td>
                                         <td class="px-2 py-2 text-center">{{ student.status }}</td>

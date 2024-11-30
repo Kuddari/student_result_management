@@ -5,7 +5,18 @@ from django.db.models import Q
 from django.contrib import messages
 from decimal import Decimal
 from django.core.files.storage import FileSystemStorage
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Paragraph, Spacer
+from datetime import datetime  # Import the datetime module
+pdfmetrics.registerFont(TTFont('THSarabunNew', 'static/fonts/THSarabunNew.ttf'))
+
 
 
 
@@ -77,6 +88,101 @@ def Student_Rp(request):
         'academic_years': academic_years,
     }
     return render(request, 'student/sp_student.html', context)
+
+def download_students_pdf(request):
+    # รับค่าฟิลเตอร์จากคำร้องขอ (GET parameters)
+    search = request.GET.get('search', '').strip()
+    school = request.GET.get('school')
+    level = request.GET.get('level')
+    academic_year = request.GET.get('academic_year')
+
+    # สร้าง Query นักเรียนตามฟิลเตอร์
+    students_queryset = Student.objects.all()
+
+    if search:
+        students_queryset = students_queryset.filter(
+            Q(first_name__icontains=search) | Q(last_name__icontains=search)
+        )
+    if school:
+        students_queryset = students_queryset.filter(current_study__school__id=school)
+    if level:
+        students_queryset = students_queryset.filter(current_study__level__id=level)
+    if academic_year:
+        students_queryset = students_queryset.filter(current_study__current_semester__year=academic_year)
+
+    # เตรียมข้อมูลสำหรับ PDF
+    students = [
+        ['ลำดับ', 'ชื่อ', 'นามสกุล', 'เพศ', 'โรงเรียน', 'สถานะ'],  # หัวตาราง
+    ]
+    for i, student in enumerate(students_queryset, start=1):
+        students.append([
+            i,
+            student.first_name,
+            student.last_name,
+            student.gender,
+            student.current_study.school.name if student.current_study else 'ไม่มีข้อมูล',
+            student.status,
+        ])
+
+    school_name = School.objects.get(id=school).name if school else "ทั้งหมด"
+    level_name = Level.objects.get(id=level).name if level else "ทุกชั้น"
+    academic_year_text = academic_year if academic_year else "ทุกปี"
+    topic = f"<b>รายงานจำนวนนักเรียน</b>{school_name}  ชั้น: {level_name}  ปีการศึกษา: {academic_year_text}"
+
+    # สร้าง Response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="students_report_{academic_year or "all"}.pdf"'
+    doc = SimpleDocTemplate(
+        response,
+        pagesize=landscape(letter),
+        topMargin=0.5 * inch,       # ระยะขอบบน 1 นิ้ว
+        bottomMargin=0.5 * inch,    # ระยะขอบล่าง 1 นิ้ว
+        leftMargin=0.5 * inch,    # ระยะขอบซ้าย 0.5 นิ้ว
+        rightMargin=0.5 * inch    # ระยะขอบขวา 0.5 นิ้ว
+    )
+
+    # สร้างหัวข้อด้วย Paragraph
+    styles = getSampleStyleSheet()
+    styles['Normal'].fontName = 'THSarabunNew'
+    styles['Normal'].fontSize = 24
+    styles['Normal'].alignment = 1  # 0=ซ้าย, 1=กลาง, 2=ขวา
+    topic_paragraph = Paragraph(topic, styles['Normal'])
+
+    # เพิ่มระยะห่างระหว่างหัวข้อกับตาราง
+    spacer = Spacer(1, 0.5 * inch)
+    # สร้าง PDF
+    doc = SimpleDocTemplate(response, pagesize=landscape(letter))
+    # สร้างตาราง
+    table = Table(students, colWidths=[50, 150, 150, 100, 200, 100])
+
+    # ปรับแต่งตาราง
+    style = TableStyle([
+        ('FONTNAME', (0, 0), (-1, 0), 'THSarabunNew'),
+        ('FONTSIZE', (0, 0), (-1, 0), 16),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 15),
+
+        ('FONTNAME', (0, 1), (-1, -1), 'THSarabunNew'),
+        ('FONTSIZE', (0, 1), (-1, -1), 14),
+        ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 1), (-1, -1), 'MIDDLE'),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+        ('TOPPADDING', (0, 1), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 12),
+
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+    ])
+    table.setStyle(style)
+
+    # เพิ่มหัวข้อและตารางลงใน PDF
+    elements = [topic_paragraph, spacer, table]
+    doc.build(elements)
+
+    return response
 
 
 def GR_Student (request):
