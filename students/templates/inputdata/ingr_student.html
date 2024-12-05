@@ -1,0 +1,144 @@
+{% include 'navbar.html' %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js" defer></script>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'css/font.css' %}">
+        <title>กรอกคะแนนนักเรียน</title>
+        <style>
+            /* Custom Scrollbar Styles */
+            .custom-scrollbar {
+                scrollbar-width: thin;  /* Firefox */
+                scrollbar-color: #16a34a #e5e7eb;  /* Firefox */
+            }
+    
+            .custom-scrollbar::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+    
+            .custom-scrollbar::-webkit-scrollbar-track {
+                background: #e5e7eb;
+                border-radius: 4px;
+            }
+    
+            .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: #16a34a;
+                border-radius: 4px;
+            }
+    
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: #15803d;
+            }
+    
+            /* เพิ่ม transition เมื่อ hover */
+            .custom-scrollbar::-webkit-scrollbar-thumb:active {
+                background: #166534;
+            }
+    
+            /* ปรับแต่ง corner ของ scrollbar */
+            .custom-scrollbar::-webkit-scrollbar-corner {
+                background: #e5e7eb;
+            }
+        </style>
+    </head>
+<body>
+    <div class="min-h-screen bg-gradient-to-b from-green-100 to-green-900 font-prompt">
+        <!-- Header -->
+        <div class="bg-green-800">
+            <h1 class="text-4xl md:text-7xl text-white font-bold py-4 md:py-8 text-center drop-shadow-md shadow-md shadow-green-900">
+                กรอกผลการเรียน
+            </h1>
+        </div>
+
+        <div class="max-w-7xl mx-auto p-4 my-2 md:my-12">
+            <!-- Filters -->
+            <form method="get" action="">
+                <div class="grid grid-cols-1 sm:grid-cols-3  lg:grid-cols-12 gap-4 mb-6">
+                    <!-- School Filter -->
+                    <div class="lg:col-span-5">
+                        <select name="school" class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md">
+                            <option value="" disabled {% if not request.GET.school %}selected{% endif %}>โรงเรียน</option>
+                            {% for school in schools %}
+                            <option value="{{ school.name }}" {% if school.name == request.GET.school %}selected{% endif %}>
+                                {{ school.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Level Filter -->
+                    <div class="lg:col-span-5">
+                        <select name="level" class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md">
+                            <option value="" disabled {% if not request.GET.level %}selected{% endif %}>ชั้นเรียน</option>
+                            {% for level in levels %}
+                            <option value="{{ level.name }}" {% if level.name == request.GET.level %}selected{% endif %}>
+                                {{ level.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="lg:col-span-2 w-full bg-green-800 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300 text-xl">
+                        ยืนยัน
+                    </button>
+                </div>
+               
+            </form>
+
+            <!-- Table -->
+            {% if students and subjects %}
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="level" value="{{ request.GET.level }}">
+                <input type="hidden" name="school" value="{{ request.GET.school }}">
+
+                <div class="overflow-x-auto bg-white rounded-lg shadow custom-scrollbar mt-4">
+                    <div class="min-w-max">
+                        <table class="w-full text-sm text-left text-gray-800">
+                            <thead class="bg-gray-50 text-base whitespace-nowrap">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3 border-b w-16">ลำดับ</th>
+                                    <th scope="col" class="px-4 py-3 border-b w-72 text-center">ชื่อ-สกุล</th>
+                                    {% for subject in subjects %}
+                                    <th scope="col" class="px-4 py-3 border-b text-center">{{ subject.subject.name }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody class="whitespace-nowrap">
+                                {% for student in students %}
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-4 py-3 border-b">{{ forloop.counter }}</td>
+                                    <td class="px-4 py-3 border-b truncate">{{ student.student.first_name }} {{ student.student.last_name }}</td>
+                                    {% for subject in subjects %}
+                                    <td class="px-4 py-3 border-b text-center">
+                                        <input type="number" name="marks_{{ student.student.id }}_{{ subject.subject.id }}" 
+                                               class="w-full border border-gray-300 rounded-lg text-center"
+                                               placeholder="0"
+                                               min="0" max="{{ subject.subject.total_marks }}">
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="mt-4 bg-green-800 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300">
+                        บันทึกคะแนน
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <div class="text-center text-gray-700 mt-4">
+                <p> กรุณาเลือกโรงเรียนและชั้นเรียน</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

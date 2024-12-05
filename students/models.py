@@ -220,7 +220,7 @@ class Address(models.Model):
 
 class Subject(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("ชื่อวิชา"))
-    total_marks = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_("คะแนนรวม"))
+    total_marks = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_("คะแนนเต็ม"))
 
     def __str__(self):
         return self.name
