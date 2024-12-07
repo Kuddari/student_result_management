@@ -17,12 +17,6 @@ class AddressAdmin(admin.ModelAdmin):
     list_filter = ['province', 'district']
 
 
-@admin.register(CurrentYear)
-class CurrentYearAdmin(admin.ModelAdmin):
-    list_display = ('id', 'year')
-    ordering = ['year']
-
-
 @admin.register(EducationDistrict)
 class EducationDistrictAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'description')
@@ -34,19 +28,6 @@ class EducationDistrictAdmin(admin.ModelAdmin):
 class LevelAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     search_fields = ['name']
-
-
-@admin.register(Occupation)
-class OccupationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
-    search_fields = ['name']
-
-
-@admin.register(Semester)
-class SemesterAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
-    search_fields = ['name']
-
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
@@ -112,25 +93,10 @@ class SubjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'total_marks')
     search_fields = ['name']
 
-
-@admin.register(Workplace)
-class WorkplaceAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
-    search_fields = ['name']
-
-
 @admin.register(SubjectToStudy)
 class SubjectToStudyAdmin(admin.ModelAdmin):
     list_display = ('subject', 'level', 'semester')
     list_filter = ('semester', 'level')
-
-
-@admin.register(StudentMarkForSubject)
-class StudentMarkForSubjectAdmin(admin.ModelAdmin):
-    list_display = ('student', 'subject_to_study', 'marks_obtained')
-    search_fields = ['student__first_name', 'student__last_name']
-    list_filter = ['subject_to_study__semester', 'subject_to_study__level']
-
 
 @admin.register(StudentHistory)
 class StudentHistoryAdmin(admin.ModelAdmin):
@@ -165,17 +131,52 @@ class GuardianAdmin(admin.ModelAdmin):
     list_filter = ['relationship_with_student']
 
 
-
-
 @admin.register(CurrentStudy)
 class CurrentStudyAdmin(admin.ModelAdmin):
+    # Fields to display in the list view
     list_display = ('student', 'level', 'current_semester', 'school')
+    
+    # Fields to search by
     search_fields = ['student__first_name', 'student__last_name']
+    
+    # Filters for the sidebar
     list_filter = ['level', 'current_semester', 'school']
+    
+    # Exclude 'current_semester' from the form
+    exclude = ('current_semester',)
+
+    def get_readonly_fields(self, request, obj=None):
+        # Optionally make 'current_semester' readonly instead of excluding it
+        return ('current_semester',) if obj else ()
+    
 
 
 @admin.register(CurrentSemester)
 class CurrentSemesterAdmin(admin.ModelAdmin):
+    # Exclude the 'year' field from the form
+    exclude = ('year',)
+
+    # Display fields in the admin list view
     list_display = ('semester', 'year')
-    list_filter = ['semester']
+    
+    # Ordering of records in the list view
     ordering = ['year']
+
+    def save_model(self, request, obj, form, change):
+        # Automatically set the year to the current year before saving
+        if not obj.year:
+            obj.year = timezone.now().year
+        super().save_model(request, obj, form, change)
+
+    # Make the model read-only by removing all action buttons
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        return True  # Allow viewing the model

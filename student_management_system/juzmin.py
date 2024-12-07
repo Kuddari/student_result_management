@@ -149,6 +149,7 @@ JAZZMIN_SETTINGS = {
     },
     # การตั้งค่า Sidebar
     "order_with_respect_to": [
+        "students.CurrentSemester",
         "students.Student",
         "students.Father",
         "students.Mother",
@@ -157,14 +158,7 @@ JAZZMIN_SETTINGS = {
         "students.Subject",
         "students.School",
         "students.Level",
-        "students.EducationDistrict",
-        "students.CurrentSemester",
-        "students.AcademicYear",
-        "students.Address",
-        "students.Occupation",
-        "students.Workplace",
         "students.SubjectToStudy",
-        "students.StudentMarkForSubject",
         "students.StudentHistory",
     ],
     "hide_models": [

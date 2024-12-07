@@ -1,13 +1,12 @@
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _  # ใช้สำหรับการแปลภาษา
+import logging
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
-class CurrentYear(models.Model):
-    year = models.IntegerField(unique=True, verbose_name=_("ปีปัจจุบัน"))
 
-    class Meta:
-        verbose_name = _("ปีปัจจุบัน")
-        verbose_name_plural = _("ปีปัจจุบัน")
+logger = logging.getLogger(__name__)
 
 class Occupation(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("อาชีพ"))
@@ -82,18 +81,33 @@ class CurrentSemester(models.Model):
         verbose_name=_("ภาคการศึกษา")
     )
     year = models.PositiveIntegerField(default=timezone.now().year, verbose_name=_("ปีการศึกษา"))
-
+    
     def save(self, *args, **kwargs):
+        from .models import StudentMarkForSubject  # Import inside the method to avoid circular imports
+
+        # Enforce singleton constraint
         if not self.pk and CurrentSemester.objects.exists():
             raise ValueError("มีข้อมูลภาคการศึกษาได้เพียงหนึ่งรายการ")
+
+        # Check for updates on existing instance
+        if self.pk:
+            old_instance = CurrentSemester.objects.get(pk=self.pk)
+            logger.info(f"Old Semester: {old_instance.semester}, New Semester: {self.semester}")
+            logger.info(f"Old Year: {old_instance.year}, New Year: {self.year}")
+
+            if old_instance.semester != self.semester or old_instance.year != self.year:
+                logger.info("Semester or Year has changed. Deleting all StudentMarkForSubject records.")
+                StudentMarkForSubject.objects.all().delete()
+
+        # Call the original save method
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.get_semester_display()} - {self.year}"
 
     class Meta:
-        verbose_name = _("ชื่อภาคการศึกษา")
-        verbose_name_plural = _("ชื่อภาคการศึกษา")
+        verbose_name = _("ภาคการศึกษา")
+        verbose_name_plural = _("ภาคการศึกษา")
 
 
 class CurrentStudy(models.Model):
@@ -102,6 +116,12 @@ class CurrentStudy(models.Model):
     current_semester = models.ForeignKey(CurrentSemester, on_delete=models.SET_NULL, null=True, verbose_name=_("ภาคการศึกษา"))
     school = models.ForeignKey('School', on_delete=models.SET_NULL, null=True, verbose_name=_("โรงเรียน"))
 
+    def save(self, *args, **kwargs):
+        # Automatically assign the latest CurrentSemester if not already set
+        if not self.current_semester_id:
+            self.current_semester = CurrentSemester.objects.first()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.student.first_name} {self.student.last_name} - {self.level.name}, Semester {self.current_semester.semester}, Year {self.current_semester.year}"
 
@@ -109,6 +129,10 @@ class CurrentStudy(models.Model):
         verbose_name = _("การศึกษาในปัจจุบัน")
         verbose_name_plural = _("การศึกษาในปัจจุบัน")
 
+# Signal to update CurrentStudy when CurrentSemester changes
+@receiver(post_save, sender=CurrentSemester)
+def update_current_study(sender, instance, **kwargs):
+    CurrentStudy.objects.update(current_semester=instance)
 
 class Level(models.Model):
     name = models.CharField(max_length=50, verbose_name=_("ชื่อระดับชั้น"))
@@ -119,18 +143,6 @@ class Level(models.Model):
     class Meta:
         verbose_name = _("ระดับชั้น")
         verbose_name_plural = _("ระดับชั้น")
-
-
-class Semester(models.Model):
-    name = models.CharField(max_length=50, verbose_name=_("ชื่อภาคการศึกษา"))
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = _("ภาคการศึกษา")
-        verbose_name_plural = _("ภาคการศึกษา")
-
 
 class School(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("ชื่อโรงเรียน"))
@@ -290,111 +302,4 @@ class StudentHistory(models.Model):
         verbose_name = _("ประวัติการศึกษา")
         verbose_name_plural = _("ประวัติการศึกษา")
 
-   
-class StudentHistorys(models.Model):
-    student = models.ForeignKey(
-        Student,
-        on_delete=models.SET_NULL,  # Keep the reference if possible
-        null=True,
-        blank=True,
-        verbose_name=_("นักเรียน")
-    )
-    student_name = models.CharField(blank=True, null=True,max_length=200, verbose_name=_("ชื่อนักเรียน"))
-    level = models.ForeignKey(
-        'Level',
-        on_delete=models.SET_NULL,  # Keep the reference if possible
-        null=True,
-        blank=True,
-        verbose_name=_("ระดับชั้น")
-    )
-    level_name = models.CharField(blank=True, null=True,max_length=50, verbose_name=_("ชื่อระดับชั้น"))
-    semester = models.ForeignKey(
-        CurrentSemester,
-        on_delete=models.SET_NULL,  # Keep the reference if possible
-        null=True,
-        blank=True,
-        verbose_name=_("ภาคการศึกษา")
-    )
-    semester_name = models.CharField(blank=True, null=True,max_length=50, verbose_name=_("ชื่อภาคการศึกษา"))
-    academic_year = models.PositiveIntegerField(blank=True, null=True,verbose_name=_("ปีการศึกษา"))
-    total_marks = models.DecimalField(blank=True, null=True,max_digits=6, decimal_places=2, default=0, verbose_name=_("คะแนนเต็ม"))
-    obtained_marks = models.DecimalField(blank=True, null=True,max_digits=6, decimal_places=2, default=0, verbose_name=_("คะแนนที่ได้"))
-    grade_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name=_("เปอร์เซ็นต์คะแนน"))
-    pass_or_fail = models.CharField(max_length=4, blank=True, null=True, verbose_name=_("ผ่าน/ไม่ผ่าน"))
-    subject_marks = models.JSONField(blank=True, null=True, verbose_name=_("คะแนนตามวิชา"))
-
-    def save(self, *args, **kwargs):
-        """Ensure the student, level, and semester details are saved as strings."""
-        if self.student and not self.student_name:
-            self.student_name = f"{self.student.first_name} {self.student.last_name}"
-        if self.level and not self.level_name:
-            self.level_name = self.level.name
-        if self.semester and not self.semester_name:
-            self.semester_name = f"{self.semester.get_semester_display()} - {self.semester.year}"
-        if not self.academic_year and self.semester:
-            self.academic_year = self.semester.year
-        super().save(*args, **kwargs)
-
-    def calculate_history(self):
-        """Calculate the student's history based on their marks."""
-        if not self.student or not self.student.current_study:
-            return  # Exit if there is no associated student or current study information
-
-        current_study = self.student.current_study
-        subject_marks = StudentMarkForSubject.objects.filter(
-            student=self.student,
-            subject_to_study__level=current_study.level,
-            subject_to_study__semester=current_study.current_semester.semester
-        )
-        self.total_marks = sum(subject.subject_to_study.subject.total_marks for subject in subject_marks)
-        self.obtained_marks = sum(subject.marks_obtained for subject in subject_marks)
-        self.subject_marks = {
-            subject.subject_to_study.subject.name: subject.marks_obtained for subject in subject_marks
-        }
-        if self.total_marks > 0:
-            self.grade_percentage = (self.obtained_marks / self.total_marks) * 100
-        self.pass_or_fail = "ผ่าน" if self.grade_percentage and self.grade_percentage >= 50 else "ไม่ผ่าน"
-        self.save()
-
-    def __str__(self):
-        return f"{self.student_name} - {self.level_name} - {self.semester_name}"
-
-    class Meta:
-        verbose_name = _("ประวัตินักเรียน")
-        verbose_name_plural = _("ประวัตินักเรียน")
-
-
-
-## Student History Model
-class StudentHistorys(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name=_("นักเรียน"))
-    level = models.ForeignKey('Level', on_delete=models.CASCADE, verbose_name=_("ระดับชั้น"))
-    semester = models.ForeignKey(Semester, on_delete=models.CASCADE, verbose_name=_("ภาคการศึกษา"))
-    academic_year = models.CharField(max_length=4, blank=True, null=True, verbose_name=_("ปีการศึกษา"))
-    total_marks = models.DecimalField(max_digits=6, decimal_places=2, default=0, verbose_name=_("คะแนนรวม"))
-    obtained_marks = models.DecimalField(max_digits=6, decimal_places=2, default=0, verbose_name=_("คะแนนที่ได้"))
-    grade_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name=_("เปอร์เซ็นต์คะแนน"))
-    pass_or_fail = models.CharField(max_length=4, blank=True, null=True, verbose_name=_("ผ่าน/ไม่ผ่าน"))
-    subject_marks = models.JSONField(blank=True, null=True, verbose_name=_("คะแนนตามวิชา"))
-
-    def calculate_history(self):
-        subject_marks = StudentMarkForSubject.objects.filter(
-            student=self.student,
-            subject_to_study__level=self.level,
-            subject_to_study__semester=self.semester
-        )
-        self.total_marks = sum([subject.subject_to_study.subject.total_marks for subject in subject_marks])
-        self.obtained_marks = sum([subject.marks_obtained for subject in subject_marks])
-        self.subject_marks = {
-            subject.subject_to_study.subject.name: subject.marks_obtained for subject in subject_marks
-        }
-        if self.total_marks > 0:
-            self.grade_percentage = (self.obtained_marks / self.total_marks) * 100
-        self.pass_or_fail = "ผ่าน" if self.grade_percentage >= 50 else "ไม่ผ่าน"
-        self.save()
-
-    class Meta:
-        verbose_name = _("ประวัติการศึกษา")
-        verbose_name_plural = _("ประวัติการศึกษา")
-
-
+ 
