@@ -1,8 +1,9 @@
 # students/views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import *
-from django.db.models import Q
+from django.db.models import Q, F, FloatField, ExpressionWrapper
 from django.contrib import messages
+from django.urls import reverse
 from decimal import Decimal
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
@@ -43,6 +44,54 @@ def Home(request):
     return render(request, 'home.html', context)
 
 
+def GR_Student(request):
+    # Fetch filter options
+    schools = School.objects.all()
+    levels = Level.objects.all()
+    current_semester = CurrentSemester.objects.first()
+
+    # Get filters from the GET request
+    school_name = request.GET.get('school')
+    level_name = request.GET.get('level')
+    academic_year = request.GET.get('academic_year', current_semester.year if current_semester else None)
+
+    # Filtered query
+    histories = StudentHistory.objects.all()
+
+    if school_name:
+        histories = histories.filter(school_name=school_name)
+
+    if level_name:
+        histories = histories.filter(level_name=level_name)
+
+    if academic_year:
+        histories = histories.filter(academic_year=academic_year)
+
+    # Extract subjects dynamically (assuming subject marks are stored in JSON format)
+    subjects = []
+    if histories.exists():
+        first_entry = histories.first()
+        subjects = first_entry.subject_marks.keys() if first_entry.subject_marks else []
+    
+    # Fetch total marks for each subject (assuming SubjectToStudy holds subject and total marks)
+    subject_totals = {}
+    if level_name and current_semester:
+        subject_to_studies = SubjectToStudy.objects.filter(
+            level__name__iexact=level_name,
+            semester=current_semester.semester
+        ).select_related('subject')
+
+        subject_totals = {subject.subject.name: subject.subject.total_marks for subject in subject_to_studies}
+    context = {
+        'schools': schools,
+        'levels': levels,
+        'students': histories,
+        'subjects': subjects,
+        'subject_totals': subject_totals,
+        'academic_year': academic_year,
+    }
+
+    return render(request, 'student/gr_student.html', context)
 
 def Student_Rp(request):
     # รับค่าฟิลเตอร์
@@ -253,22 +302,13 @@ def download_students_pdf(request):
 
     return response
 
-
-
-def GR_Student (request):
-    return render(request, 'inputdata/ingr_student.html')
-
 def student_marks_view(request):
-    """
-    Handle rendering and submission of the student marks form.
-    """
-    # Get current semester
     current_semester = CurrentSemester.objects.first()
 
     if not current_semester:
         return render(request, 'inputdata/ingr_student.html', {'error': 'Current semester not set.'})
 
-    # Filters from the GET request
+    # Filters from GET request
     school_name = request.GET.get('school')
     level_name = request.GET.get('level')
 
@@ -278,38 +318,64 @@ def student_marks_view(request):
 
     students = []
     subjects = []
+    student_marks_data = []  # Holds marks for rendering in the template
+
+    if school_name and level_name:
+        # Query students and subjects based on filters
+        students_query = CurrentStudy.objects.filter(
+            current_semester=current_semester,
+            school__name__iexact=school_name,
+            level__name__iexact=level_name,
+        ).select_related('student', 'level', 'school')
+
+        students = list(students_query)
+
+        subjects = SubjectToStudy.objects.filter(
+            level__name__iexact=level_name,
+            semester=current_semester.semester,
+        ).select_related('subject')
+
+        # Fetch marks for students and prepare data structure
+        for student in students:
+            marks_row = {'student': student.student}
+            for subject in subjects:
+                mark_obj = StudentMarkForSubject.objects.filter(
+                    student=student.student,
+                    subject_to_study=subject
+                ).first()
+                marks_row[subject.subject.id] = mark_obj.marks_obtained if mark_obj else ''
+            student_marks_data.append(marks_row)
 
     if request.method == 'POST':
         # Handle form submission
-        level_name = request.POST.get('level')
+        students_query = CurrentStudy.objects.filter(
+            current_semester=current_semester,
+            school__name__iexact=school_name,
+            level__name__iexact=level_name,
+        ).select_related('student', 'level', 'school')
 
-        # Query for the relevant students and subjects
-        students = CurrentStudy.objects.filter(level__name=level_name, current_semester=current_semester)
-        subjects = SubjectToStudy.objects.filter(level__name=level_name, semester=current_semester.semester)
+        subjects = SubjectToStudy.objects.filter(
+            level__name__iexact=level_name,
+            semester=current_semester.semester,
+        ).select_related('subject')
 
-        if not students.exists():
-            return render(request, 'inputdata/ingr_student.html', {
-                'error': 'No students found.',
-                'schools': schools,
-                'levels': levels,
-            })
+        for student in students_query:
+            student_subject_marks = {}
+            total_marks = 0
+            obtained_marks = 0
 
-        if not subjects.exists():
-            return render(request, 'inputdata/ingr_student.html', {
-                'error': 'No subjects found.',
-                'schools': schools,
-                'levels': levels,
-            })
-
-        # Process and save marks
-        for student in students:
             for subject in subjects:
                 field_name = f"marks_{student.student.id}_{subject.subject.id}"
                 marks = request.POST.get(field_name)
 
-                if marks and marks.strip():
+                if marks:
                     try:
                         marks = int(marks)
+                        student_subject_marks[subject.subject.name] = marks
+                        total_marks += subject.subject.total_marks
+                        obtained_marks += marks
+
+                        # Save to StudentMarkForSubject
                         StudentMarkForSubject.objects.update_or_create(
                             student=student.student,
                             subject_to_study=subject,
@@ -324,27 +390,28 @@ def student_marks_view(request):
                             'subjects': subjects,
                         })
 
+            # Save to StudentHistory
+            if total_marks > 0:
+                grade_percentage = (obtained_marks / total_marks) * 100
+            else:
+                grade_percentage = 0
+
+            StudentHistory.objects.update_or_create(
+                student_name=f"{student.student.first_name} {student.student.last_name}",
+                school_name=student.school.name,
+                level_name=student.level.name,
+                semester=f"{current_semester.semester} - {current_semester.year}",
+                academic_year=current_semester.year,
+                defaults={
+                    'total_marks': total_marks,
+                    'obtained_marks': obtained_marks,
+                    'grade_percentage': grade_percentage,
+                    'subject_marks': student_subject_marks,
+                    'pass_or_fail': "ผ่าน" if grade_percentage >= 50 else "ไม่ผ่าน"
+                }
+            )
+
         return HttpResponseRedirect(reverse('gr_student'))
-
-    # Handle GET request - render the form
-    if school_name or level_name:
-        students_query = CurrentStudy.objects.filter(current_semester=current_semester)
-
-        if school_name:
-            school_name = school_name.strip()
-            students_query = students_query.filter(school__name__iexact=school_name)
-
-        if level_name:
-            level_name = level_name.strip()
-            students_query = students_query.filter(level__name__iexact=level_name)
-
-        students = students_query.select_related('student', 'level')
-
-        if level_name:
-            subjects = SubjectToStudy.objects.filter(
-                level__name__iexact=level_name,
-                semester=current_semester.semester,
-            ).select_related('subject')
 
     context = {
         'schools': schools,
@@ -352,6 +419,7 @@ def student_marks_view(request):
         'students': students,
         'subjects': subjects,
         'current_semester': current_semester,
+        'student_marks_data': student_marks_data,
     }
 
     return render(request, 'inputdata/ingr_student.html', context)

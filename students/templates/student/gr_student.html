@@ -1,4 +1,5 @@
 {% include 'navbar.html' %}
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,12 +35,7 @@
             background: #15803d;
         }
 
-        /* เพิ่ม transition เมื่อ hover */
-        .custom-scrollbar::-webkit-scrollbar-thumb:active {
-            background: #166534;
-        }
-
-        /* ปรับแต่ง corner ของ scrollbar */
+        /* Adjust corner of the scrollbar */
         .custom-scrollbar::-webkit-scrollbar-corner {
             background: #e5e7eb;
         }
@@ -56,96 +52,116 @@
 
         <div class="max-w-7xl mx-auto p-4 my-2 md:my-12">
             <!-- Filters -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 mb-6">
-                <!-- เขตการศึกษา (ขนาดใหญ่กว่า) -->
-                <div class="lg:col-span-3">
-                    <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md hover:shadow-green-700">
-                        <option value="" disabled selected>เลือกเขตการศึกษา/หน่วยสอบ</option>
-                        <option value="1">หน่วยสอบ 1</option>
-                        <option value="2">หน่วยสอบ 2</option>
-                    </select>
-                </div>
-        
-                <!-- โรงเรียน -->
-                <div class="lg:col-span-3">
-                    <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md hover:shadow-green-700">
-                        <option value="" disabled selected>โรงเรียน</option>
-                        <option value="school1">โรงเรียน A</option>
-                        <option value="school2">โรงเรียน B</option>
-                    </select>
-                </div>
-        
-                <!-- ชั้นเรียน -->
-                <div class="lg:col-span-2">
-                    <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md hover:shadow-green-700">
-                        <option value="" disabled selected>ชั้นเรียน</option>
-                        <option value="grade1">ชั้นปีที่ 1</option>
-                        <option value="grade2">ชั้นปีที่ 2</option>
-                    </select>
-                </div>
-        
-                <!-- ปีการศึกษา -->
-                <div class="lg:col-span-2">
-                    <select class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md hover:shadow-green-700">
-                        <option value="" disabled selected>ปีการศึกษา</option>
-                        <option value="2567">2567</option>
-                        <option value="2566">2566</option>
-                    </select>
-                </div>
-        
-                <!-- ปุ่มยืนยัน -->
-                <div class="lg:col-span-2 col-span-2">
-                    <button class="w-full bg-green-800 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300 text-xl">
-                        ยืนยัน
-                    </button>
-                </div>
-            </div>
+            <form method="get" action="">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 mb-6">
+                    <!-- School Filter -->
+                    <div class="lg:col-span-3">
+                        <select name="school" class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md">
+                            <option value="" disabled {% if not request.GET.school %}selected{% endif %}>โรงเรียน</option>
+                            {% for school in schools %}
+                            <option value="{{ school.name }}" {% if school.name == request.GET.school %}selected{% endif %}>
+                                {{ school.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
 
-            <!-- Table - Same design for both mobile and desktop -->
+                    <!-- Level Filter -->
+                    <div class="lg:col-span-3">
+                        <select name="level" class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md">
+                            <option value="" disabled {% if not request.GET.level %}selected{% endif %}>ชั้นเรียน</option>
+                            {% for level in levels %}
+                            <option value="{{ level.name }}" {% if level.name == request.GET.level %}selected{% endif %}>
+                                {{ level.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Academic Year Filter -->
+                    <div class="lg:col-span-3">
+                        <select name="academic_year" class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md">
+                            <option value="" disabled {% if not academic_year %}selected{% endif %}>ปีการศึกษา</option>
+                            {% if current_semester %}
+                            <option value="{{ current_semester.year }}" {% if academic_year == current_semester.year|stringformat:"s" %}selected{% endif %}>
+                                {{ current_semester.year }}
+                            </option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="lg:col-span-3">
+                        <button type="submit" class="w-full bg-green-800 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors duration-300 text-xl">
+                            ยืนยัน
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Error Message -->
+            {% if error %}
+            <div class="text-center text-red-700 font-bold mt-4">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <!-- Table -->
+            {% if students and subjects %}
             <div class="overflow-x-auto bg-white rounded-lg shadow custom-scrollbar">
                 <div class="min-w-max">
                     <table class="w-full text-sm text-left text-gray-800">
                         <thead class="bg-gray-50 text-base whitespace-nowrap">
                             <tr>
-                                <th scope="col" class="px-4 py-3 border-b   w-16">ลำดับ</th>
-                                <th scope="col" class="px-4 py-3 border-b   w-72 text-center">ชื่อ-สกุล</th>
-                                <th scope="col" class="px-4 py-3 border-b   text-center w-32">อ่านอัลกุรอาน</th>
-                                <th scope="col" class="px-4 py-3 border-b   text-center w-32">ท่องจำอัลกุรอาน</th>
-                                <th scope="col" class="px-4 py-3 border-b   text-center w-32">ท่องจำซูเราะห์</th>
-                                <th scope="col" class="px-4 py-3 border-b   text-center w-48">ภาษาไทย</th>\
-                                <th scope="col" class="px-4 py-3 border-b   text-center w-48">คณิตศาสตร์</th>
-                                <th scope="col" class="px-4 py-3 border-b   text-center w-48">อังกฤษ</th>
-                                <th scope="col" class="px-4 py-3 border-b   text-center w-48">ชีววิทยา</th>
-                                <th scope="col" class="px-4 py-3 border-b   text-center w-48">วิทยาศาสตร์</th>
-                                <th scope="col" class="px-4 py-3 border-b   text-center w-48">สังคมศาสตร์</th>
-                                <th scope="col" class="px-4 py-3 border-b   text-center w-48">เคมี</th>
-                                <th scope="col" class="px-4 py-3 border-b   text-center w-24">ฟิสิกส์</th>
+                                <th class="px-4 py-3 border-b w-16">ลำดับ</th>
+                                <th class="px-4 py-3 border-b w-72 text-center">ชื่อ-สกุล</th>
+                                {% for subject in subjects %}
+                                <th class="px-4 py-3 border-b">
+                                    {{ subject }} 
+                                    {% if subject_totals|get_item:subject %}
+                                        ({{ subject_totals|get_item:subject|floatformat:0 }})
+                                    {% endif %}
+                                </th>
+                                {% endfor %}
+                                <th class="px-4 py-3 border-b text-center w-48">คะแนนรวม</th>
+                                <th class="px-4 py-3 border-b text-center w-32">เปอร์เซ็นต์</th>
+                                <th class="px-4 py-3 border-b text-center w-32">ผ่าน/ไม่ผ่าน</th>
                             </tr>
                         </thead>
-                        <tbody class="whitespace-nowrap">
+                        <tbody>
+                            {% for student in students %}
                             <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3 border-b">1</td>
-                                <td class="px-4 py-3 border-b truncate">สูไลมาน จะระแอกเทส7-89</td>
-                                <td class="px-4 py-3 border-b text-center">20</td>
-                                <td class="px-4 py-3 border-b text-center">20</td>
-                                <td class="px-4 py-3 border-b text-center">20</td>
-                                <td class="px-4 py-3 border-b text-center">40</td>
-                                <td class="px-4 py-3 border-b text-center bg-green-400  ">100</td>
+                                <td class="px-4 py-3 border-b">{{ forloop.counter }}</td>
+                                <td class="px-4 py-3 border-b truncate">{{ student.student_name }}</td>
+                                {% for subject in subjects %}
+                                <td class="px-4 py-3 border-b text-center">
+                                    {{ student.subject_marks|get_item:subject|default:"-" }}
+                                </td>
+                                {% endfor %}
+                                <td class="px-4 py-3 border-b text-center">{{ student.obtained_marks }}</td>
+                                <td class="px-4 py-3 border-b text-center">{{ student.grade_percentage|floatformat:2 }}</td>
+                                <td class="px-4 py-3 border-b text-center">
+                                    <span class="{% if student.pass_or_fail == 'ผ่าน' %}text-green-700{% else %}text-red-700{% endif %}">
+                                        {{ student.pass_or_fail }}
+                                    </span>
+                                </td>
                             </tr>
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3 border-b">2</td>
-                                <td class="px-4 py-3 border-b truncate">มูฮัมหมัด อาลี บินอับดุลเลาะห์ อัล-ฟาตอนีย์</td>
-                                <td class="px-4 py-3 border-b text-center">20</td>
-                                <td class="px-4 py-3 border-b text-center">20</td>
-                                <td class="px-4 py-3 border-b text-center">20</td>
-                                <td class="px-4 py-3 border-b text-center">40</td>
-                                <td class="px-4 py-3 border-b text-center bg-green-400  ">100</td>
+                            {% empty %}
+                            <tr>
+                                <td colspan="{{ subjects|length|add:3 }}" class="text-center py-4 text-gray-500">
+                                    ไม่มีข้อมูล
+                                </td>
                             </tr>
-                            <!-- ... rows เพิ่มเติม ... -->
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
+            {% else %}
+            <div class="text-center text-gray-700 mt-4">
+                กรุณาเลือกตัวกรองเพื่อดูผลการเรียน
+            </div>
+            {% endif %}
         </div>
     </div>
 </body>

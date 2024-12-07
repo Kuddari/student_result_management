@@ -247,51 +247,122 @@ class SubjectToStudy(models.Model):
 class StudentMarkForSubject(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name=_("นักเรียน"))
     subject_to_study = models.ForeignKey(SubjectToStudy, on_delete=models.CASCADE, verbose_name=_("วิชาที่เรียน"))
-    marks_obtained = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_("คะแนนที่ได้"))
-
+    marks_obtained = models.IntegerField(blank=True, null=True, default=0, verbose_name=_("คะแนนที่ได้"))
     class Meta:
         verbose_name = _("คะแนนนักเรียนสำหรับวิชา")
         verbose_name_plural = _("คะแนนนักเรียนสำหรับวิชา")
 
-
 class StudentHistory(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, verbose_name=_("นักเรียน"))
-    level = models.ForeignKey('Level', on_delete=models.CASCADE, verbose_name=_("ระดับชั้น"))
-    semester = models.ForeignKey(CurrentSemester, on_delete=models.CASCADE, verbose_name=_("ภาคการศึกษา"))
-    total_marks = models.DecimalField(max_digits=6, decimal_places=2, default=0, verbose_name=_("คะแนนรวม"))
-    obtained_marks = models.DecimalField(max_digits=6, decimal_places=2, default=0, verbose_name=_("คะแนนที่ได้"))
+    student_name = models.CharField(blank=True, null=True,max_length=255, verbose_name=_("ชื่อนักเรียน"))
+    school_name = models.CharField(blank=True, null=True,max_length=255, verbose_name=_("ชื่อโรงเรียน"))
+    level_name = models.CharField(blank=True, null=True,max_length=50, verbose_name=_("ระดับชั้น"))
+    semester = models.CharField(blank=True, null=True,max_length=50, verbose_name=_("ภาคการศึกษา"))
+    academic_year = models.CharField(blank=True, null=True,max_length=4, verbose_name=_("ปีการศึกษา"))
+    total_marks = models.IntegerField(blank=True, null=True, default=0, verbose_name=_("คะแนนเต็ม"))
+    obtained_marks = models.IntegerField(blank=True, null=True, default=0, verbose_name=_("คะแนนที่ได้"))
+    grade_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name=_("เปอร์เซ็นต์คะแนน"))
+    subject_marks = models.JSONField(blank=True, null=True, verbose_name=_("คะแนนตามวิชา"))
+    #grade_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name=_("เปอร์เซ็นต์คะแนน"))
+    pass_or_fail = models.CharField(max_length=4, blank=True, null=True, verbose_name=_("ผ่าน/ไม่ผ่าน"))
+    def calculate_grades(self):
+        """Calculate grades based on subject marks and compute grade percentage."""
+        if self.subject_marks:
+
+            # Calculate total and obtained marks
+            self.total_marks = sum(self.subject_marks.values())
+            self.obtained_marks = sum(self.subject_marks.values())
+
+            # Calculate grade percentage
+            if self.total_marks > 0:
+                self.grade_percentage = (self.obtained_marks / self.total_marks) * 100
+            else:
+                self.grade_percentage = 0
+
+                # Determine pass or fail
+                self.pass_or_fail = "ผ่าน" if self.grade_percentage >= 50 else "ไม่ผ่าน"
+
+                self.save()
+
+    def __str__(self):
+        return f"{self.student_name} - {self.level_name} - {self.academic_year}"
+
+    class Meta:
+        verbose_name = _("ประวัติการศึกษา")
+        verbose_name_plural = _("ประวัติการศึกษา")
+
+   
+class StudentHistorys(models.Model):
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.SET_NULL,  # Keep the reference if possible
+        null=True,
+        blank=True,
+        verbose_name=_("นักเรียน")
+    )
+    student_name = models.CharField(blank=True, null=True,max_length=200, verbose_name=_("ชื่อนักเรียน"))
+    level = models.ForeignKey(
+        'Level',
+        on_delete=models.SET_NULL,  # Keep the reference if possible
+        null=True,
+        blank=True,
+        verbose_name=_("ระดับชั้น")
+    )
+    level_name = models.CharField(blank=True, null=True,max_length=50, verbose_name=_("ชื่อระดับชั้น"))
+    semester = models.ForeignKey(
+        CurrentSemester,
+        on_delete=models.SET_NULL,  # Keep the reference if possible
+        null=True,
+        blank=True,
+        verbose_name=_("ภาคการศึกษา")
+    )
+    semester_name = models.CharField(blank=True, null=True,max_length=50, verbose_name=_("ชื่อภาคการศึกษา"))
+    academic_year = models.PositiveIntegerField(blank=True, null=True,verbose_name=_("ปีการศึกษา"))
+    total_marks = models.DecimalField(blank=True, null=True,max_digits=6, decimal_places=2, default=0, verbose_name=_("คะแนนเต็ม"))
+    obtained_marks = models.DecimalField(blank=True, null=True,max_digits=6, decimal_places=2, default=0, verbose_name=_("คะแนนที่ได้"))
     grade_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, verbose_name=_("เปอร์เซ็นต์คะแนน"))
     pass_or_fail = models.CharField(max_length=4, blank=True, null=True, verbose_name=_("ผ่าน/ไม่ผ่าน"))
     subject_marks = models.JSONField(blank=True, null=True, verbose_name=_("คะแนนตามวิชา"))
 
-    @property
-    def academic_year(self):
-        """Retrieve the academic year from the associated CurrentSemester."""
-        return self.semester.year
+    def save(self, *args, **kwargs):
+        """Ensure the student, level, and semester details are saved as strings."""
+        if self.student and not self.student_name:
+            self.student_name = f"{self.student.first_name} {self.student.last_name}"
+        if self.level and not self.level_name:
+            self.level_name = self.level.name
+        if self.semester and not self.semester_name:
+            self.semester_name = f"{self.semester.get_semester_display()} - {self.semester.year}"
+        if not self.academic_year and self.semester:
+            self.academic_year = self.semester.year
+        super().save(*args, **kwargs)
 
     def calculate_history(self):
+        """Calculate the student's history based on their marks."""
+        if not self.student or not self.student.current_study:
+            return  # Exit if there is no associated student or current study information
+
         current_study = self.student.current_study
         subject_marks = StudentMarkForSubject.objects.filter(
             student=self.student,
             subject_to_study__level=current_study.level,
             subject_to_study__semester=current_study.current_semester.semester
         )
-        self.total_marks = sum([subject.subject_to_study.subject.total_marks for subject in subject_marks])
-        self.obtained_marks = sum([subject.marks_obtained for subject in subject_marks])
+        self.total_marks = sum(subject.subject_to_study.subject.total_marks for subject in subject_marks)
+        self.obtained_marks = sum(subject.marks_obtained for subject in subject_marks)
         self.subject_marks = {
             subject.subject_to_study.subject.name: subject.marks_obtained for subject in subject_marks
         }
         if self.total_marks > 0:
             self.grade_percentage = (self.obtained_marks / self.total_marks) * 100
-        self.pass_or_fail = "ผ่าน" if self.grade_percentage >= 50 else "ไม่ผ่าน"
+        self.pass_or_fail = "ผ่าน" if self.grade_percentage and self.grade_percentage >= 50 else "ไม่ผ่าน"
         self.save()
 
     def __str__(self):
-        return f"{self.student} - {self.level} - {self.semester}"
+        return f"{self.student_name} - {self.level_name} - {self.semester_name}"
 
     class Meta:
         verbose_name = _("ประวัตินักเรียน")
         verbose_name_plural = _("ประวัตินักเรียน")
+
 
 
 ## Student History Model

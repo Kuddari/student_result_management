@@ -134,9 +134,9 @@ class StudentMarkForSubjectAdmin(admin.ModelAdmin):
 
 @admin.register(StudentHistory)
 class StudentHistoryAdmin(admin.ModelAdmin):
-    list_display = ('student', 'level', 'semester', 'total_marks', 'obtained_marks', 'grade_percentage', 'pass_or_fail')
-    search_fields = ['student__first_name', 'student__last_name']
-    list_filter = ['level', 'semester']
+    list_display = ('student_name', 'level_name', 'semester', 'academic_year', 'total_marks', 'obtained_marks','grade_percentage', 'pass_or_fail')
+    search_fields = ['student_name']
+    list_filter = ['level_name', 'semester']
 
 
 @admin.register(School)

@@ -1,5 +1,5 @@
 {% include 'navbar.html' %}
-
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -109,16 +109,21 @@
                                 </tr>
                             </thead>
                             <tbody class="whitespace-nowrap">
-                                {% for student in students %}
+                                {% for marks_row in student_marks_data %}
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-4 py-3 border-b">{{ forloop.counter }}</td>
-                                    <td class="px-4 py-3 border-b truncate">{{ student.student.first_name }} {{ student.student.last_name }}</td>
+                                    <td class="px-4 py-3 border-b truncate">
+                                        {{ marks_row.student.first_name }} {{ marks_row.student.last_name }}
+                                    </td>
                                     {% for subject in subjects %}
                                     <td class="px-4 py-3 border-b text-center">
-                                        <input type="number" name="marks_{{ student.student.id }}_{{ subject.subject.id }}" 
-                                               class="w-full border border-gray-300 rounded-lg text-center"
-                                               placeholder="0"
-                                               min="0" max="{{ subject.subject.total_marks }}">
+                                        <input type="number" 
+                                            name="marks_{{ marks_row.student.id }}_{{ subject.subject.id }}" 
+                                            class="w-full border border-gray-300 rounded-lg text-center"
+                                            placeholder="0"
+                                            min="0" 
+                                            max="{{ subject.subject.total_marks }}"
+                                            value="{{ marks_row|dict_key:subject.subject.id|default:'' }}">
                                     </td>
                                     {% endfor %}
                                 </tr>
