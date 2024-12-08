@@ -8,7 +8,9 @@ urlpatterns = [
     # path('student_report', Student_Rp, name='student_report'),
     path('sp_student_report', Student_Rp, name='sp_student_report'),
     path('gr_student_report', GR_Student, name='gr_student'),
-
+    path('admin/get-districts/', get_districts, name='get-districts'),
+    path('admin/get-subdistricts/', get_subdistricts, name='get-subdistricts'),
+    path('admin/get-postal-code/', get_postal_code, name='get-postal-code'),
 
     # ใส่ข้อมูล
     path('ingr_student', student_marks_view, name='ingr_student'),

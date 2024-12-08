@@ -20,6 +20,21 @@ pdfmetrics.registerFont(TTFont('THSarabunNew', 'static/fonts/THSarabunNew.ttf'))
 
 
 
+def get_districts(request):
+    province_id = request.GET.get('province_id')
+    districts = list(Amphoe.objects.filter(province_id=province_id).values('id', 'name'))
+    return JsonResponse(districts, safe=False)
+
+def get_subdistricts(request):
+    district_id = request.GET.get('district_id')
+    subdistricts = list(Tambon.objects.filter(amphoe_id=district_id).values('id', 'name'))
+    return JsonResponse(subdistricts, safe=False)
+
+def get_postal_code(request):
+    subdistrict_id = request.GET.get('subdistrict_id')
+    tambon = Tambon.objects.filter(id=subdistrict_id).first()
+    return JsonResponse({'zipcode': tambon.zipcode if tambon else ''})
+
 def Home(request):
     # Get student data
     students = Student.objects.all()

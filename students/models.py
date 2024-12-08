@@ -8,6 +8,60 @@ from django.dispatch import receiver
 
 logger = logging.getLogger(__name__)
 
+class Province(models.Model):
+    name = models.CharField(max_length=100, verbose_name=_("จังหวัด"))
+
+    class Meta:
+        verbose_name = _("จังหวัด")
+        verbose_name_plural = _("จังหวัด")
+
+    def __str__(self):
+        return self.name
+
+
+class Amphoe(models.Model):
+    name = models.CharField(max_length=100, verbose_name=_("อำเภอ/เขต"))
+    province = models.ForeignKey(Province, on_delete=models.CASCADE, related_name="amphoes", verbose_name=_("จังหวัด"))
+
+    class Meta:
+        verbose_name = _("อำเภอ/เขต")
+        verbose_name_plural = _("อำเภอ/เขต")
+
+    def __str__(self):
+        return self.name
+
+
+class Tambon(models.Model):
+    name = models.CharField(max_length=100, verbose_name=_("ตำบล/แขวง"))
+    amphoe = models.ForeignKey(Amphoe, on_delete=models.CASCADE, related_name="tambons", verbose_name=_("อำเภอ/เขต"))
+    zipcode = models.CharField(max_length=5, verbose_name=_("รหัสไปรษณีย์"))
+
+    class Meta:
+        verbose_name = _("ตำบล/แขวง")
+        verbose_name_plural = _("ตำบล/แขวง")
+
+    def __str__(self):
+        return f"{self.name} ({self.zipcode})"
+
+
+class Address(models.Model):
+    house_number = models.CharField(max_length=10, verbose_name=_("บ้านเลขที่"))
+    street = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("ซอย/ถนน"))
+    moo = models.IntegerField(default=0, blank=True, null=True, verbose_name=_("หมู่"))
+    subdistrict = models.ForeignKey(Tambon, on_delete=models.SET_NULL, null=True, verbose_name=_("ตำบล/แขวง"))
+    district = models.ForeignKey(Amphoe, on_delete=models.SET_NULL, null=True, verbose_name=_("อำเภอ/เขต"))
+    province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True, verbose_name=_("จังหวัด"))
+    zipcode = models.CharField(max_length=5, verbose_name=_("รหัสไปรษณีย์"))
+   
+
+    class Meta:
+        verbose_name = _("ที่อยู่")
+        verbose_name_plural = _("ที่อยู่")
+
+    def __str__(self):
+        return f"{self.house_number}, {self.subdistrict}, {self.district}, {self.province}, {self.zipcode}"
+
+    
 class Occupation(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("อาชีพ"))
 
@@ -31,6 +85,7 @@ class AcademicYear(models.Model):
 
 
 class Student(models.Model):
+    id = models.CharField(max_length=9, primary_key=True, editable=False, verbose_name=_("Student ID"))
     first_name = models.CharField(max_length=100, verbose_name=_("ชื่อ"))
     last_name = models.CharField(max_length=100, verbose_name=_("นามสกุล"))
     english_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("ชื่อภาษาอังกฤษ"))
@@ -41,10 +96,10 @@ class Student(models.Model):
     address = models.ForeignKey('Address', on_delete=models.SET_NULL, null=True, verbose_name=_("ที่อยู่"))
     gender = models.CharField(
         max_length=10,
-        choices=[('ชาย', 'ชาย'), ('หญิง', 'หญิง')],
+        choices=[('ชาย', 'เด็กชาย'), ('หญิง', 'เด็กหญิง')],
         blank=True,
         null=True,
-        verbose_name=_("เพศ")
+        verbose_name=_("คำนำหน้า")
     )
     special_status = models.CharField(
         max_length=20,
@@ -65,6 +120,36 @@ class Student(models.Model):
         default='กำลังศึกษา',
         verbose_name=_("สถานะ")
     )
+    
+    exam_unit_number = models.CharField(max_length=2, default="86", verbose_name=_("หน่วยสอบ"))
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            # Get the current year in the Thai calendar
+            thai_year = timezone.now().year + 543
+            year_str = str(thai_year)[-2:]  # Get the last 2 digits of the Thai year
+
+            # Gender code: 01 for male, 02 for female
+            gender_code = '1' if self.gender == 'ชาย' else '2'
+
+            # Exam unit number (ensure it's always 2 digits)
+            exam_unit = self.exam_unit_number.zfill(2)
+
+            # Generate the next incremental number (e.g., 001, 002)
+            last_student = Student.objects.filter(
+                id__startswith=f"{year_str}{exam_unit}{gender_code}"
+            ).order_by('id').last()
+
+            if last_student:
+                last_number = int(last_student.id[-4:])
+                next_number = f"{last_number + 1:04}"
+            else:
+                next_number = "0001"
+
+            # Combine all parts to form the ID
+            self.id = f"{year_str}{exam_unit}{gender_code}{next_number}"
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
@@ -72,7 +157,7 @@ class Student(models.Model):
     class Meta:
         verbose_name = _("นักเรียน")
         verbose_name_plural = _("นักเรียน")
-
+   
 
 class CurrentSemester(models.Model):
     semester = models.IntegerField(
@@ -201,34 +286,60 @@ class Mother(ParentBase):
         verbose_name = _("มารดา")
         verbose_name_plural = _("มารดา")
 
+RELATIONSHIP_CHOICES = [
+    ('พ่อ', 'พ่อ'),
+    ('แม่', 'แม่'),
+    ('ไม่ใช่พ่อแม่', 'ไม่ใช่พ่อแม่'),
+]
 
 class Guardian(ParentBase):
-    relationship_with_student = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("ความสัมพันธ์กับนักเรียน"))
+    relationship_with_student = models.CharField(
+        max_length=50,
+        choices=RELATIONSHIP_CHOICES,
+        blank=True,
+        null=True,
+        verbose_name=_("ความสัมพันธ์กับนักเรียน")
+    )
+
+    def save(self, *args, **kwargs):
+        # Auto-populate fields if relationship is "พ่อ" (Father)
+        if self.relationship_with_student == 'พ่อ':
+            father = Father.objects.filter(student=self.student).first()
+            if father:
+                self.first_name = father.first_name
+                self.last_name = father.last_name
+                self.date_of_birth = father.date_of_birth
+                self.address = father.address
+                self.occupation = father.occupation
+                self.workplace = father.workplace
+                self.income = father.income
+                self.phone_number = father.phone_number
+
+        # Auto-populate fields if relationship is "แม่" (Mother)
+        elif self.relationship_with_student == 'แม่':
+            mother = Mother.objects.filter(student=self.student).first()
+            if mother:
+                self.first_name = mother.first_name
+                self.last_name = mother.last_name
+                self.date_of_birth = mother.date_of_birth
+                self.address = mother.address
+                self.occupation = mother.occupation
+                self.workplace = mother.workplace
+                self.income = mother.income
+                self.phone_number = mother.phone_number
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Guardian: {self.first_name} {self.last_name} - {self.student}"
+        return f"Guardian: {self.first_name} {self.last_name} - {self.student} ({self.relationship_with_student})"
 
     class Meta:
         verbose_name = _("ผู้ปกครอง")
         verbose_name_plural = _("ผู้ปกครอง")
 
 
-class Address(models.Model):
-    house_number = models.CharField(max_length=10, verbose_name=_("บ้านเลขที่"))
-    street = models.CharField(max_length=100, verbose_name=_("ถนน"))
-    subdistrict = models.CharField(max_length=50, verbose_name=_("ตำบล/แขวง"))
-    district = models.CharField(max_length=50, verbose_name=_("อำเภอ/เขต"))
-    province = models.CharField(max_length=50, verbose_name=_("จังหวัด"))
-    postal_code = models.CharField(max_length=5, verbose_name=_("รหัสไปรษณีย์"))
-    contact_number = models.CharField(max_length=15, verbose_name=_("เบอร์โทรติดต่อ"))
 
-    def __str__(self):
-        return f"{self.house_number}, {self.street}, {self.subdistrict}, {self.district}, {self.province}, {self.postal_code}"
-
-    class Meta:
-        verbose_name = _("ที่อยู่")
-        verbose_name_plural = _("ที่อยู่")
-
+   
 
 class Subject(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("ชื่อวิชา"))
