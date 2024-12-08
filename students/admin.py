@@ -1,7 +1,22 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from .models import *
+from django import forms
 
+
+@admin.register(Province)
+class ProvinceAdmin(admin.ModelAdmin):
+    list_display = ['name']
+
+@admin.register(Amphoe)
+class AmphoeAdmin(admin.ModelAdmin):
+    list_display = ['name', 'province']
+    list_filter = ['province']
+
+@admin.register(Tambon)
+class TambonAdmin(admin.ModelAdmin):
+    list_display = ['name', 'amphoe', 'zipcode']
+    list_filter = ['amphoe']
 
 @admin.register(AcademicYear)
 class AcademicYearAdmin(admin.ModelAdmin):
@@ -10,12 +25,61 @@ class AcademicYearAdmin(admin.ModelAdmin):
     search_fields = ['year']
 
 
+class AddressForm(forms.ModelForm):
+    class Meta:
+        model = Address
+        fields = ['house_number', 'street', 'moo', 'province', 'district', 'subdistrict', 'zipcode']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Filter district choices based on the selected province (by ID)
+        if 'province' in self.data:
+            try:
+                province_id = int(self.data.get('province'))
+                self.fields['district'].queryset = Amphoe.objects.filter(province_id=province_id)
+            except (ValueError, TypeError):
+                self.fields['district'].queryset = Amphoe.objects.none()
+        elif self.instance.pk and self.instance.province:
+            self.fields['district'].queryset = self.instance.province.amphoes.all()
+        else:
+            self.fields['district'].queryset = Amphoe.objects.none()
+
+        # Filter subdistrict choices based on the selected district (by ID)
+        if 'district' in self.data:
+            try:
+                district_id = int(self.data.get('district'))
+                self.fields['subdistrict'].queryset = Tambon.objects.filter(amphoe_id=district_id)
+            except (ValueError, TypeError):
+                self.fields['subdistrict'].queryset = Tambon.objects.none()
+        elif self.instance.pk and self.instance.district:
+            self.fields['subdistrict'].queryset = self.instance.district.tambons.all()
+        else:
+            self.fields['subdistrict'].queryset = Tambon.objects.none()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        subdistrict = cleaned_data.get('subdistrict')
+        
+        # Automatically set the zipcode based on the selected subdistrict
+        if subdistrict:
+            cleaned_data['zipcode'] = subdistrict.zipcode
+
+        return cleaned_data
+    
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
-    list_display = ('house_number', 'street', 'subdistrict', 'district', 'province', 'postal_code')
-    search_fields = ['province', 'district', 'subdistrict']
-    list_filter = ['province', 'district']
+    #form = AddressForm
+    list_display = ['house_number', 'province', 'district', 'subdistrict', 'zipcode']
+    list_filter = ['province', 'district', 'subdistrict']
+    search_fields = ['house_number', 'street', 'moo', 'zipcode']
+    fields = ['house_number', 'street', 'moo', 'province', 'district', 'subdistrict', 'zipcode']
 
+    def save_model(self, request, obj, form, change):
+        # Automatically set zipcode based on the selected subdistrict
+        if obj.subdistrict:
+            obj.zipcode = obj.subdistrict.zipcode
+        super().save_model(request, obj, form, change)
 
 @admin.register(EducationDistrict)
 class EducationDistrictAdmin(admin.ModelAdmin):
@@ -31,9 +95,24 @@ class LevelAdmin(admin.ModelAdmin):
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('name_info','english_name','arabic_name','gender_icon', 'address_info', 'status_icon')
+    list_display = ('id', 'name_info','english_name','arabic_name','gender_icon', 'address_info', 'status_icon')
     list_filter = ('status', 'gender')
     search_fields = ('first_name', 'last_name', 'id_number','english_name','arabic_name')
+    # Order of fields in the admin form
+    fields = [
+        'gender',          # Gender first
+        'first_name',
+        'last_name',
+        'english_name',
+        'arabic_name',
+        'date_of_birth',
+        'id_number',
+        'address',
+        'special_status',
+        'profile_picture',
+        'status',
+    ]
+    
 
     def name_info(self, obj):
         if obj.first_name:
