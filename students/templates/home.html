@@ -56,20 +56,20 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-5 mb-5">
                 <a href="{% url 'sp_student_report' %}" class="block group">
                     <div class="bg-white h-48  md:h-48 pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
-                        <h1 class="text-5xl font-bold group-hover:text-green-700 counter" data-target="{{total_students}}">0</h1>
+                        <h1 class="text-5xl d group-hover:text-green-700 counter" data-target="{{total_students}}">0</h1>
                         <h2 class="text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">นักเรียน</h2>
                     </div>
                 </a>
                 <a href="{% url 'sp_student_report' %}?gender=ชาย" class="block group">
                     <div class="bg-white h-48  md:h-48 pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
-                        <h1 class="text-5xl font-bold group-hover:text-green-700 counter" data-target="{{male_students}}">0</h1>
+                        <h1 class="text-5xl d group-hover:text-green-700 counter" data-target="{{male_students}}">0</h1>
                         <h2 class="text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">ชาย</h2>
                     </div>
                 </a>
                 
                 <a href="{% url 'sp_student_report' %}?gender=หญิง" class="block group">
                     <div class="bg-white h-48  md:h-48 pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
-                        <h1 class="text-5xl font-bold group-hover:text-green-700 counter" data-target="{{female_students}}">0</h1>
+                        <h1 class="text-5xl d group-hover:text-green-700 counter" data-target="{{female_students}}">0</h1>
                         <h2 class="text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">หญิง</h2>
                     </div>
                 </a>
@@ -80,25 +80,25 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     <a href="{% url 'sp_student_report' %}?special_status=เด็กกำพร้า" class="group">
                         <div class="text-center transition-all duration-300 group-hover:scale-105">
-                            <h1 class="text-4xl lg:text-5xl font-bold group-hover:text-green-700 counter" data-target="{{orphans}}">0</h1>
+                            <h1 class="text-4xl lg:text-5xl d group-hover:text-green-700 counter" data-target="{{orphans}}">0</h1>
                             <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กกำพร้า</h1>
                         </div>
                     </a>
                     <a href="{% url 'sp_student_report' %}?special_status=เด็กยากไร้" class="group">
                         <div class="text-center transition-all duration-300 group-hover:scale-105">
-                            <h1 class="text-4xl lg:text-5xl font-bold group-hover:text-green-700 counter" data-target="{{underprivileged}}">0</h1>
+                            <h1 class="text-4xl lg:text-5xl d group-hover:text-green-700 counter" data-target="{{underprivileged}}">0</h1>
                             <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กยากไร้</h1>
                         </div>
                     </a>
                     <a href="{% url 'sp_student_report' %}?special_status=เด็กพิการ" class="group">
                         <div class="text-center transition-all duration-300 group-hover:scale-105">
-                            <h1 class="text-4xl lg:text-5xl font-bold group-hover:text-green-700 counter" data-target="{{disabled}}">0</h1>
+                            <h1 class="text-4xl lg:text-5xl d group-hover:text-green-700 counter" data-target="{{disabled}}">0</h1>
                             <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กพิการ</h1>
                         </div>
                     </a>
                     <a href="{% url 'sp_student_report' %}?special_status=เด็กมุอัลลัฟ" class="group">
                         <div class="text-center transition-all duration-300 group-hover:scale-105">
-                            <h1 class="text-4xl lg:text-5xl font-bold group-hover:text-green-700 counter" data-target="{{new_muslims}}">0</h1>
+                            <h1 class="text-4xl lg:text-5xl d group-hover:text-green-700 counter" data-target="{{new_muslims}}">0</h1>
                             <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กมุอัลลัฟ</h1>
                         </div>
                     </a>

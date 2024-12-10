@@ -100,7 +100,7 @@
     <div class="min-h-screen bg-gradient-to-b from-green-200 to-green-900 font-prompt"> 
         <!-- Header -->
         <div class="bg-green-900">
-            <h1 class="text-4xl md:text-7xl text-white font-bold py-4 md:py-8 text-center drop-shadow-md shadow-md shadow-green-900">
+            <h1 class="text-4xl md:text-7xl text-white d py-4 md:py-8 text-center drop-shadow-md shadow-md shadow-green-900">
                 จำนวนนักเรียนพิเศษ
             </h1>
         </div>
@@ -173,15 +173,15 @@
                 <!-- Stats -->
                 <div class="grid grid-cols-3 gap-3 w-full lg:w-auto">
                     <div class="bg-white rounded-lg p-3 text-center shadow-sm pt-6 duration-500 hover:drop-shadow-md hover:shadow-lg hover:shadow-green-700 hover:scale-105">
-                        <div class="text-2xl md:text-4xl font-bold counter" data-target="{{ total_students }}">0</div>
+                        <div class="text-2xl md:text-4xl d counter" data-target="{{ total_students }}">0</div>
                         <div class="text-sm md:text-base text-gray-600">นักเรียนทั้งหมด</div>
                     </div>
                     <div class="bg-white rounded-lg p-3 text-center shadow-sm pt-6 duration-500 hover:drop-shadow-md hover:shadow-lg hover:shadow-green-700 hover:scale-105">
-                        <div class="text-2xl md:text-4xl font-bold counter" data-target="{{ male_students }}">0</div>
+                        <div class="text-2xl md:text-4xl d counter" data-target="{{ male_students }}">0</div>
                         <div class="text-sm md:text-base text-gray-600">ชาย</div>
                     </div>
                     <div class="bg-white rounded-lg p-3 text-center shadow-sm pt-6 duration-500 hover:drop-shadow-md hover:shadow-lg hover:shadow-green-700 hover:scale-105">
-                        <div class="text-2xl md:text-4xl font-bold counter" data-target="{{ female_students }}">0</div>
+                        <div class="text-2xl md:text-4xl d counter" data-target="{{ female_students }}">0</div>
                         <div class="text-sm md:text-base text-gray-600">หญิง</div>
                     </div>
                 </div>
@@ -191,7 +191,7 @@
                 <!-- Download PDF Button -->
                 <a
                     href="{% url 'download_students_pdf' %}?search={{ request.GET.search|default:'' }}&school={{ request.GET.school|default:'' }}&level={{ request.GET.level|default:'' }}&academic_year={{ request.GET.academic_year|default:'' }}"
-                    class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md ">
+                    class="bg-red-500 hover:bg-red-600 text-white d py-2 px-4 rounded-lg shadow-md ">
                     ดาวน์โหลดเป็น PDF
                 </a>
                 

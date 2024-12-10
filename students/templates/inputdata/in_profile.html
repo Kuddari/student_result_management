@@ -1,0 +1,205 @@
+{% include 'navbar.html' %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Flatpickr Thai Language Pack -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'css/font.css' %}">
+    <title>กรอกประวัตินักเรียน</title>
+</head>
+<body class="bg-gradient-to-b from-green-100 to-green-800 font-prompt min-h-screen">
+
+    <!-- Header -->
+    <div class="bg-green-800">
+        <h1 class="text-4xl md:text-6xl text-white d py-4 md:py-8 text-center shadow-md shadow-green-900">
+            กรอกประวัตินักเรียน
+        </h1>
+    </div>
+
+    <div class="max-w-4xl mx-auto p-4 my-8">
+        <form method="post" action="">
+            <div class="flex justify-center mb-4">
+                <label class="w-28 h-32 bg-white flex items-center justify-center relative overflow-hidden cursor-pointer group">
+                    <!-- รูปภาพตัวอย่าง -->
+                    <img id="preview" class="w-full h-full object-cover border-2 border-green-900" />
+            
+                    <!-- ไอคอนเริ่มต้น -->
+                    <svg id="defaultIcon" class="w-24 h-24 text-green-700 absolute" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-4 0-8 2-8 4v2h16v-2c0-2-4-4-8-4z"/>
+                    </svg>
+            
+                    <!-- Input สำหรับอัปโหลดรูปภาพ -->
+                    <input type="file" id="imageUpload" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*">
+            
+                    <!-- พื้นหลังดำโปร่งแสงและข้อความเมื่อ Hover -->
+                    <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <span class="text-white text-sm font-bold">อัพโหลดรูปภาพ</span>
+                    </div>
+            
+                    <!-- ไอคอนกล้องที่มุมล่างตรงกลาง -->
+                    <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2  bg-gray-700 bg-opacity-80 text-white p-1 rounded-full">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M21 5h-3.586l-1.707-1.707A1 1 0 0015 3H9a1 1 0 00-.707.293L6.586 5H3a1 1 0 00-1 1v14a1 1 0 001 1h18a1 1 0 001-1V6a1 1 0 00-1-1zm-9 12a4 4 0 110-8 4 4 0 010 8zm0-6a2 2 0 100 4 2 2 0 000-4z"/>
+                        </svg>
+                    </div>
+                </label>
+            </div>
+            
+            <!-- ประวัตินักเรียน Section -->
+            <div class="bg-green-800 text-white py-2 px-4 mb-6 rounded-lg text-base text-center md:text-left md:text-2xl">
+                ประวัตินักเรียน
+            </div>
+
+            <div class="grid grid-cols-2 gap-6 mb-10">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="ชื่อ">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="นามสกุล">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="ชื่อภาษาอังกฤษ">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="นามสกุลภาษาอังกฤษ">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="ชื่อภาษาอาหรับ">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="นามสกุลภาษาอาหรับ">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="เขตการศึกษา">
+                <select class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 text-green-800 text-[12px] md:text-lg">
+                    <option>สถานะปัจจุบัน</option>
+                    <option>กำลังศึกษา</option>
+                    <option>จบการศึกษา</option>
+                </select>
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="ชื่อโรงเรียน">
+            </div>
+
+            <!-- ประวัติบิดา Section -->
+            <div class="bg-green-800 text-white py-2 px-4 mb-6 rounded-lg  text-base text-center md:text-left md:text-2xl">
+                ประวัติบิดา
+            </div>
+
+            <div class="grid grid-cols-2 gap-6 mb-10">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="ชื่อบิดา">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="นามสกุล">
+
+                <input type="text" id="date-input" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="วันเดือนปีเกิด">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="บ้านเลขที่">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="ซอย/ถนน">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="หมู่ที่">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="ตำบล">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="อำเภอ">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="จังหวัด">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="รหัสไปรษณีย์">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="เบอร์ติดต่อ">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="อาชีพปัจจุบัน">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="สถานที่ทำงาน">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="รายได้ต่อปี">
+            </div>
+
+            <!-- ประวัติมารดา Section -->
+            <div class="bg-green-800 text-white py-2 px-4 mb-6 rounded-lg d text-base text-center md:text-left md:text-2xl">
+                ประวัติมารดา
+            </div>
+
+            <div class="grid grid-cols-2 gap-6 mb-10">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="ชื่อมารดา">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="นามสกุล">
+
+                <input type="text" id="date-input" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="วันเดือนปีเกิด">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="บ้านเลขที่">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="ซอย/ถนน">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="หมู่ที่">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="ตำบล">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="อำเภอ">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="จังหวัด">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="รหัสไปรษณีย์">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="เบอร์ติดต่อ">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="อาชีพปัจจุบัน">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="สถานที่ทำงาน">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="รายได้ต่อปี">
+            </div>
+
+            <!-- ประวัติบิดา Section -->
+            <div class="bg-green-800 text-white py-2 px-4 mb-6 rounded-lg d text-base text-center md:text-left md:text-2xl">
+                ประวัติผู้ปกครอง
+            </div>
+
+            <div class="grid grid-cols-2 gap-6 mb-10">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="ชื่อผู้ปกครอง">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="นามสกุล">
+
+                <input type="text" id="date-input" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="วันเดือนปีเกิด">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="บ้านเลขที่">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="ซอย/ถนน">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="หมู่ที่">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="ตำบล">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="อำเภอ">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="จังหวัด">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="รหัสไปรษณีย์">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="เบอร์ติดต่อ">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="อาชีพปัจจุบัน">
+
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="สถานที่ทำงาน">
+                <input type="text" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 placeholder-green-900 placeholder:font-medium placeholder:text-[12px] md:placeholder:text-lg" placeholder="รายได้ต่อปี">
+            </div>
+
+
+            <!-- Submit Button -->
+            <div class="text-center md:text-right">
+                <button type="submit" class="bg-green-500 text-white font-semibold px-4 md:px-8 py-2 md:py-3 text-lg md:text-xl rounded-lg md:rounded-xl hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 drop-shadow-2xl shadow-md shadow-black/75">
+                    ยืนยัน
+                </button>
+            </div>
+        </form>
+    </div>
+    <script>
+        flatpickr("#date-input", {
+            dateFormat: "d/m/Y",    // รูปแบบวันที่ dd/mm/yyyy
+            locale: "th",           // ตั้งค่าให้ใช้ภาษาไทย
+            altInput: true,         // แสดงผลในช่องป้อนข้อมูลแบบอ่านง่าย
+            altFormat: "d/m/Y",     // รูปแบบวันที่ที่แสดงในช่องป้อนข้อมูล
+        });
+    </script>
+    <script>
+        const imageUpload = document.getElementById('imageUpload');
+        const preview = document.getElementById('preview');
+        const defaultIcon = document.getElementById('defaultIcon');
+    
+        imageUpload.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    preview.src = event.target.result;
+                    preview.classList.remove('hidden');
+                    defaultIcon.classList.add('hidden');
+                }
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '';
+                preview.classList.add('hidden');
+                defaultIcon.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

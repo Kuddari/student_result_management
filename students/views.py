@@ -317,6 +317,17 @@ def download_students_pdf(request):
 
     return response
 
+def edit_Profile(request):
+    return render(request, 'edit/edit_profile.html')
+
+
+def in_Profile(request):
+    return render(request, 'inputdata/in_profile.html')
+
+def Profile(request):
+    return render(request, 'student/profile.html')
+
+
 def student_marks_view(request):
     current_semester = CurrentSemester.objects.first()
 

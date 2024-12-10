@@ -8,12 +8,20 @@ urlpatterns = [
     # path('student_report', Student_Rp, name='student_report'),
     path('sp_student_report', Student_Rp, name='sp_student_report'),
     path('gr_student_report', GR_Student, name='gr_student'),
-    path('admin/get-districts/', get_districts, name='get-districts'),
-    path('admin/get-subdistricts/', get_subdistricts, name='get-subdistricts'),
-    path('admin/get-postal-code/', get_postal_code, name='get-postal-code'),
+    path('admin/get-districts', get_districts, name='get-districts'),
+    path('admin/get-subdistricts', get_subdistricts, name='get-subdistricts'),
+    path('admin/get-postal-code', get_postal_code, name='get-postal-code'),
+    path('profile', Profile, name='profile'),
+
 
     # ใส่ข้อมูล
     path('ingr_student', student_marks_view, name='ingr_student'),
+
+    # แก้ไขข้อมูล
+    path('edit_profile', edit_Profile, name='edit_profile'),
+
+    # เพิ่มข้อมูล
+    path('in_profile', in_Profile, name='in_profile'),
 
 
     # path('', student_list, name='student_list'),  # Student list page
