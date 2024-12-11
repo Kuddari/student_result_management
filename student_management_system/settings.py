@@ -59,6 +59,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'jazzmin',
+    'dal',
+    'dal_select2',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -75,9 +77,10 @@ TAILWIND_APP_NAME = 'theme'
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
-# NPM_BIN_PATH = "E:/npm.cmd"
 
-NPM_BIN_PATH = r'C:\Program Files\nodejs\npm.cmd'
+NPM_BIN_PATH = "E:/npm.cmd"
+
+#NPM_BIN_PATH = r'C:\Program Files\nodejs\npm.cmd'
 
 
 MIDDLEWARE = [

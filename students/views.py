@@ -15,23 +15,63 @@ from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet
 from datetime import datetime  # Import the datetime module
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+    
 pdfmetrics.registerFont(TTFont('THSarabunNew', 'static/fonts/THSarabunNew.ttf'))
 
+def get_schools(request):
+    schools = list(School.objects.values('id', 'name'))
+    return JsonResponse(schools, safe=False)
+
+def safe_int(value):
+    """Convert a value to int or return 0 if it's not valid."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+@csrf_exempt
+def add_school(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        school_name = data.get('name')
+        if school_name:
+            school, created = School.objects.get_or_create(name=school_name)
+            return JsonResponse({'id': school.id, 'name': school.name})
+        return JsonResponse({'error': 'Invalid data'}, status=400)
+                            
+def get_provinces(request):
+    provinces = list(Province.objects.all().values('id', 'name'))
+    return JsonResponse(provinces, safe=False)
 
 
 
+# Get districts (amphoes) based on the selected province
 def get_districts(request):
     province_id = request.GET.get('province_id')
+    if not province_id:
+        return JsonResponse({'error': 'Invalid province ID'}, status=400)
+    
     districts = list(Amphoe.objects.filter(province_id=province_id).values('id', 'name'))
     return JsonResponse(districts, safe=False)
 
+# Get subdistricts (tambons) based on the selected district
 def get_subdistricts(request):
     district_id = request.GET.get('district_id')
+    if not district_id:
+        return JsonResponse({'error': 'Invalid district ID'}, status=400)
+    
     subdistricts = list(Tambon.objects.filter(amphoe_id=district_id).values('id', 'name'))
     return JsonResponse(subdistricts, safe=False)
 
+# Get postal code (zipcode) based on the selected subdistrict
 def get_postal_code(request):
     subdistrict_id = request.GET.get('subdistrict_id')
+    if not subdistrict_id:
+        return JsonResponse({'error': 'Invalid subdistrict ID'}, status=400)
+    
     tambon = Tambon.objects.filter(id=subdistrict_id).first()
     return JsonResponse({'zipcode': tambon.zipcode if tambon else ''})
 
@@ -321,11 +361,180 @@ def edit_Profile(request):
     return render(request, 'edit/edit_profile.html')
 
 
-def in_Profile(request):
-    return render(request, 'inputdata/in_profile.html')
 
-def Profile(request):
-    return render(request, 'student/profile.html')
+def in_Profile(request, student_id=None):
+    provinces = Province.objects.all()
+    schools = School.objects.all()
+
+    # Check if editing an existing student
+    student = None
+    father = None
+    mother = None
+    guardian = None
+    current_study = None
+
+    if student_id:
+        student = get_object_or_404(Student, id=student_id)
+        father = Father.objects.filter(student=student).first()
+        mother = Mother.objects.filter(student=student).first()
+        guardian = Guardian.objects.filter(student=student).first()
+        current_study = CurrentStudy.objects.filter(student=student).first()
+
+    if request.method == 'POST':
+        def parse_date(date_str):
+            try:
+                return datetime.strptime(date_str, "%d/%m/%Y").date()
+            except (ValueError, TypeError):
+                return None
+        # Handle Student Data
+        student_first_name = request.POST.get('student-first-name')
+        student_last_name = request.POST.get('student-last-name')
+        student_english_first_name = request.POST.get('student-english-first-name')
+        student_english_last_name = request.POST.get('student-english-last-name')
+        student_arabic_first_name = request.POST.get('student-arabic-first-name')
+        student_arabic_last_name = request.POST.get('student-arabic-last-name')
+        student_dob =  parse_date(request.POST.get('student-dob'))
+        student_id_number = request.POST.get('student-id-number')
+        school_id = request.POST.get('student-school')
+        special_status = request.POST.get('special-status')
+        gender = request.POST.get('gender')  # Add this line to handle gender
+
+        student_school = None
+        if school_id:
+            student_school = get_object_or_404(School, id=school_id)
+
+        # Create or update student
+        if student:
+            student.first_name = student_first_name
+            student.last_name = student_last_name
+            student.english_first_name = student_english_first_name
+            student.english_last_name = student_english_last_name
+            student.arabic_first_name = student_arabic_first_name
+            student.arabic_last_name = student_arabic_last_name
+            student.date_of_birth = student_dob  # Add this line
+            student.id_number = student_id_number  # Add this line
+            student.special_status = special_status
+            student.gender = gender
+            student.save()
+        else:
+            student = Student.objects.create(
+                first_name=student_first_name,
+                last_name=student_last_name,
+                english_first_name=student_english_first_name,
+                english_last_name=student_english_last_name,
+                arabic_first_name=student_arabic_first_name,
+                arabic_last_name=student_arabic_last_name,
+                date_of_birth=student_dob,  # Add this line
+                id_number=student_id_number,  # Add this line
+                special_status=special_status,
+                gender = gender
+            )
+
+        # Create or update CurrentStudy
+        if current_study:
+            current_study.student = student
+            current_study.school = student_school
+            current_study.save()
+        else:
+            if student_school:
+                CurrentStudy.objects.create(
+                    student=student,
+                    school=student_school
+                )
+
+         # Function to handle address creation or update
+        def handle_address(prefix):
+            address_data = {
+                'house_number': request.POST.get(f'{prefix}-house-number'),
+                'street': request.POST.get(f'{prefix}-street'),
+                'moo': safe_int(request.POST.get(f'{prefix}-village')),
+                'province_id': request.POST.get(f'{prefix}-province'),
+                'district_id': request.POST.get(f'{prefix}-district'),
+                'subdistrict_id': request.POST.get(f'{prefix}-subdistrict'),
+                'zipcode': request.POST.get(f'{prefix}-zipcode'),
+            }
+            address, created = Address.objects.update_or_create(
+                house_number=address_data['house_number'],
+                street=address_data['street'],
+                moo=address_data['moo'],
+                defaults=address_data
+            )
+            return address
+
+        # Handle Father Data
+        father_address = handle_address('father')
+        father_data = {
+            'first_name': request.POST.get('father-first-name'),
+            'last_name': request.POST.get('father-last-name'),
+            'date_of_birth':  parse_date(request.POST.get('father-dob')),
+            'phone_number': request.POST.get('father-phone'),
+            'occupation': request.POST.get('father-occupation'),
+            'workplace': request.POST.get('father-workplace'),
+            'income': safe_int(request.POST.get('father-income')),
+            'address': father_address,
+        }
+        Father.objects.update_or_create(student=student, defaults=father_data)
+
+        # Handle Mother Data
+        mother_address = handle_address('mother')
+        mother_data = {
+            'first_name': request.POST.get('mother-first-name'),
+            'last_name': request.POST.get('mother-last-name'),
+            'date_of_birth':  parse_date(request.POST.get('mother-dob')),
+            'phone_number': request.POST.get('mother-phone'),
+            'occupation': request.POST.get('mother-occupation'),
+            'workplace': request.POST.get('mother-workplace'),
+            'income': safe_int(request.POST.get('mother-income')),
+            'address': mother_address,
+        }
+        Mother.objects.update_or_create(student=student, defaults=mother_data)
+
+        # Handle Guardian Data
+        guardian_address = handle_address('guardian')
+        guardian_data = {
+            'first_name': request.POST.get('guardian-first-name'),
+            'last_name': request.POST.get('guardian-last-name'),
+            'date_of_birth':  parse_date(request.POST.get('guardian-dob')),
+            'phone_number': request.POST.get('guardian-phone'),
+            'occupation': request.POST.get('guardian-occupation'),
+            'workplace': request.POST.get('guardian-workplace'),
+            'income': safe_int(request.POST.get('guardian-income')),
+            'address': guardian_address,
+        }
+        Guardian.objects.update_or_create(student=student, defaults=guardian_data)
+
+        return redirect('profile')  # Redirect to a success page after submission
+
+    return render(request, 'inputdata/in_profile.html', {
+        'provinces': provinces,
+        'schools': schools,
+        'student': student,
+        'father': father,
+        'mother': mother,
+        'guardian': guardian,
+        'current_study': current_study
+    })
+
+def Profile(request, student_id):
+    # Get the student instance or return 404 if not found
+    student = get_object_or_404(Student, id=student_id)
+    
+    # Fetch related data
+    current_study = CurrentStudy.objects.filter(student=student).first()
+    father = Father.objects.filter(student=student).first()
+    mother = Mother.objects.filter(student=student).first()
+    guardian = Guardian.objects.filter(student=student).first()
+
+    # Pass the data to the template
+    context = {
+        'student': student,
+        'current_study': current_study,
+        'father': father,
+        'mother': mother,
+        'guardian': guardian,
+    }
+
+    return render(request, 'student/profile.html', context)
 
 
 def student_marks_view(request):

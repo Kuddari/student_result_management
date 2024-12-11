@@ -45,13 +45,13 @@ class Tambon(models.Model):
 
 
 class Address(models.Model):
-    house_number = models.CharField(max_length=10, verbose_name=_("บ้านเลขที่"))
+    house_number = models.CharField(null=True, blank=True, max_length=10, verbose_name=_("บ้านเลขที่"))
     street = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("ซอย/ถนน"))
     moo = models.IntegerField(default=0, blank=True, null=True, verbose_name=_("หมู่"))
     subdistrict = models.ForeignKey(Tambon, on_delete=models.SET_NULL, null=True, verbose_name=_("ตำบล/แขวง"))
     district = models.ForeignKey(Amphoe, on_delete=models.SET_NULL, null=True, verbose_name=_("อำเภอ/เขต"))
     province = models.ForeignKey(Province, on_delete=models.SET_NULL, null=True, verbose_name=_("จังหวัด"))
-    zipcode = models.CharField(max_length=5, verbose_name=_("รหัสไปรษณีย์"))
+    zipcode = models.CharField(null=True, blank=True, max_length=5, verbose_name=_("รหัสไปรษณีย์"))
    
 
     class Meta:
@@ -88,8 +88,10 @@ class Student(models.Model):
     id = models.CharField(max_length=9, primary_key=True, editable=False, verbose_name=_("Student ID"))
     first_name = models.CharField(max_length=100, verbose_name=_("ชื่อ"))
     last_name = models.CharField(max_length=100, verbose_name=_("นามสกุล"))
-    english_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("ชื่อภาษาอังกฤษ"))
-    arabic_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("ชื่อภาษาอาหรับ"))
+    english_first_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("ชื่อภาษาอังกฤษ"))
+    english_last_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("ชื่อภาษาอังกฤษ"))
+    arabic_first_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("ชื่อภาษาอาหรับ"))
+    arabic_last_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("ชื่อภาษาอาหรับ"))
     date_of_birth = models.DateField(verbose_name=_("วันเกิด"))
     id_number = models.CharField(max_length=13, unique=True, verbose_name=_("เลขบัตรประชาชน"))
 
@@ -121,7 +123,7 @@ class Student(models.Model):
         verbose_name=_("สถานะ")
     )
     
-    exam_unit_number = models.CharField(max_length=2, default="86", verbose_name=_("หน่วยสอบ"))
+    exam_unit_number = models.CharField(max_length=2, default="80", verbose_name=_("หน่วยสอบ"))
 
     def save(self, *args, **kwargs):
         if not self.id:
@@ -206,9 +208,13 @@ class CurrentStudy(models.Model):
         if not self.current_semester_id:
             self.current_semester = CurrentSemester.objects.first()
         super().save(*args, **kwargs)
-
+    
     def __str__(self):
-        return f"{self.student.first_name} {self.student.last_name} - {self.level.name}, Semester {self.current_semester.semester}, Year {self.current_semester.year}"
+        level_name = self.level.name if self.level else "No Level"
+        semester_info = f"Semester {self.current_semester.semester}, Year {self.current_semester.year}" if self.current_semester else "No Semester"
+        school_name = self.school.name if self.school else "No School"
+
+        return f"{self.student.first_name} {self.student.last_name} - {level_name} - {semester_info}"
 
     class Meta:
         verbose_name = _("การศึกษาในปัจจุบัน")
@@ -232,7 +238,7 @@ class Level(models.Model):
 class School(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("ชื่อโรงเรียน"))
     english_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("ชื่อโรงเรียน (ภาษาอังกฤษ)"))
-    education_district = models.ForeignKey('EducationDistrict', on_delete=models.CASCADE, related_name='schools', verbose_name=_("เขตการศึกษา"))
+    education_district = models.IntegerField(default=80, verbose_name=_("หน่วยสอบ"))
 
     def __str__(self):
         return self.name
@@ -242,27 +248,18 @@ class School(models.Model):
         verbose_name_plural = _("โรงเรียน")
 
 
-class EducationDistrict(models.Model):
-    name = models.CharField(max_length=100, verbose_name=_("ชื่อเขตการศึกษา"))
-    description = models.TextField(blank=True, null=True, verbose_name=_("คำอธิบาย"))
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = _("เขตการศึกษา")
-        verbose_name_plural = _("เขตการศึกษา")
-
-
 class ParentBase(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="%(class)s_set", verbose_name=_("นักเรียน"))
-    first_name = models.CharField(max_length=100, verbose_name=_("ชื่อ"))
-    last_name = models.CharField(max_length=100, verbose_name=_("นามสกุล"))
+    first_name = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("ชื่อ"))
+    last_name = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("นามสกุล"))
     date_of_birth = models.DateField(verbose_name=_("วันเกิด"))
     address = models.ForeignKey('Address', on_delete=models.SET_NULL, null=True, verbose_name=_("ที่อยู่"))
-    occupation = models.ForeignKey('Occupation', on_delete=models.SET_NULL, null=True, verbose_name=_("อาชีพ"))
-    workplace = models.ForeignKey('Workplace', on_delete=models.SET_NULL, null=True, verbose_name=_("สถานที่ทำงาน"))
-    income = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name=_("รายได้"))
+    #occupation = models.ForeignKey('Occupation', on_delete=models.SET_NULL, null=True, verbose_name=_("อาชีพ"))
+    #workplace = models.ForeignKey('Workplace', on_delete=models.SET_NULL, null=True, verbose_name=_("สถานที่ทำงาน"))
+    occupation = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("อาชีพ"))  # Changed to CharField
+    workplace = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("สถานที่ทำงาน"))  # Changed to CharField
+    income = models.IntegerField(blank=True, null=True, verbose_name=_("รายได้"))
+
     phone_number = models.CharField(max_length=15, blank=True, null=True, verbose_name=_("หมายเลขโทรศัพท์"))
 
     class Meta:

@@ -5,3 +5,5 @@ django-jazzmin == 3.0.1
 reportlab
 pandas
 django_browser_reload
+Pillow
+openpyxl

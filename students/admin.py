@@ -3,7 +3,6 @@ from django.utils.html import format_html
 from .models import *
 from django import forms
 
-
 @admin.register(Province)
 class ProvinceAdmin(admin.ModelAdmin):
     list_display = ['name']
@@ -81,12 +80,6 @@ class AddressAdmin(admin.ModelAdmin):
             obj.zipcode = obj.subdistrict.zipcode
         super().save_model(request, obj, form, change)
 
-@admin.register(EducationDistrict)
-class EducationDistrictAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'description')
-    search_fields = ['name']
-    ordering = ['name']
-
 
 @admin.register(Level)
 class LevelAdmin(admin.ModelAdmin):
@@ -95,16 +88,16 @@ class LevelAdmin(admin.ModelAdmin):
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name_info','english_name','arabic_name','gender_icon', 'address_info', 'status_icon')
+    list_display = ('id', 'name_info','english_first_name','arabic_first_name','gender_icon', 'address_info', 'status_icon')
     list_filter = ('status', 'gender')
-    search_fields = ('first_name', 'last_name', 'id_number','english_name','arabic_name')
+    search_fields = ('first_name', 'last_name', 'id_number','english_first_name','arabic_first_name')
     # Order of fields in the admin form
     fields = [
         'gender',          # Gender first
         'first_name',
         'last_name',
-        'english_name',
-        'arabic_name',
+        'english_first_name',
+        'arabic_first_name',
         'date_of_birth',
         'id_number',
         'address',

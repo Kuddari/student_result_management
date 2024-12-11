@@ -32,11 +32,11 @@
                     </div>
                 </div>
                 <div class="text-center md:ml-6">
-                    <h1 class="text-xl md:text-4xl d text-green-800 font-bold">Sulaiman Charaae</h1>
-                    <p class="text-lg mt-2 font-semibold text-gray-700">โรงเรียนซอลีฮียะห์</p>
+                    <h1 class="text-xl md:text-4xl d text-green-800 font-bold">{{ student.first_name }} {{ student.last_name }}</h1>
+                    <p class="text-lg mt-2 font-semibold text-gray-700">{{ current_study.school.name|default:"-" }}</p>
                     <ul class="text-gray-700 mt-2 md:list-disc">
-                        <li><span class="text-green-700 text-[16px]">สถานะปัจจุบัน </span><span class="font-bold text-[16px]">กำลังศึกษา</span></li>
-                        <li><span class="text-green-700 text-[16px]">สถานะพิเศษ </span><span class="font-bold text-[16px]">เด็กกำพร้า</span></li>
+                        <li><span class="text-green-700 text-[16px]">สถานะปัจจุบัน </span><span class="font-bold text-[16px]">{{ student.status|default:"-" }}</span></li>
+                        <li><span class="text-green-700 text-[16px]">สถานะพิเศษ </span><span class="font-bold text-[16px]">{{ student.special_status|default:"-" }}</span></li>
                     </ul>
                 </div>
             </div>
@@ -57,15 +57,15 @@
                     <h3 class=" text-white p-2">ชื่อโรงเรียนเดิม</h3>
                 </div>
                 <div class="md:col-span-2 py-4">
-                    <h3 class="flex text-black p-2"><span class="block md:hidden"><i class="fa-regular fa-user mx-2 text-xl"></i></span></i>Sulaiman Charrae</h3>
-                    <h3 class=" text-black p-2 ml-8 md:ml-0">(ชื่ออาหรับ)</h3>
-                    <h3 class="flex text-black p-2"><span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/birthday.png' %}" alt=""></span></i>21/5/2543</h3>
+                    <h3 class="flex text-black p-2"><span class="block md:hidden"><i class="fa-regular fa-user mx-2 text-xl"></i></span></i>{{ student.english_first_name }} {{ student.english_last_name }}</h3>
+                    <h3 class=" text-black p-2 ml-8 md:ml-0">{{ student.arabic_first_name }} {{ student.arabic_last_name }}</h3>
+                    <h3 class="flex text-black p-2"><span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/birthday.png' %}" alt=""></span></i>{{ student.date_of_birth|date:"d/m/Y" }}</h3>
                     <div class="grid grid-row-2">
-                        <h3 class="flex text-black p-2"><span class="block md:hidden"><i class="fa-solid fa-location-dot mx-2 text-xl"></i></span>บ้านเลขที่ 9/6 หมู่ที่ 4 ซอย/ถนน - ตำบล ป่าบอน</h3>
+                        <h3 class="flex text-black p-2"><span class="block md:hidden"><i class="fa-solid fa-location-dot mx-2 text-xl"></i></span>{{ student.address|default:"-" }}</h3>
                         <h3 class=" text-black p-2 hidden md:block">อำเภอ โคกโพธิ์ จังหวัด ปัตตานี รหัสไปรษณีย์ 94120</h3>
                     </div>
-                    <h3 class="flex text-black p-2"><span class="block md:hidden"><i class="fa-solid fa-phone mx-2 text-xl"></i></span></i>0807084132</h3>
-                    <h3 class="flex text-black p-2"><span class="block md:hidden"><i class="fa-solid fa-school mx-2 text-xl"></i></span></i>โรงเรียนซอลีฮียะห์</h3>
+                    <h3 class="flex text-black p-2"><span class="block md:hidden"><i class="fa-solid fa-phone mx-2 text-xl"></i></span></i>{{ student.phone_number|default:"-" }}</h3>
+                    <h3 class="flex text-black p-2"><span class="block md:hidden"><i class="fa-solid fa-school mx-2 text-xl"></i></span></i>{{ current_study.school.name|default:"-" }}</h3>
                 </div>
             </div>
 
@@ -91,8 +91,8 @@
                     <h3 class=" text-white p-2">รายได้ต่อปี</h3>
                 </div>
                 <div class="col-span-3 py-4">
-                    <h3 class="flex text-black p-2"><span class="block md:hidden"><i class="fa-regular fa-user mx-2 text-xl"></i></span></i>Sulaiman Charrae</h3>
-                    <h3 class="flex text-black p-2"><span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/birthday.png' %}" alt=""></span></i>21/5/2543</h3>
+                    <h3 class="flex text-black p-2"><span class="block md:hidden"><i class="fa-regular fa-user mx-2 text-xl"></i></span></i>{{ father.first_name }} {{ father.last_name }}</h3>
+                    <h3 class="flex text-black p-2"><span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/birthday.png' %}" alt=""></span></i>{{ father.date_of_birth|date:"d/m/Y" }}</h3>
                     <div class="grid grid-row-2">
                         <h3 class="flex text-black p-2"><span class="block md:hidden"><i class="fa-solid fa-location-dot mx-2 text-xl"></i></span>บ้านเลขที่ 9/6 หมู่ที่ 4 ซอย/ถนน - ตำบล ป่าบอน</h3>
                         <h3 class=" text-black p-2 hidden md:block">อำเภอ โคกโพธิ์ จังหวัด ปัตตานี รหัสไปรษณีย์ 94120</h3>
