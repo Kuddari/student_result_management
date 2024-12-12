@@ -27,11 +27,17 @@
 
     <div class="max-w-4xl mx-auto p-4 my-8">
         <form method="post" action="{% if student %}{% url 'in_profile_edit' student.id %}{% else %}{% url 'in_profile' %}{% endif %}">
+            {% csrf_token %}
+            
             <div class="flex justify-center mb-4">
                 <label class="w-28 h-32 bg-white flex items-center justify-center relative overflow-hidden cursor-pointer group">
                     <!-- รูปภาพตัวอย่าง -->
-                    <img id="preview" class="w-full h-full object-cover border-2 border-green-900" />
-            
+                    {% if student.profile_picture %}
+                        <img id="preview" src="{{ student.profile_picture.url }}" class="w-full h-full object-cover border-2 border-green-900" />
+                    {% else %}
+                        <img id="preview" class="w-full h-full object-cover border-2 border-green-900" />
+                    {% endif %}
+                        
                     <!-- ไอคอนเริ่มต้น -->
                     <svg id="defaultIcon" class="w-24 h-24 text-green-700 absolute" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-4 0-8 2-8 4v2h16v-2c0-2-4-4-8-4z"/>
@@ -55,7 +61,6 @@
             </div>
             
             <!-- ประวัตินักเรียน Section -->
-            {% csrf_token %}
             
             <!-- Student Section -->
             <div class="bg-green-800 text-white py-2 px-4 mb-6 rounded-lg text-base text-center md:text-left md:text-2xl">
@@ -63,27 +68,33 @@
             </div>
 
             <div class="grid grid-cols-2 gap-6 mb-10">
-                <input type="text" id="student-id-number" name="student-id-number" value="{{ student.id_number|default:'' }}" class="w-full px-3 py-2 rounded-lg border border-gray-300" placeholder="เลขบัตรประชาชน">
+                <input type="text" id="student-id-number" name="student-id-number" 
+                    value="{{ student.id_number|default:'' }}" 
+                    class="w-full px-3 py-2 rounded-lg border border-gray-300" 
+                    placeholder="เลขบัตรประชาชน" 
+                    maxlength="17" required
+                    oninput="validateThaiIDFormat(this)">
+
                 
-                <select id="gender" name="gender" class="w-full px-3 py-2 rounded-lg border border-gray-300">
+                <select id="gender" name="gender" class="w-full px-3 py-2 rounded-lg border border-gray-300" required>
                     <option value="">เลือกคำนำหน้า</option>
                     <option value="ชาย" {% if student.gender == 'ชาย' %}selected{% endif %}>เด็กชาย</option>
                     <option value="หญิง" {% if student.gender == 'หญิง' %}selected{% endif %}>เด็กหญิง</option>
                 </select>
 
-                <input type="text" name="student-first-name" value="{{ student.first_name|default:'' }}" class="w-full px-3 py-2 rounded-lg border border-gray-300" placeholder="ชื่อ">
-                <input type="text" name="student-last-name" value="{{ student.last_name|default:'' }}" class="w-full px-3 py-2 rounded-lg border border-gray-300" placeholder="นามสกุล">
+                <input type="text" name="student-first-name" value="{{ student.first_name|default:'' }}" class="w-full px-3 py-2 rounded-lg border border-gray-300" placeholder="ชื่อ" required >
+                <input type="text" name="student-last-name" value="{{ student.last_name|default:'' }}" class="w-full px-3 py-2 rounded-lg border border-gray-300" placeholder="นามสกุล" required >
 
-                <input type="text" name="student-english-first-name" value="{{ student.english_first_name|default:'' }}" class="w-full px-3 py-2 rounded-lg border border-gray-300" placeholder="ชื่อภาษาอังกฤษ">
-                <input type="text" name="student-english-last-name" value="{{ student.english_last_name|default:'' }}" class="w-full px-3 py-2 rounded-lg border border-gray-300" placeholder="นามสกุลภาษาอังกฤษ">
+                <input type="text" name="student-english-first-name" value="{{ student.english_first_name|default:'' }}" class="w-full px-3 py-2 rounded-lg border border-gray-300" placeholder="ชื่อภาษาอังกฤษ" required>
+                <input type="text" name="student-english-last-name" value="{{ student.english_last_name|default:'' }}" class="w-full px-3 py-2 rounded-lg border border-gray-300" placeholder="นามสกุลภาษาอังกฤษ" required>
 
-                <input type="text" name="student-arabic-first-name" value="{{ student.arabic_first_name|default:'' }}" class="w-full px-3 py-2 rounded-lg border border-gray-300" placeholder="ชื่อภาษาอาหรับ">
-                <input type="text" name="student-arabic-last-name" value="{{ student.arabic_last_name|default:'' }}" class="w-full px-3 py-2 rounded-lg border border-gray-300" placeholder="นามสกุลภาษาอาหรับ">
+                <input type="text" name="student-arabic-first-name" value="{{ student.arabic_first_name|default:'' }}" class="w-full px-3 py-2 rounded-lg border border-gray-300" placeholder="ชื่อภาษาอาหรับ" required>
+                <input type="text" name="student-arabic-last-name" value="{{ student.arabic_last_name|default:'' }}" class="w-full px-3 py-2 rounded-lg border border-gray-300" placeholder="นามสกุลภาษาอาหรับ" required>
                 
-                <input type="text" id="student-dob" name="student-dob" value="{{ student.date_of_birth|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="วันเดือนปีเกิด">
+                <input type="text" id="student-dob" name="student-dob" value="{{ student.date_of_birth|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="วันเดือนปีเกิด" required >
 
                 <!-- School Dropdown -->
-                <select id="schoolss" name="student-school" class="w-full px-3 py-2 rounded-lg border border-gray-300">
+                <select id="schoolss" name="student-school" class="w-full px-3 py-2 rounded-lg border border-gray-300" required>
                     <option value="">เลือกโรงเรียน</option>
                     {% for school in schools %}
                         <option value="{{ school.id }}" {% if current_study.school.id == school.id %}selected{% endif %}>
@@ -92,7 +103,7 @@
                     {% endfor %}
                 </select>
                 <!-- Special Status Dropdown -->
-                <select name="special-status" class="w-full px-3 py-2 rounded-lg border border-gray-300">
+                <select name="special-status" class="w-full px-3 py-2 rounded-lg border border-gray-300" required >
                     <option value="">สถานะพิเศษ</option>
                     <option value="เด็กกำพร้า" {% if student.special_status == 'เด็กกำพร้า' %}selected{% endif %}>เด็กกำพร้า</option>
                     <option value="เด็กยากไร้" {% if student.special_status == 'เด็กยากไร้' %}selected{% endif %}>เด็กยากไร้</option>
@@ -150,49 +161,51 @@
             </div>
 
             <div class="grid grid-cols-2 gap-6 mb-10">
-                <input type="text" id="father-first-name" name="father-first-name" value="{{ father.first_name|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="ชื่อบิดา">
-                <input type="text" id="father-last-name" name="father-last-name" value="{{ father.last_name|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="นามสกุล">
-
-                <input type="text" id="father-dob" name="father-dob"  value="{{ father.date_of_birth|default:'' }}"  class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="วันเดือนปีเกิด">
-                <input type="text" id="father-house-number" name="father-house-number" value="{{ father.house_number|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="บ้านเลขที่">
-
-                <input type="text" id="father-street" name="father-street" value="{{ father.street|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="ซอย/ถนน">
-                <input type="number" id="father-village" name="father-village" value="{{ father.village|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="หมู่ที่">
-
+                <input type="text" id="father-first-name" name="father-first-name" value="{{ father.first_name|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="ชื่อบิดา" required>
+                <input type="text" id="father-last-name" name="father-last-name" value="{{ father.last_name|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="นามสกุล" required>
+            
+                <input type="text" id="father-dob" name="father-dob" value="{{ father.date_of_birth|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="วันเดือนปีเกิด" required>
+                <input type="text" id="father-house-number" name="father-house-number" value="{{ father.address.house_number|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="บ้านเลขที่" required>
+            
+                <input type="text" id="father-street" name="father-street" value="{{ father.address.street|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="ซอย/ถนน" required>
+                <input type="number" id="father-village" name="father-village" value="{{ father.address.moo|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="หมู่ที่" required>
+            
                 <!-- Province Dropdown -->
-                <select id="father-province" name="father-province" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500">
+                <select id="father-province" name="father-province" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" required>
                     <option value="" selected disabled>เลือกจังหวัด</option>
-                    <option value="{{ province.id }}" {% if father.province_id == province.id %}selected{% endif %}>
-                        {{ province.name }}
-                    </option>
+                    {% for province in provinces %}
+                        <option value="{{ province.id }}" {% if father.address.province_id == province.id %}selected{% endif %}>
+                            {{ province.name }}
+                        </option>
+                    {% endfor %}
                 </select>
-
+            
                 <!-- District Dropdown -->
-                <select id="father-district" name="father-district" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500">
+                <select id="father-district" name="father-district" data-selected="{{ father.address.district.id }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" required>
                     <option value="" selected disabled>เลือกอำเภอ</option>
-                    {% if father.district %}
-                       <option value="{{ father.district.id }}" selected>{{ father.district.name }}</option>
+                    {% if father.address.district %}
+                        <option value="{{ father.address.district.id }}" selected>{{ father.address.district.name }}</option>
                     {% endif %}
                 </select>
-
+            
                 <!-- Subdistrict Dropdown -->
-                <select id="father-subdistrict" name="father-subdistrict" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500">
+                <select id="father-subdistrict" name="father-subdistrict" data-selected="{{ father.address.subdistrict.id }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" required>
                     <option value="" selected disabled>เลือกตำบล</option>
-                    {% if father.subdistrict %}
-                        <option value="{{ father.subdistrict.id }}" selected>{{ father.subdistrict.name }}</option>
+                    {% if father.address.subdistrict %}
+                        <option value="{{ father.address.subdistrict.id }}" selected>{{ father.address.subdistrict.name }}</option>
                     {% endif %}
                 </select>
-
+            
                 <!-- Zipcode Field -->
-                <input type="text" id="father-zipcode" name="father-zipcode" value="{{ father.zipcode|default:'' }}"  class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="รหัสไปรษณีย์" readonly>
-
-                <input type="text" id="father-phone" name="father-phone" value="{{ father.phone|default:'' }}"  class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="เบอร์ติดต่อ">
+                <input type="text" id="father-zipcode" name="father-zipcode" value="{{ father.address.zipcode|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="รหัสไปรษณีย์" readonly required>
+            
+                <input type="text" id="father-phone" name="father-phone" value="{{ father.phone_number|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="เบอร์ติดต่อ" required>
                 <input type="text" id="father-occupation" name="father-occupation" value="{{ father.occupation|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="อาชีพปัจจุบัน">
-
-                <input type="text" id="father-workplace" name="father-workplace" value="{{ father.workplace|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="สถานที่ทำงาน">
+            
+                <input type="text" id="father-workplace" name="father-workplace" value="{{ father.workplace|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="สถานที่ทำงาน" >
                 <input type="text" id="father-income" name="father-income" value="{{ father.income|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="รายได้ต่อปี">
             </div>
-
+            
 
            <!-- ประวัติมารดา Section -->
             
@@ -201,43 +214,45 @@
             </div>
 
             <div class="grid grid-cols-2 gap-6 mb-10">
-                <input type="text" id="mother-first-name" name="mother-first-name" value="{{ mother.first_name|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="ชื่อมารดา">
-                <input type="text" id="mother-last-name" name="mother-last-name" value="{{ mother.last_name|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="นามสกุล">
+                <input type="text" id="mother-first-name" name="mother-first-name" value="{{ mother.first_name|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="ชื่อมารดา"  required>
+                <input type="text" id="mother-last-name" name="mother-last-name" value="{{ mother.last_name|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="นามสกุล"  required>
 
-                <input type="text" id="mother-dob" name="mother-dob" value="{{ mother.date_of_birth|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="วันเดือนปีเกิด">
-                <input type="text" id="mother-house-number" name="mother-house-number" value="{{ mother.house_number|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="บ้านเลขที่">
+                <input type="text" id="mother-dob" name="mother-dob" value="{{ mother.date_of_birth|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="วันเดือนปีเกิด"  required>
+                <input type="text" id="mother-house-number" name="mother-house-number" value="{{ mother.address.house_number|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="บ้านเลขที่"  required>
 
-                <input type="text" id="mother-street" name="mother-street" value="{{ mother.street|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="ซอย/ถนน">
-                <input type="text" id="mother-village" name="mother-village" value="{{ mother.village|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="หมู่ที่">
+                <input type="text" id="mother-street" name="mother-street" value="{{ mother.address.street|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="ซอย/ถนน"  required>
+                <input type="number" id="mother-village" name="mother-village" value="{{ mother.address.moo|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="หมู่ที่"  required>
 
                 <!-- Province Dropdown -->
-                <select id="mother-province" name="mother-province" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500">
+                <select id="mother-province" name="mother-province" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500"  required>
                     <option value="" selected disabled>เลือกจังหวัด</option>
-                    <option value="{{ province.id }}" {% if mother.province_id == province.id %}selected{% endif %}>
-                        {{ province.name }}
-                    </option>
+                    {% for province in provinces %}
+                        <option value="{{ province.id }}" {% if mother.address.province_id == province.id %}selected{% endif %}>
+                            {{ province.name }}
+                        </option>
+                    {% endfor %}
                 </select>
 
                 <!-- District Dropdown -->
-                <select id="mother-district" name="mother-district" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500">
+                <select id="mother-district" name="mother-district" data-selected="{{ mother.address.district.id }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500"  required>
                     <option value="" selected disabled>เลือกอำเภอ</option>
-                    {% if mother.district %}
-                    <option value="{{ mother.district.id }}" selected>{{ mother.district.name }}</option>
+                    {% if mother.address.district %}
+                        <option value="{{ mother.address.district.id }}" selected>{{ mother.address.district.name }}</option>
                     {% endif %}
                 </select>
 
                 <!-- Subdistrict Dropdown -->
-                <select id="mother-subdistrict" name="mother-subdistrict" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500">
+                <select id="mother-subdistrict" name="mother-subdistrict" data-selected="{{ mother.address.subdistrict.id }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500"  required>
                     <option value="" selected disabled>เลือกตำบล</option>
-                    {% if mother.subdistrict %}
-                        <option value="{{ mother.subdistrict.id }}" selected>{{ mother.subdistrict.name }}</option>
+                    {% if mother.address.subdistrict %}
+                        <option value="{{ mother.address.subdistrict.id }}" selected>{{ mother.address.subdistrict.name }}</option>
                     {% endif %}
                 </select>
 
                 <!-- Zipcode Field -->
-                <input type="text" id="mother-zipcode" name="mother-zipcode" value="{{ mother.zipcode|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="รหัสไปรษณีย์" readonly>
+                <input type="text" id="mother-zipcode" name="mother-zipcode" value="{{ mother.address.zipcode|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="รหัสไปรษณีย์" readonly  required>
 
-                <input type="text" id="mother-phone" name="mother-phone" value="{{ mother.phone|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="เบอร์ติดต่อ">
+                <input type="text" id="mother-phone" name="mother-phone" value="{{ mother.phone_number|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="เบอร์ติดต่อ"  required>
                 <input type="text" id="mother-occupation" name="mother-occupation" value="{{ mother.occupation|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="อาชีพปัจจุบัน">
 
                 <input type="text" id="mother-workplace" name="mother-workplace" value="{{ mother.workplace|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="สถานที่ทำงาน">
@@ -250,63 +265,72 @@
                 ประวัติผู้ปกครอง
             </div>
 
-            <div class="grid grid-cols-2 gap-6 mb-10">
-
+            <!-- Relationship Checkbox -->
+            <div class="mb-6" {% if guardian.relationship_with_student %}style="display: none;"{% endif %} >
+                <div class="flex items-center gap-4">
+                    <input type="checkbox" id="relationship-father" name="relationship" value="father" class="mr-2" onclick="selectRelationship(this)">
+                    <label for="relationship-father">พ่อ</label>
+            
+                    <input type="checkbox" id="relationship-mother" name="relationship" value="mother" class="mr-2" onclick="selectRelationship(this)">
+                    <label for="relationship-mother">แม่</label>
+            
+                    <input type="checkbox" id="relationship-guardian" name="relationship" value="guardian" class="mr-2" onclick="selectRelationship(this)">
+                    <label for="relationship-guardian">ผู้ปกครองอื่นๆ</label>
+                </div>
+            </div>
+            
+            <div id="guardian-details" class="grid grid-cols-2 gap-6 mb-10">
             <!-- Relationship with Student Dropdown -->
-                <select id="relationship" name="relationship" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 text-green-800 text-[12px] md:text-lg">
-                    <option value="">ความสัมพันธ์กับนักเรียน</option>
-                    <option value="พ่อ">พ่อ</option>
-                    <option value="แม่">แม่</option>
-                    <option value="ผู้ปกครองอื่นๆ">ผู้ปกครองอื่นๆ</option>
-                </select>
+                
 
                 <!-- ประวัติผู้ปกครอง Section -->
 
-                <input type="text" id="guardian-first-name" name="guardian-first-name" value="{{ guardian.first_name|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="ชื่อผู้ปกครอง">
-                <input type="text" id="guardian-last-name" name="guardian-last-name" value="{{ guardian.last_name|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="นามสกุล">
-
-                <input type="text" id="guardian-dob" name="guardian-dob" value="{{ guardian.date_of_birth|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="วันเดือนปีเกิด">
-                <input type="text" id="guardian-house-number" name="guardian-house-number" value="{{ guardian.house_number|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="บ้านเลขที่">
-
-                <input type="text" id="guardian-street" name="guardian-street" value="{{ guardian.street|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="ซอย/ถนน">
-                <input type="text" id="guardian-village" name="guardian-village" value="{{ guardian.village|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="หมู่ที่">
-
-                <!-- Province Dropdown -->
-                <select id="guardian-province" name="guardian-province" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500">
-                    <option value="" selected disabled>เลือกจังหวัด</option>
-                    <option value="{{ province.id }}" {% if guardian.province_id == province.id %}selected{% endif %}>
-                        {{ province.name }}
-                    </option>
-                </select>
-
-                <!-- District Dropdown -->
-                <select id="guardian-district" name="guardian-district" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500">
-                    <option value="" selected disabled>เลือกอำเภอ</option>
-                    {% if guardian.district %}
-                    <option value="{{ guardian.district.id }}" selected>{{ guardian.district.name }}</option>
-                    {% endif %}
-                </select>
-
-                <!-- Subdistrict Dropdown -->
-                <select id="guardian-subdistrict" name="guardian-subdistrict" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500">
-                    <option value="" selected disabled>เลือกตำบล</option>
-                    {% if guardian.subdistrict %}
-                        <option value="{{ guardian.subdistrict.id }}" selected>{{ guardian.subdistrict.name }}</option>
-                    {% endif %}
-                </select>
-
-                <!-- Zipcode Field -->
-                <input type="text" id="guardian-zipcode" name="guardian-zipcode" value="{{ guardian.zipcode|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="รหัสไปรษณีย์" readonly>
-
-                <input type="text" id="guardian-phone" name="guardian-phone" value="{{ guardian.phone|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="เบอร์ติดต่อ">
-                <input type="text" id="guardian-occupation" name="guardian-occupation" value="{{ guardian.occupation|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="อาชีพปัจจุบัน">
-
-                <input type="text" id="guardian-workplace" name="guardian-workplace" value="{{ guardian.workplace|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="สถานที่ทำงาน">
-                <input type="text" id="guardian-income" name="guardian-income" value="{{ guardian.income|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="รายได้ต่อปี">
+                
+                    <input type="text" id="guardian-first-name" name="guardian-first-name" value="{{ guardian.first_name|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="ชื่อผู้ปกครอง"  required>
+                    <input type="text" id="guardian-last-name" name="guardian-last-name" value="{{ guardian.last_name|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="นามสกุล"  required>
+                
+                    <input type="text" id="guardian-dob" name="guardian-dob" value="{{ guardian.date_of_birth|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="วันเดือนปีเกิด"  required>
+                    <input type="text" id="guardian-house-number" name="guardian-house-number" value="{{ guardian.address.house_number|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="บ้านเลขที่"  required>
+                
+                    <input type="text" id="guardian-street" name="guardian-street" value="{{ guardian.address.street|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="ซอย/ถนน"  required>
+                    <input type="number" id="guardian-village" name="guardian-village" value="{{ guardian.address.moo|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="หมู่ที่"  required>
+                
+                    <!-- Province Dropdown -->
+                    <select id="guardian-province" name="guardian-province" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500"  required>
+                        <option value="" selected disabled>เลือกจังหวัด</option>
+                        {% for province in provinces %}
+                            <option value="{{ province.id }}" {% if guardian.address.province_id == province.id %}selected{% endif %}>
+                                {{ province.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                
+                    <!-- District Dropdown -->
+                    <select id="guardian-district" name="guardian-district"  data-selected="{{ guardian.address.district.id }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500"  required>
+                        <option value="" selected disabled>เลือกอำเภอ</option>
+                        {% if guardian.address.district %}
+                            <option value="{{ guardian.address.district.id }}" selected>{{ guardian.address.district.name }}</option>
+                        {% endif %}
+                    </select>
+                
+                    <!-- Subdistrict Dropdown -->
+                    <select id="guardian-subdistrict" name="guardian-subdistrict" data-selected="{{ guardian.address.subdistrict.id }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500"  required>
+                        <option value="" selected disabled>เลือกตำบล</option>
+                        {% if guardian.address.subdistrict %}
+                            <option value="{{ guardian.address.subdistrict.id }}" selected>{{ guardian.address.subdistrict.name }}</option>
+                        {% endif %}
+                    </select>
+                
+                    <!-- Zipcode Field -->
+                    <input type="text" id="guardian-zipcode" name="guardian-zipcode" value="{{ guardian.address.zipcode|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="รหัสไปรษณีย์" readonly  required>
+                
+                    <input type="text" id="guardian-phone" name="guardian-phone" value="{{ guardian.phone_number|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="เบอร์ติดต่อ"  required>
+                    <input type="text" id="guardian-occupation" name="guardian-occupation" value="{{ guardian.occupation|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="อาชีพปัจจุบัน">
+                
+                    <input type="text" id="guardian-workplace" name="guardian-workplace" value="{{ guardian.workplace|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="สถานที่ทำงาน">
+                    <input type="text" id="guardian-income" name="guardian-income" value="{{ guardian.income|default:'' }}" class="w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500" placeholder="รายได้ต่อปี">
             </div>
-
-
-
+                
             <!-- Submit Button -->
             <div class="text-center md:text-right">
                 <button type="submit" class="bg-green-500 text-white font-semibold px-4 md:px-8 py-2 md:py-3 text-lg md:text-xl rounded-lg md:rounded-xl hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 drop-shadow-2xl shadow-md shadow-black/75">
@@ -315,7 +339,109 @@
             </div>
         </form>
     </div>
-  
+    
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const phoneInputs = [
+                document.getElementById('father-phone'),
+                document.getElementById('mother-phone'),
+                document.getElementById('guardian-phone')
+            ];
+    
+            phoneInputs.forEach(input => {
+                input.addEventListener('input', function () {
+                    let value = input.value.replace(/\D/g, ''); // Remove all non-digit characters
+    
+                    // Limit to 10 digits
+                    if (value.length > 10) {
+                        value = value.slice(0, 10);
+                    }
+    
+                    // Format the number: 3-3-4 (e.g., 012 345 6789)
+                    let formattedValue = value.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1 $2 $3');
+    
+                    // Update the input field with formatted value
+                    input.value = formattedValue;
+    
+                    // Validate the format: 10 digits starting with 0
+                    if (/^0\d{9}$/.test(value)) {
+                        input.setCustomValidity('');
+                    } else {
+                        input.setCustomValidity('เบอร์โทรต้องมี 10 หลักและขึ้นต้นด้วยเลข 0');
+                    }
+                });
+    
+                // Clear custom validity on blur
+                input.addEventListener('blur', function () {
+                    input.setCustomValidity('');
+                });
+            });
+        });
+    </script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const requiredInputs = document.querySelectorAll('input[required], select[required]');
+            const studentIdInput = document.getElementById('student-id-number');
+    
+            // Function to validate the student ID length
+            function validateStudentId() {
+                const value = studentIdInput.value.trim();
+                if (value.length !== 17) {
+                    studentIdInput.setCustomValidity('ข้อมูลของคุณไม่ถูกต้อง');
+                } else {
+                    studentIdInput.setCustomValidity('');
+                }
+            }
+    
+            // Validate student ID on input and blur events
+            studentIdInput.addEventListener('input', validateStudentId);
+            studentIdInput.addEventListener('blur', validateStudentId);
+    
+            requiredInputs.forEach(input => {
+                // Set custom error message in Thai
+                input.addEventListener('invalid', function () {
+                    if (!input.value.trim()) {
+                        input.setCustomValidity('โปรดกรอกข้อมูลในช่องนี้');
+                    }
+                });
+    
+                // Clear the custom error message when the user provides input
+                input.addEventListener('input', function () {
+                    input.setCustomValidity('');
+                });
+    
+                // Add green border for valid input
+                input.addEventListener('input', function () {
+                    if (input.value.trim()) {
+                        input.classList.add('border-green-500');
+                    } else {
+                        input.classList.remove('border-green-500');
+                    }
+                });
+            });
+        });
+    </script>
+    
+
+
+    <script>
+        document.getElementById('student-id-number').addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, ''); // Remove non-numeric characters
+            let formattedValue = '';
+    
+            // Apply Thai ID formatting (1 2345 67890 12 3)
+            if (value.length > 0) formattedValue += value.substring(0, 1) + ' ';
+            if (value.length > 1) formattedValue += value.substring(1, 5) + ' ';
+            if (value.length > 5) formattedValue += value.substring(5, 10) + ' ';
+            if (value.length > 10) formattedValue += value.substring(10, 12) + ' ';
+            if (value.length > 12) formattedValue += value.substring(12, 13);
+    
+            e.target.value = formattedValue.trim();
+        });
+    </script>
+
     <script>
         flatpickr("#student-dob", {
             dateFormat: "d/m/Y",    // รูปแบบวันที่ dd/mm/yyyy
@@ -345,75 +471,30 @@
             });
     </script>
     <script>
-        const imageUpload = document.getElementById('imageUpload');
-        const preview = document.getElementById('preview');
-        const defaultIcon = document.getElementById('defaultIcon');
+    function selectRelationship(currentCheckbox) {
+        // Get all relationship checkboxes
+        const checkboxes = document.querySelectorAll('input[name="relationship"]');
+        
+        // Uncheck all checkboxes except the one clicked
+        checkboxes.forEach(checkbox => {
+            if (checkbox !== currentCheckbox) {
+                checkbox.checked = false;
+            }
+        });
     
-        imageUpload.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    preview.src = event.target.result;
-                    preview.classList.remove('hidden');
-                    defaultIcon.classList.add('hidden');
-                }
-                reader.readAsDataURL(file);
+        // Copy data based on the selected checkbox
+        if (currentCheckbox.checked) {
+            if (currentCheckbox.value === 'father') {
+                copyParentData('father');
+            } else if (currentCheckbox.value === 'mother') {
+                copyParentData('mother');
             } else {
-                preview.src = '';
-                preview.classList.add('hidden');
-                defaultIcon.classList.remove('hidden');
+                clearGuardianFields();
             }
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const provinceEndpoints = [
-                { id: 'father-province' },
-                { id: 'mother-province' },
-                { id: 'guardian-province' }
-            ];
-    
-            function fetchAndPopulateProvinces() {
-                fetch('/get-provinces/')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.length === 0) {
-                            alert('ไม่พบข้อมูลจังหวัด');
-                        } else {
-                            provinceEndpoints.forEach(endpoint => {
-                                const dropdown = document.getElementById(endpoint.id);
-                                dropdown.innerHTML = '<option value="" selected disabled>เลือกจังหวัด</option>';
-                                data.forEach(province => {
-                                    const option = document.createElement('option');
-                                    option.value = province.id;
-                                    option.textContent = province.name;
-                                    dropdown.appendChild(option);
-                                });
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching provinces:', error);
-                        alert('เกิดข้อผิดพลาดในการโหลดข้อมูลจังหวัด');
-                    });
-            }
-    
-            fetchAndPopulateProvinces();
-        });
-    </script>
-
-    <script>
-    document.getElementById('relationship').addEventListener('change', function () {
-        const relationship = this.value;
-        if (relationship === 'พ่อ') {
-            copyParentData('father');
-        } else if (relationship === 'แม่') {
-            copyParentData('mother');
         } else {
             clearGuardianFields();
         }
-    });
+    }
     
     function copyParentData(parentType) {
         // Copy Name Fields
@@ -421,20 +502,49 @@
         document.getElementById('guardian-last-name').value = document.getElementById(`${parentType}-last-name`).value;
         
         // Copy Date of Birth
-        document.getElementById('guardian-dob').value = document.getElementById(`${parentType}-dob`).value;
-        
+         // Copy Date of Birth and Update Flatpickr
+        const parentDob = document.getElementById(`${parentType}-dob`).value;
+        const guardianDob = document.getElementById('guardian-dob');
+        guardianDob.value = parentDob;
+
+        // Check if Flatpickr is initialized and update its value
+        if (guardianDob._flatpickr) {
+            guardianDob._flatpickr.setDate(parentDob, true); // true to trigger change events
+        }
+
         // Copy Address Fields
         document.getElementById('guardian-house-number').value = document.getElementById(`${parentType}-house-number`).value;
         document.getElementById('guardian-street').value = document.getElementById(`${parentType}-street`).value;
         document.getElementById('guardian-village').value = document.getElementById(`${parentType}-village`).value;
         document.getElementById('guardian-province').value = document.getElementById(`${parentType}-province`).value;
-        document.getElementById('guardian-district').value = document.getElementById(`${parentType}-district`).value;
-        document.getElementById('guardian-subdistrict').value = document.getElementById(`${parentType}-subdistrict`).value;
-        document.getElementById('guardian-zipcode').value = document.getElementById(`${parentType}-zipcode`).value;
-        
+    
+        // Trigger change event to fetch districts
+        document.getElementById('guardian-province').dispatchEvent(new Event('change'));
+    
+        setTimeout(() => {
+                const guardianDistrict = document.getElementById('guardian-district');
+                const parentDistrict = document.getElementById(`${parentType}-district`);
+                
+                guardianDistrict.value = parentDistrict.value;
+                guardianDistrict.dispatchEvent(new Event('change'));
+
+                setTimeout(() => {
+                    const guardianSubdistrict = document.getElementById('guardian-subdistrict');
+                    const parentSubdistrict = document.getElementById(`${parentType}-subdistrict`);
+                    
+                    guardianSubdistrict.value = parentSubdistrict.value;
+                    guardianSubdistrict.dispatchEvent(new Event('change'));
+
+                    // Set zipcode after subdistrict is loaded
+                    const guardianZipcode = document.getElementById('guardian-zipcode');
+                    const parentZipcode = document.getElementById(`${parentType}-zipcode`);
+                    guardianZipcode.value = parentZipcode.value;
+                }, 300); // Delay to ensure subdistrict fetch completes
+            }, 300); // Delay to ensure district fetch completes
+
         // Copy Contact Information
         document.getElementById('guardian-phone').value = document.getElementById(`${parentType}-phone`).value;
-        
+    
         // Copy Occupation and Workplace
         document.getElementById('guardian-occupation').value = document.getElementById(`${parentType}-occupation`).value;
         document.getElementById('guardian-workplace').value = document.getElementById(`${parentType}-workplace`).value;
@@ -463,7 +573,7 @@
             document.getElementById(id).value = '';
         });
     }
-    </script>
+</script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const schoolDropdown = document.getElementById('school');
@@ -574,97 +684,93 @@
         });
     </script> -->
     
+    
     <script>
         // Fetch Districts based on selected Province
     
-        document.querySelectorAll('select[id$="-province"]').forEach(provinceDropdown => {
-            provinceDropdown.addEventListener('change', function () {
-                const provinceId = this.value;
-                const districtDropdown = document.getElementById(this.id.replace('province', 'district'));
-                const subdistrictDropdown = document.getElementById(this.id.replace('province', 'subdistrict'));
-                const zipcodeInput = document.getElementById(this.id.replace('province', 'zipcode'));
+        
+        document.addEventListener('DOMContentLoaded', function () {
+    const addressGroups = [
+        { prefix: 'father' },
+        { prefix: 'mother' },
+        { prefix: 'guardian' }
+    ];
 
-                // Reset district, subdistrict, and zipcode fields
-                districtDropdown.innerHTML = '<option value="">เลือกอำเภอ</option>';
-                subdistrictDropdown.innerHTML = '<option value="">เลือกตำบล</option>';
-                zipcodeInput.value = '';
+    addressGroups.forEach(group => {
+        const provinceDropdown = document.getElementById(`${group.prefix}-province`);
+        const districtDropdown = document.getElementById(`${group.prefix}-district`);
+        const subdistrictDropdown = document.getElementById(`${group.prefix}-subdistrict`);
+        const zipcodeField = document.getElementById(`${group.prefix}-zipcode`);
 
-                if (provinceId) {
-                    fetch(`/get-districts/?province_id=${provinceId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.length === 0) {
-                                alert('ไม่พบข้อมูลอำเภอสำหรับจังหวัดนี้');
-                            }
-                            data.forEach(district => {
-                                const option = document.createElement('option');
-                                option.value = district.id;
-                                option.textContent = district.name;
-                                districtDropdown.appendChild(option);
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Error fetching districts:', error);
-                            alert('เกิดข้อผิดพลาดในการโหลดข้อมูลอำเภอ');
-                        });
-                }
-            });
+        const selectedDistrictId = districtDropdown.dataset.selected || '';
+        const selectedSubdistrictId = subdistrictDropdown.dataset.selected || '';
+
+        if (provinceDropdown.value) {
+            fetchDistricts(provinceDropdown.value, districtDropdown, subdistrictDropdown, zipcodeField, selectedDistrictId, selectedSubdistrictId);
+        }
+
+        provinceDropdown.addEventListener('change', function () {
+            fetchDistricts(this.value, districtDropdown, subdistrictDropdown, zipcodeField);
+            subdistrictDropdown.innerHTML = '<option value="" selected disabled>เลือกตำบล</option>';
+            zipcodeField.value = '';
         });
 
-        // Fetch Subdistricts Based on Selected District
-        document.querySelectorAll('select[id$="-district"]').forEach(districtDropdown => {
-            districtDropdown.addEventListener('change', function () {
-                const districtId = this.value;
-                const subdistrictDropdown = document.getElementById(this.id.replace('district', 'subdistrict'));
-                const zipcodeInput = document.getElementById(this.id.replace('district', 'zipcode'));
-
-                // Reset subdistrict and zipcode fields
-                subdistrictDropdown.innerHTML = '<option value="">เลือกตำบล</option>';
-                zipcodeInput.value = '';
-
-                if (districtId) {
-                    fetch(`/get-subdistricts/?district_id=${districtId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.length === 0) {
-                                alert('ไม่พบข้อมูลตำบลสำหรับอำเภอนี้');
-                            }
-                            data.forEach(subdistrict => {
-                                const option = document.createElement('option');
-                                option.value = subdistrict.id;
-                                option.textContent = subdistrict.name;
-                                subdistrictDropdown.appendChild(option);
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Error fetching subdistricts:', error);
-                            alert('เกิดข้อผิดพลาดในการโหลดข้อมูลตำบล');
-                        });
-                }
-            });
+        districtDropdown.addEventListener('change', function () {
+            fetchSubdistricts(this.value, subdistrictDropdown, zipcodeField, selectedSubdistrictId);
+            zipcodeField.value = '';
         });
 
-        // Fetch Zipcode Based on Selected Subdistrict
-        document.querySelectorAll('select[id$="-subdistrict"]').forEach(subdistrictDropdown => {
-            subdistrictDropdown.addEventListener('change', function () {
-                const subdistrictId = this.value;
-                const zipcodeInput = document.getElementById(this.id.replace('subdistrict', 'zipcode'));
-
-                if (subdistrictId) {
-                    fetch(`/get-postal-code/?subdistrict_id=${subdistrictId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            zipcodeInput.value = data.zipcode || '';
-                        })
-                        .catch(error => {
-                            console.error('Error fetching postal code:', error);
-                            alert('เกิดข้อผิดพลาดในการโหลดรหัสไปรษณีย์');
-                        });
-                }
-            });
+        subdistrictDropdown.addEventListener('change', function () {
+            fetch(`/get-zipcode/?subdistrict_id=${this.value}`)
+                .then(response => response.json())
+                .then(data => {
+                    zipcodeField.value = data.zipcode;
+                })
+                .catch(error => console.error('Error fetching zipcode:', error));
         });
+    });
+});
 
-    </script>
+function fetchDistricts(provinceId, districtDropdown, subdistrictDropdown, zipcodeField, selectedDistrictId = '', selectedSubdistrictId = '') {
+    fetch(`/get-districts/?province_id=${provinceId}`)
+        .then(response => response.json())
+        .then(data => {
+            districtDropdown.innerHTML = '<option value="" selected disabled>เลือกอำเภอ</option>';
+            data.forEach(district => {
+                const option = document.createElement('option');
+                option.value = district.id;
+                option.textContent = district.name;
+                if (selectedDistrictId && district.id == selectedDistrictId) {
+                    option.selected = true;
+                    fetchSubdistricts(district.id, subdistrictDropdown, zipcodeField, selectedSubdistrictId);
+                }
+                districtDropdown.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching districts:', error));
+}
+
+function fetchSubdistricts(districtId, subdistrictDropdown, zipcodeField, selectedSubdistrictId = '') {
+    fetch(`/get-subdistricts/?district_id=${districtId}`)
+        .then(response => response.json())
+        .then(data => {
+            subdistrictDropdown.innerHTML = '<option value="" selected disabled>เลือกตำบล</option>';
+            data.forEach(subdistrict => {
+                const option = document.createElement('option');
+                option.value = subdistrict.id;
+                option.textContent = subdistrict.name;
+                if (selectedSubdistrictId && subdistrict.id == selectedSubdistrictId) {
+                    option.selected = true;
+                }
+                subdistrictDropdown.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching subdistricts:', error));
+}
+
+</script>
+
+    
     
 </body>
 </html>

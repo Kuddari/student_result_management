@@ -298,35 +298,6 @@ class Guardian(ParentBase):
         verbose_name=_("ความสัมพันธ์กับนักเรียน")
     )
 
-    def save(self, *args, **kwargs):
-        # Auto-populate fields if relationship is "พ่อ" (Father)
-        if self.relationship_with_student == 'พ่อ':
-            father = Father.objects.filter(student=self.student).first()
-            if father:
-                self.first_name = father.first_name
-                self.last_name = father.last_name
-                self.date_of_birth = father.date_of_birth
-                self.address = father.address
-                self.occupation = father.occupation
-                self.workplace = father.workplace
-                self.income = father.income
-                self.phone_number = father.phone_number
-
-        # Auto-populate fields if relationship is "แม่" (Mother)
-        elif self.relationship_with_student == 'แม่':
-            mother = Mother.objects.filter(student=self.student).first()
-            if mother:
-                self.first_name = mother.first_name
-                self.last_name = mother.last_name
-                self.date_of_birth = mother.date_of_birth
-                self.address = mother.address
-                self.occupation = mother.occupation
-                self.workplace = mother.workplace
-                self.income = mother.income
-                self.phone_number = mother.phone_number
-
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return f"Guardian: {self.first_name} {self.last_name} - {self.student} ({self.relationship_with_student})"
 

@@ -66,14 +66,13 @@ def get_subdistricts(request):
     subdistricts = list(Tambon.objects.filter(amphoe_id=district_id).values('id', 'name'))
     return JsonResponse(subdistricts, safe=False)
 
-# Get postal code (zipcode) based on the selected subdistrict
-def get_postal_code(request):
+# Fetch zipcode based on subdistrict
+def get_zipcode(request):
     subdistrict_id = request.GET.get('subdistrict_id')
-    if not subdistrict_id:
-        return JsonResponse({'error': 'Invalid subdistrict ID'}, status=400)
-    
-    tambon = Tambon.objects.filter(id=subdistrict_id).first()
-    return JsonResponse({'zipcode': tambon.zipcode if tambon else ''})
+    subdistrict = Tambon.objects.filter(id=subdistrict_id).first()
+    if subdistrict:
+        return JsonResponse({'zipcode': subdistrict.zipcode})
+    return JsonResponse({'zipcode': ''})
 
 def Home(request):
     # Get student data
@@ -365,7 +364,7 @@ def edit_Profile(request):
 def in_Profile(request, student_id=None):
     provinces = Province.objects.all()
     schools = School.objects.all()
-
+    
     # Check if editing an existing student
     student = None
     father = None
@@ -387,6 +386,9 @@ def in_Profile(request, student_id=None):
             except (ValueError, TypeError):
                 return None
         # Handle Student Data
+        student_profile_pic = request.FILES.get('profile_picture')
+        if student_profile_pic:
+            student.profile_picture = student_profile_pic
         student_first_name = request.POST.get('student-first-name')
         student_last_name = request.POST.get('student-last-name')
         student_english_first_name = request.POST.get('student-english-first-name')
@@ -394,7 +396,11 @@ def in_Profile(request, student_id=None):
         student_arabic_first_name = request.POST.get('student-arabic-first-name')
         student_arabic_last_name = request.POST.get('student-arabic-last-name')
         student_dob =  parse_date(request.POST.get('student-dob'))
-        student_id_number = request.POST.get('student-id-number')
+        # Get the Thai ID number from the form
+        student_id_number = request.POST.get('student-id-number', '').replace(' ', '')
+        # Validate the Thai ID number (should be exactly 13 digits)
+        if not student_id_number.isdigit() or len(student_id_number) != 13:
+            return JsonResponse({'error': 'Invalid Thai ID number. It must contain exactly 13 digits.'}, status=400)
         school_id = request.POST.get('student-school')
         special_status = request.POST.get('special-status')
         gender = request.POST.get('gender')  # Add this line to handle gender
@@ -405,6 +411,7 @@ def in_Profile(request, student_id=None):
 
         # Create or update student
         if student:
+            student.profile_picture = student_profile_pic
             student.first_name = student_first_name
             student.last_name = student_last_name
             student.english_first_name = student_english_first_name
@@ -489,21 +496,24 @@ def in_Profile(request, student_id=None):
         }
         Mother.objects.update_or_create(student=student, defaults=mother_data)
 
-        # Handle Guardian Data
+        
         guardian_address = handle_address('guardian')
         guardian_data = {
+            'relationship_with_student': request.POST.get('relationship'), # Save relationship
             'first_name': request.POST.get('guardian-first-name'),
             'last_name': request.POST.get('guardian-last-name'),
-            'date_of_birth':  parse_date(request.POST.get('guardian-dob')),
+            'date_of_birth': parse_date(request.POST.get('guardian-dob')),
             'phone_number': request.POST.get('guardian-phone'),
             'occupation': request.POST.get('guardian-occupation'),
             'workplace': request.POST.get('guardian-workplace'),
             'income': safe_int(request.POST.get('guardian-income')),
             'address': guardian_address,
         }
+
         Guardian.objects.update_or_create(student=student, defaults=guardian_data)
 
-        return redirect('profile')  # Redirect to a success page after submission
+
+        return redirect('profile', student_id=student.id)# Redirect to a success page after submission
 
     return render(request, 'inputdata/in_profile.html', {
         'provinces': provinces,
