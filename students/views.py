@@ -155,6 +155,7 @@ def Student_Rp(request):
     academic_year = request.GET.get('academic_year')
     gender = request.GET.get('gender')
     special_status = request.GET.get('special_status')
+    action = request.GET.get('action')  # Check for download action
     print(f"special_status: {special_status}")  # Debugging
     print(f"gender: {gender}")  # Debugging
 
@@ -186,7 +187,10 @@ def Student_Rp(request):
     # กรองตามสถานะพิเศษ
     if special_status:
         students = students.filter(special_status=special_status)
-
+    
+    # Check if the action is to download the PDF
+    if action == 'download':
+        return download_students_pdf(students, school, level, academic_year, gender, special_status)
     # ดึงข้อมูลสำหรับตัวเลือก
     levels = Level.objects.all()
     schools = School.objects.all()
@@ -211,79 +215,42 @@ def Student_Rp(request):
     }
     return render(request, 'student/sp_student.html', context)
 
-
-def download_students_pdf(request):
-    # รับค่าฟิลเตอร์
-    search = request.GET.get('search', '').strip()
-    school = request.GET.get('school')
-    level = request.GET.get('level')
-    academic_year = request.GET.get('academic_year')
-    gender = request.GET.get('gender')
-    special_status = request.GET.get('special_status')
-
-    # Query นักเรียนเริ่มต้น
-    students = Student.objects.filter(current_study__isnull=False)
-
-    # กรองตามคำค้นหา
-    if search:
-        students = students.filter(
-            Q(first_name__icontains=search) | Q(last_name__icontains=search)
-        )
-
-    # กรองตามโรงเรียน
-    if school:
-        students = students.filter(current_study__school__id=school)
-
-    # กรองตามระดับชั้น
-    if level:
-        students = students.filter(current_study__level__id=level)
-
-    # กรองตามปีการศึกษา
-    if academic_year:
-        students = students.filter(current_study__current_semester__year=academic_year)
-
-    # **กรองตามเพศและสถานะพิเศษ หลังจากการกรองเบื้องต้น**
-    # กรองตามเพศ
-    if gender:
-        students = students.filter(gender__iexact=gender)
-
-    # กรองตามสถานะพิเศษ
-    if special_status:
-        students = students.filter(special_status__iexact=special_status)
-
-    # ตรวจสอบจำนวนผลลัพธ์หลังจากกรอง
-    print(f"Filtered students count: {students.count()}")
-
-    # หากไม่มีข้อมูลนักเรียนในผลลัพธ์ ให้แสดงข้อความ "ไม่มีข้อมูล"
+def download_students_pdf(students, school, level, academic_year, gender, special_status):
+    # Check if there are any students
     if not students.exists():
         student_data = [['ไม่มีข้อมูล']]
     else:
-        # เตรียมข้อมูลสำหรับ PDF
         student_data = [
-            ['ลำดับ', 'ชื่อ', 'นามสกุล', 'เพศ', 'โรงเรียน', 'สถานะพิเศษ'],  # หัวตาราง
+            ['ลำดับ', 'ชื่อ', 'นามสกุล', 'เพศ', 'โรงเรียน', 'สถานะพิเศษ'],
         ]
         for i, student in enumerate(students, start=1):
             student_data.append([
                 i,
                 student.first_name,
                 student.last_name,
-                student.gender,
+                student.gender or 'ไม่มีข้อมูล',
                 student.current_study.school.name if student.current_study else 'ไม่มีข้อมูล',
                 student.special_status or 'ไม่มีข้อมูล',
             ])
-    # กำหนดค่าหัวข้อ
+
+    # Dynamically determine gender and special status from the queryset
+    unique_genders = students.values_list('gender', flat=True).distinct()
+    unique_special_statuses = students.values_list('special_status', flat=True).distinct()
+
+    gender_text = ', '.join(filter(None, unique_genders)) if unique_genders else "ทุกเพศ"
+    status_text = ', '.join(filter(None, unique_special_statuses)) if unique_special_statuses else "ทุกสถานะพิเศษ"
+
+    # Header information
     school_name = School.objects.get(id=school).name if school else "ทุกโรงเรียน"
     level_name = Level.objects.get(id=level).name if level else "ทุกชั้น"
     academic_year_text = academic_year if academic_year else "ทุกปี"
-    gender_text = gender if gender else "ทุกเพศ"
-    status_text = special_status if special_status else "ทุกสถานะพิเศษ"
     header_info = f"ชั้น: {level_name} | ปีการศึกษา: {academic_year_text} | เพศ: {gender_text} | สถานะพิเศษ: {status_text}"
 
-    # สร้าง Response
+    # Create PDF Response
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="students_report_{academic_year or "all"}.pdf"'
 
-    # สร้าง PDF Document (A4 ขนาดแนวนอน)
+    # Create PDF Document (A4 Landscape)
     doc = SimpleDocTemplate(
         response,
         pagesize=landscape(A4),
@@ -293,21 +260,21 @@ def download_students_pdf(request):
         rightMargin=0.5 * inch,
     )
 
-    # โลโก้
-    logo_path = "static/images/logo.png"  # แก้ไขเป็น path ของโลโก้
+    # Logo
+    logo_path = "static/images/logo.png"
     logo = Image(logo_path, width=1 * inch, height=1 * inch)
 
-    # ชื่อโรงเรียน
+    # School Title
     styles = getSampleStyleSheet()
     styles['Normal'].fontName = 'THSarabunNew'
     styles['Normal'].fontSize = 20
     styles['Normal'].alignment = 1
     school_paragraph = Paragraph(f"<b>{school_name}</b>", styles['Normal'])
 
-    # ข้อมูลจำนวนนักเรียน
+    # Info Paragraph
     info_paragraph = Paragraph(header_info, styles['Normal'])
 
-    # สร้าง Header Layout (ปรับ colWidths ให้ตรงกับ Table)
+    # Header Table Layout
     header_table_data = [
         [logo, school_paragraph, info_paragraph]
     ]
@@ -323,10 +290,10 @@ def download_students_pdf(request):
         ('BOTTOMPADDING', (1, 0), (-1, -1), 15),
     ]))
 
-    # เพิ่มระยะห่างระหว่าง Header กับตาราง
+    # Add spacing
     spacer = Spacer(1, 0.3 * inch)
 
-    # สร้างตาราง
+    # Student Table
     table = Table(
         student_data,
         colWidths=[50, 150, 150, 100, 250, 100]
@@ -350,11 +317,12 @@ def download_students_pdf(request):
         ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
     ]))
 
-    # เพิ่มองค์ประกอบทั้งหมดลงใน PDF
+    # Build PDF
     elements = [header_table, spacer, table]
     doc.build(elements)
 
     return response
+
 
 def edit_Profile(request):
     return render(request, 'edit/edit_profile.html')

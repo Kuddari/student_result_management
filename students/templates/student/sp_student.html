@@ -186,16 +186,25 @@
                     </div>
                 </div>
             </div>
-
+            
             <div class="flex justify-center lg:justify-end gap-3 mb-8">
-                <!-- Download PDF Button -->
+                <a
+                    href="{% url 'sp_student_report' %}?search={{ request.GET.search|default:'' }}&school={{ request.GET.school|default:'' }}&level={{ request.GET.level|default:'' }}&academic_year={{ request.GET.academic_year|default:'' }}&gender={{ request.GET.gender|default:'' }}&special_status={{ request.GET.special_status|default:'' }}&action=download"
+                    class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg shadow-md"
+                >
+                    ดาวน์โหลดเป็น PDF
+                </a>
+            </div>
+
+            <!-- Download <div class="flex justify-center lg:justify-end gap-3 mb-8">
+                <!-- Download PDF 
                 <a
                     href="{% url 'download_students_pdf' %}?search={{ request.GET.search|default:'' }}&school={{ request.GET.school|default:'' }}&level={{ request.GET.level|default:'' }}&academic_year={{ request.GET.academic_year|default:'' }}"
                     class="bg-red-500 hover:bg-red-600 text-white d py-2 px-4 rounded-lg shadow-md ">
                     ดาวน์โหลดเป็น PDF
                 </a>
                 
-            </div>
+            </div> Button -->
 
             <!-- Mobile Table View with Actions -->
             <div class="lg:hidden space-y-4">
