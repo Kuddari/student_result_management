@@ -1,0 +1,152 @@
+{% include 'navbar.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/font.css' %}">
+    <title>Student Results</title>
+</head>
+<body>
+    <div class="min-h-screen bg-gradient-to-b from-green-100 to-green-900 font-prompt">
+
+        <!-- Header Section -->
+        <div class="max-w-4xl mx-auto mb-4 pt-12">
+            <div class="grid grid-cols-1 md:flex justify-end items-center mb-0 md:mb-6 px-4 md:px-0">
+                <div class="flex space-x-2">
+                    <select class="w-36 bg-white px-4 py-1 rounded-lg border border-green-800 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md" name="term">
+                        <option>ภาคเรียน</option>
+                        <option>ภาคเรียนที่ 1</option>
+                        <option>ภาคเรียนที่ 2</option>
+                    </select>
+                    <select class="w-36 bg-white px-4 py-1 rounded-lg border border-green-800 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md" name="year">
+                        <option>ปีการศึกษา</option>
+                        <option>2567</option>
+                        <option>2566</option>
+                    </select>
+                    <button class="bg-green-800 text-white px-4 md:px-8 py-1 rounded-lg">ยืนยัน</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="max-w-4xl mx-auto p-8 rounded-lg">
+             <!-- Header -->
+             <div class="md:flex md:items-center mb-6">
+                <div class="flex justify-center mb-4 md:mb-0">
+                    <div class="w-28 h-32 bg-white rounded-xl flex items-center justify-center">
+                        <svg class="w-28 h-28 text-green-700" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-4 0-8 2-8 4v2h16v-2c0-2-4-4-8-4z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-left md:ml-6">
+                    <h1 class="text-xl md:text-4xl d text-green-800 font-bold">{{ student.first_name }} {{ student.last_name }}</h1>
+                    <p class="text-lg mt-2 font-semibold text-gray-700">{{ current_study.school.name|default:"-" }}</p>
+                    <ul class="text-gray-700 mt-2">
+                        <li><span class="text-green-700 text-[16px]">สถานะปัจจุบัน </span><span class="font-bold text-[16px]">{{ student.status|default:"-" }}</span></li>
+                        <li><span class="text-green-700 text-[16px]">สถานะพิเศษ </span><span class="font-bold text-[16px]">{{ student.special_status|default:"-" }}</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Table Section -->
+            <div class="bg-green-700 text-white text-lg md:text-2xl font-bold p-2 rounded-t-md mt-6 px-4">
+                ภาคเรียนที่ 1 ปีการศึกษา 2567
+            </div>
+            <div class="overflow-x-auto text-[14px]">
+                <table class="w-full border-collapse border border-green-800">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border border-green-800 p-2 whitespace-nowrap">ลำดับ</th>
+                            <th class="border border-green-800 p-2 whitespace-nowrap">รายวิชา</th>
+                            <th class="border border-green-800 p-2 whitespace-nowrap">ชื่อผู้สอน</th>
+                            <th class="border border-green-800 p-2 whitespace-nowrap">คะแนน</th>
+                            <th class="border border-green-800 p-2 whitespace-nowrap">เกรด</th>
+                            <th class="border border-green-800 p-2 whitespace-nowrap">ผลการตัดสิน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subject in subjects_sem1 %}
+                        <tr class="text-center bg-white">
+                            <!-- ลำดับ -->
+                            <td class="border border-green-800 p-2 bg-gray-200 font-bold whitespace-nowrap">{{ subject.id }}</td>
+                
+                            <!-- รายวิชา -->
+                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.name }}</td>
+                
+                            <!-- ชื่อผู้สอน -->
+                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.teacher }}</td>
+                
+                            <!-- คะแนน -->
+                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.score }}</td>
+                
+                            <!-- เกรด -->
+                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.grade }}</td>
+                
+                            <!-- ผลการตัดสิน -->
+                            <td class="border border-green-800 p-2 {% if subject.status == 'ไม่ผ่าน' %}bg-red-500 text-white{% else %}bg-green-500 text-white{% endif %} whitespace-nowrap">
+                                {{ subject.status }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+                
+            </div>
+
+            <div class="bg-green-700 text-white text-lg md:text-2xl font-bold p-2 rounded-t-md mt-6 px-4">
+                ภาคเรียนที่ 2 ปีการศึกษา 2567
+            </div>
+            <div class="overflow-x-auto text-[14px]">
+                <table class="w-full border-collapse border border-green-800">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border border-green-800 p-2 whitespace-nowrap">ลำดับ</th>
+                            <th class="border border-green-800 p-2 whitespace-nowrap">รายวิชา</th>
+                            <th class="border border-green-800 p-2 whitespace-nowrap">ชื่อผู้สอน</th>
+                            <th class="border border-green-800 p-2 whitespace-nowrap">คะแนน</th>
+                            <th class="border border-green-800 p-2 whitespace-nowrap">เกรด</th>
+                            <th class="border border-green-800 p-2 whitespace-nowrap">ผลการตัดสิน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subject in subjects_sem2 %}
+                        <tr class="text-center bg-white">
+                            <!-- ลำดับ -->
+                            <td class="border border-green-800 p-2 bg-gray-200 font-bold whitespace-nowrap">{{ subject.id }}</td>
+                
+                            <!-- รายวิชา -->
+                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.name }}</td>
+                
+                            <!-- ชื่อผู้สอน -->
+                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.teacher }}</td>
+                
+                            <!-- คะแนน -->
+                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.score }}</td>
+                
+                            <!-- เกรด -->
+                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.grade }}</td>
+                
+                            <!-- ผลการตัดสิน -->
+                            <td class="border border-green-800 p-2 {% if subject.status == 'ไม่ผ่าน' %}bg-red-500 text-white{% else %}bg-green-500 text-white{% endif %} whitespace-nowrap">
+                                {{ subject.status }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div class="text-base md:text-lg text-right mt-4">
+                <button class="bg-gray-800 text-white px-4 py-1 rounded-lg">ดาวน์โหลดไฟล์ PDF</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
