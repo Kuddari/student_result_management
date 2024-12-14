@@ -1,0 +1,90 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Django Tailwind</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% tailwind_css %}
+  </head>
+
+  <body class="bg-gray-50 font-serif leading-normal tracking-normal">
+    <!-- Main Content -->
+    <div class="w-full mx-auto pb-16">
+      {% block content %}
+      <section class="flex items-center justify-center h-screen">
+        <h1 class="text-5xl">Django + Tailwind = ❤️</h1>
+      </section>
+      {% endblock %}
+    </div>
+
+
+    <!-- Normal Navbar for Desktop and Tablets -->
+    <div class="hidden md:flex fixed top-0 inset-x-0 bg-white shadow-md border-b border-gray-200 z-10">
+      <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+        <!-- Logo -->
+        <div class="text-lg font-bold text-gray-800">My App</div>
+
+        <!-- Normal Navbar Links -->
+        <nav class="space-x-6">
+          <a href="{% url 'home' %}" class="text-gray-800 hover:text-blue-500 {% if request.path == '/' %}text-green-500{% endif %}">
+            Home
+          </a>
+          <a href="{% url 'profile' student.id %}" class="text-gray-800 hover:text-blue-500 {% if request.path == '/profile/' %}text-green-500{% endif %}">
+            Profile
+          </a>
+          <a href="#" class="text-gray-800 hover:text-blue-500">Search</a>
+          <!-- Add more links as needed -->
+        </nav>
+      </div>
+    </div>
+    <!-- Bottom Navbar -->
+    <div class="fixed bottom-0 inset-x-0 bg-white shadow-md border-t border-gray-200">
+      <div class="flex justify-between items-center px-4 py-2">
+        <a id="home-link" href="{% url 'home' %}" 
+          class="flex flex-col items-center text-gray-800 hover:text-blue-500">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V20a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 20z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 21V12h6v9"></path>
+          </svg>
+          <span class="text-sm">Home</span>
+        </a>
+
+
+        <a href="{% url 'profile' student.id %}" class="flex flex-col items-center text-gray-800 hover:text-blue-500">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 20c0-2.21 2.69-4 6-4s6 1.79 6 4"></path>
+          </svg>
+          <span class="text-sm">Profile</span>
+        </a>
+      
+        <a href="#" class="flex flex-col items-center text-gray-800 hover:text-blue-500">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11 19a8 8 0 100-16 8 8 0 000 16zm10 4l-4.35-4.35"></path>
+          </svg>
+          <span class="text-sm">Search</span>
+        </a>
+        <!-- Add more buttons here -->
+      </div>
+    </div>
+
+    
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const currentUrl = window.location.pathname;
+        const homeUrl = "{% url 'home' %}";
+        const homeLink = document.getElementById("home-link");
+    
+        console.log("Current URL:", currentUrl); // Debugging
+        console.log("Home URL:", homeUrl);       // Debugging
+    
+        if (currentUrl === homeUrl) {
+          homeLink.classList.remove("text-gray-800", "hover:text-blue-500");
+          homeLink.classList.add("text-green-500");
+        }
+      });
+    </script>
+  </body>
+</html>
