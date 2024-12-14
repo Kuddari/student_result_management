@@ -123,73 +123,73 @@ def get_zipcode(request):
 
 
 def Home(request):
-    # # Check if 'user_type' is in the session
-    # user_type = request.session.get('user_type')
+    # Check if 'user_type' is in the session
+    user_type = request.session.get('user_type')
     
-    # if not user_type:
-    #     return redirect('login_view')  # Redirect to login if no user_type is found in session
+    if not user_type:
+        return redirect('login_view')  # Redirect to login if no user_type is found in session
 
 
-    # if user_type == 'student' and 'student_id' in request.session:
-    #     user_id = request.session['student_id']
+    if user_type == 'student' and 'student_id' in request.session:
+        user_id = request.session['student_id']
         
-    #     # Get student data
-    #     try:
-    #         student = Student.objects.get(id=user_id)
-    #     except Student.DoesNotExist:
-    #         return redirect('login_view')  # Redirect if student not found
+        # Get student data
+        try:
+            student = Student.objects.get(id=user_id)
+        except Student.DoesNotExist:
+            return redirect('login_view')  # Redirect if student not found
 
-    #     # Get student statistics
-    #     students = Student.objects.all()
-    #     male_students = students.filter(gender='ชาย').count()
-    #     female_students = students.filter(gender='หญิง').count()
-    #     orphans = students.filter(special_status='เด็กกำพร้า').count()
-    #     underprivileged = students.filter(special_status='เด็กยากไร้').count()
-    #     disabled = students.filter(special_status='เด็กพิการ').count()
-    #     new_muslims = students.filter(special_status='เด็กมุอัลลัฟ').count()
+        # Get student statistics
+        students = Student.objects.all()
+        male_students = students.filter(gender='ชาย').count()
+        female_students = students.filter(gender='หญิง').count()
+        orphans = students.filter(special_status='เด็กกำพร้า').count()
+        underprivileged = students.filter(special_status='เด็กยากไร้').count()
+        disabled = students.filter(special_status='เด็กพิการ').count()
+        new_muslims = students.filter(special_status='เด็กมุอัลลัฟ').count()
 
-    #     context = {
-    #         'user_type': user_type,
-    #         'total_students': students.count(),
-    #         'male_students': male_students,
-    #         'female_students': female_students,
-    #         'orphans': orphans,
-    #         'underprivileged': underprivileged,
-    #         'disabled': disabled,
-    #         'new_muslims': new_muslims,
-    #         'student': student
-    #     }
-    #     return render(request, 'student_home.html', context)
+        context = {
+            'user_type': user_type,
+            'total_students': students.count(),
+            'male_students': male_students,
+            'female_students': female_students,
+            'orphans': orphans,
+            'underprivileged': underprivileged,
+            'disabled': disabled,
+            'new_muslims': new_muslims,
+            'student': student
+        }
+        return render(request, 'student_home.html', context)
     
-    # if user_type == 'teacher' and 'teacher_id' in request.session:
-    #     user_id = request.session['teacher_id']
+    if user_type == 'teacher' and 'teacher_id' in request.session:
+        user_id = request.session['teacher_id']
         
-    #     # Get teeacher data
-    #     try:
-    #         teacher = Teacher.objects.get(id=user_id)
-    #     except Teacher.DoesNotExist:
-    #         return redirect('login_view')  # Redirect if student not found
+        # Get teeacher data
+        try:
+            teacher = Teacher.objects.get(id=user_id)
+        except Teacher.DoesNotExist:
+            return redirect('login_view')  # Redirect if student not found
 
-    #     # Get student statistics
-    #     students = Student.objects.all()
-    #     male_students = students.filter(gender='ชาย').count()
-    #     female_students = students.filter(gender='หญิง').count()
-    #     orphans = students.filter(special_status='เด็กกำพร้า').count()
-    #     underprivileged = students.filter(special_status='เด็กยากไร้').count()
-    #     disabled = students.filter(special_status='เด็กพิการ').count()
-    #     new_muslims = students.filter(special_status='เด็กมุอัลลัฟ').count()
+        # Get student statistics
+        students = Student.objects.all()
+        male_students = students.filter(gender='ชาย').count()
+        female_students = students.filter(gender='หญิง').count()
+        orphans = students.filter(special_status='เด็กกำพร้า').count()
+        underprivileged = students.filter(special_status='เด็กยากไร้').count()
+        disabled = students.filter(special_status='เด็กพิการ').count()
+        new_muslims = students.filter(special_status='เด็กมุอัลลัฟ').count()
 
-    #     context = {
-    #         'user_type': user_type,
-    #         'total_students': students.count(),
-    #         'male_students': male_students,
-    #         'female_students': female_students,
-    #         'orphans': orphans,
-    #         'underprivileged': underprivileged,
-    #         'disabled': disabled,
-    #         'new_muslims': new_muslims,
-    #     }
-        return render(request, 'teacher_home.html')
+        context = {
+            'user_type': user_type,
+            'total_students': students.count(),
+            'male_students': male_students,
+            'female_students': female_students,
+            'orphans': orphans,
+            'underprivileged': underprivileged,
+            'disabled': disabled,
+            'new_muslims': new_muslims,
+        }
+        return render(request, 'teacher_home.html', context)
     
     
 def Homes(request):
@@ -217,7 +217,7 @@ def Homes(request):
         'disabled': disabled,
         'new_muslims': new_muslims,
     }
-    return render(request, 'home.html', context)
+    return render(request, 'student_home.html', context)
 
 
 def GR_Student(request):
@@ -285,7 +285,7 @@ def GR_Student(request):
         'current_semester': current_semester,
     }
 
-    return render(request, 'student/gr_student.html', context)
+    return render(request, 'student/gr_student.html')
 
 def Student_Rp(request):
     # Check if 'user_type' is in the session

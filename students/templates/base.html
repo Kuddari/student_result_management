@@ -11,7 +11,7 @@
 
   <body class="bg-gray-50 font-serif leading-normal tracking-normal">
     <!-- Main Content -->
-    <div class="w-full mx-auto pb-16">
+    <div class="w-full mx-auto pb-16 md:pb-0">
       {% block content %}
       <section class="flex items-center justify-center h-screen">
         <h1 class="text-5xl">Django + Tailwind = ❤️</h1>
@@ -31,7 +31,7 @@
           <a href="{% url 'home' %}" class="text-gray-800 hover:text-blue-500 {% if request.path == '/' %}text-green-500{% endif %}">
             Home
           </a>
-          <a href="{% url 'profile' student.id %}" class="text-gray-800 hover:text-blue-500 {% if request.path == '/profile/' %}text-green-500{% endif %}">
+          <a href="" class="text-gray-800 hover:text-blue-500 {% if request.path == '/profile/' %}text-green-500{% endif %}">
             Profile
           </a>
           <a href="#" class="text-gray-800 hover:text-blue-500">Search</a>
@@ -39,9 +39,11 @@
         </nav>
       </div>
     </div>
+
+
     <!-- Bottom Navbar -->
-    <div class="fixed bottom-0 inset-x-0 bg-white shadow-md border-t border-gray-200">
-      <div class="flex justify-between items-center px-4 py-2">
+    <div class="fixed bottom-0 inset-x-0 bg-white shadow-md border-t border-gray-200 z-20 md:hidden">
+      <div class="flex justify-center gap-12 items-center px-4 py-2">
         <a id="home-link" href="{% url 'home' %}" 
           class="flex flex-col items-center text-gray-800 hover:text-blue-500">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -52,7 +54,7 @@
         </a>
 
 
-        <a href="{% url 'profile' student.id %}" class="flex flex-col items-center text-gray-800 hover:text-blue-500">
+        <a href="" class="flex flex-col items-center text-gray-800 hover:text-blue-500">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 20c0-2.21 2.69-4 6-4s6 1.79 6 4"></path>

@@ -16,21 +16,21 @@
 
 {% block content %}
     <body>
-        <div class="min-h-screen bg-green-800 px-4 sm:px-6 font-prompt"> 
+        <div class="h-screen bg-green-800 px-4 sm:px-6 font-prompt"> 
             <!-- Header Section -->
-            <header class="py-8 md:py-20 flex flex-col lg:flex-row justify-between items-center lg:max-w-5xl mx-auto space-y-6 md:space-y-0 z-30">
+            <header class="py-4 md:py-20 flex flex-col lg:flex-row justify-between items-center lg:max-w-5xl mx-auto space-y-3 md:space-y-0 z-30">
                 <div class="flex flex-col sm:flex-row items-center text-white text-center md:text-left">
                     <img class="w-24 h-24 md:w-32 md:h-32" src="{% static 'images/logo.png' %}" alt="">
                     <div class="mt-4 sm:mt-0 sm:ml-4">
-                        <h1 class="text-3xl md:text-4xl">ระบบการจัดการหน่วยสอบ</h1>
-                        <span class="text-xl md:text-2xl block mt-2">สมาคมครูสัมพันธ์ หน่วยสอบ 86</span>
+                        <h1 class="text-2xl md:text-4xl">ระบบการจัดการหน่วยสอบ</h1>
+                        <span class="text-lg md:text-2xl block mt-2">สมาคมครูสัมพันธ์ หน่วยสอบ 86</span>
                     </div>
                 </div>
 
                 <div class="flex flex-row gap-4">
-                    <a href="{% url 'profile' student.id  %}" class="md:mt-12 lg:mt-0 md:text-xl inline-flex items-center justify-center px-6 py-3 bg-white text-green-900 hover:bg-gray-200 hover:text-green-700 rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:scale-105">
+                    <a href="" class="md:mt-12 lg:mt-0  md:text-xl inline-flex items-center justify-center px-6 py-3 bg-white text-green-900 hover:bg-gray-200 hover:text-green-700 rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:scale-105">
                         <span class="mr-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-pen">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-pen">
                                 <path d="M11.5 15H7a4 4 0 0 0-4 4v2"></path>
                                 <path d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"></path>
                                 <circle cx="10" cy="7" r="4"></circle>
@@ -54,65 +54,63 @@
                     </a>
                 </div>
             </header>
-
+           
             <!-- Stats Grid -->
             <div class="lg:max-w-3xl mx-auto pb-8 lg:mt-14 z-30">
                 <!-- First Row Stats -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-5 mb-5">
+                <div class="grid grid-cols-3 gap-4 sm:gap-5 mb-5">
                     <a href="" class="block group">
-                        <div class="bg-white h-48  md:h-48 pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
-                            <h1 class="text-5xl d group-hover:text-green-700 counter" data-target="{{total_students}}">0</h1>
-                            <h2 class="text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">นักเรียน</h2>
+                        <div class="bg-white h-24 md:h-48 pt-4 md:pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
+                            <h1 class="text-[20px] md:text-5xl  group-hover:text-green-700 counter" data-target="{{total_students}}">0</h1>
+                            <h2 class="text-[20px] md:text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">นักเรียน</h2>
                         </div>
                     </a>
                     <a href="" class="block group">
-                        <div class="bg-white h-48  md:h-48 pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
-                            <h1 class="text-5xl d group-hover:text-green-700 counter" data-target="{{male_students}}">0</h1>
-                            <h2 class="text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">ชาย</h2>
+                        <div class="bg-white h-24 md:h-48 pt-4 md:pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
+                            <h1 class="text-[20px] md:text-5xl d group-hover:text-green-700 counter" data-target="{{male_students}}">0</h1>
+                            <h2 class="text-[20px] flex justify-center md:text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700"><img class="w-8 h-8 md:w-12 md:h-12 md:-mt-1" src="{% static 'images/male.png' %}">ชาย</h2>
                         </div>
                     </a>
 
                     <a href="" class="block group">
-                        <div class="bg-white h-48  md:h-48 pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
-                            <h1 class="text-5xl d group-hover:text-green-700 counter" data-target="{{female_students}}">0</h1>
-                            <h2 class="text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">หญิง</h2>
+                        <div class="bg-white h-24 md:h-48 pt-4 md:pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
+                            <h1 class="text-[20px] md:text-5xl d group-hover:text-green-700 counter" data-target="{{female_students}}">0</h1>
+                            <h2 class="text-[20px] flex justify-center md:text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700"><img class="w-8 h-8 md:w-12 md:h-12 md:-mt-1" src="{% static 'images/male.png' %}">หญิง</h2>
                         </div>
                     </a>
                 </div>
 
                 <!-- Second Row Stats -->
-                <div class="bg-white rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 hover:bg-slate-100 p-6 relative z-10">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-white rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 hover:bg-slate-100  py-3 md:p-6 relative z-10">
+                    <div class="grid grid-cols-2  md:grid-cols-4 gap-8">
                         <a href="" class="group">
                             <div class="text-center transition-all duration-300 group-hover:scale-105">
-                                <h1 class="text-4xl lg:text-5xl d group-hover:text-green-700 counter" data-target="{{orphans}}">0</h1>
-                                <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กกำพร้า</h1>
+                                <h1 class="text-[18px] md:text-5xl  group-hover:text-green-700 counter" data-target="{{orphans}}">0</h1>
+                                <h1 class="text-[18px] md:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กกำพร้า</h1>
                             </div>
                         </a>
                         <a href="" class="group">
                             <div class="text-center transition-all duration-300 group-hover:scale-105">
-                                <h1 class="text-4xl lg:text-5xl d group-hover:text-green-700 counter" data-target="{{underprivileged}}">0</h1>
-                                <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กยากไร้</h1>
+                                <h1 class="text-[18px] md:text-5xl  group-hover:text-green-700 counter" data-target="{{underprivileged}}">0</h1>
+                                <h1 class="text-[18px] md:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กยากไร้</h1>
                             </div>
                         </a>
                         <a href="" class="group">
                             <div class="text-center transition-all duration-300 group-hover:scale-105">
-                                <h1 class="text-4xl lg:text-5xl d group-hover:text-green-700 counter" data-target="{{disabled}}">0</h1>
-                                <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กพิการ</h1>
+                                <h1 class="text-[18px] md:text-5xl  group-hover:text-green-700 counter" data-target="{{disabled}}">0</h1>
+                                <h1 class="text-[18px] md:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กพิการ</h1>
                             </div>
                         </a>
                         <a href="" class="group">
                             <div class="text-center transition-all duration-300 group-hover:scale-105">
-                                <h1 class="text-4xl lg:text-5xl d group-hover:text-green-700 counter" data-target="{{new_muslims}}">0</h1>
-                                <h1 class="text-xl lg:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กมุอัลลัฟ</h1>
+                                <h1 class="text-[18px] md:text-5xl  group-hover:text-green-700 counter" data-target="{{new_muslims}}">0</h1>
+                                <h1 class="text-[18px] md:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กมุอัลลัฟ</h1>
                             </div>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="text-center pb-8 sm:mt-40 lg:mt-28 text-lg sm:text-base md:text-3xl text-green-300 underline">
-                <a href="">สมาคมคุรุสัมพันธ์อิสลามแห่งประเทศไทยในพระบรมราชูปถัมภ์</a>
-            </div>
+          
         </div>
     </body>
     </html>
