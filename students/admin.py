@@ -86,6 +86,38 @@ class LevelAdmin(admin.ModelAdmin):
     list_display = ('id', 'name')
     search_fields = ['name']
 
+@admin.register(Teacher)
+class TeacherAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name_info', 'gender_icon', 'subject', 'status_icon', 'password')
+    list_filter = ('status', 'gender')
+    search_fields = ('first_name', 'last_name', 'id_number', 'subject')
+
+    fields = [
+        'gender',
+        'first_name',
+        'last_name',
+        'date_of_birth',
+        'id_number',
+        'subject',
+        'profile_picture',
+        'status',
+        'password',  # Password as a read-only field
+    ]
+
+    readonly_fields = ('password',)  # Prevent editing password manually
+
+    def name_info(self, obj):
+        return f"{obj.first_name} {obj.last_name}"
+    name_info.short_description = "ชื่อ-นามสกุล"
+
+    def gender_icon(self, obj):
+        return "👨‍🏫" if obj.gender == 'ชาย' else "👩‍🏫"
+    gender_icon.short_description = "เพศ"
+
+    def status_icon(self, obj):
+        return "✅" if obj.status == 'กำลังสอน' else "⚠️"
+    status_icon.short_description = "สถานะ"
+
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
     list_display = ('id', 'name_info','english_first_name','arabic_first_name','gender_icon', 'address_info', 'status_icon')

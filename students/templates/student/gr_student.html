@@ -68,7 +68,7 @@
 
                     <!-- Level Filter -->
                     <div class="lg:col-span-3">
-                        <select name="level" class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md">
+                        <select name="level" class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md" required>
                             <option value="" disabled {% if not request.GET.level %}selected{% endif %}>ชั้นเรียน</option>
                             {% for level in levels %}
                             <option value="{{ level.name }}" {% if level.name == request.GET.level %}selected{% endif %}>
@@ -77,16 +77,17 @@
                             {% endfor %}
                         </select>
                     </div>
-
+ 
                     <!-- Academic Year Filter -->
                     <div class="lg:col-span-3">
                         <select name="academic_year" class="w-full bg-white px-4 py-3 rounded-lg border border-gray-300 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md">
                             <option value="" disabled {% if not academic_year %}selected{% endif %}>ปีการศึกษา</option>
-                            {% if current_semester %}
-                            <option value="{{ current_semester.year }}" {% if academic_year == current_semester.year|stringformat:"s" %}selected{% endif %}>
-                                {{ current_semester.year }}
+                            <!-- Loop through historical academic years -->
+                            {% for year in academic_years %}
+                            <option value="{{ year }}" {% if academic_year == year|stringformat:"s" %}selected{% endif %}>
+                                {{ year }}
                             </option>
-                            {% endif %}
+                            {% endfor %}
                         </select>
                     </div>
 
@@ -164,5 +165,35 @@
             {% endif %}
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const requiredInputs = document.querySelectorAll('select[required]');
+            
+            requiredInputs.forEach(input => {
+                // Set custom error message in Thai
+                input.addEventListener('invalid', function () {
+                    if (!input.value.trim()) {
+                        input.setCustomValidity('โปรดเลือกชั้นปีเพื่อดูคะแนนนักเรียน');
+                    }
+                });
+    
+                // Clear the custom error message when the user provides input
+                input.addEventListener('input', function () {
+                    input.setCustomValidity('');
+                });
+    
+                // Add green border for valid input
+                input.addEventListener('input', function () {
+                    if (input.value.trim()) {
+                        input.classList.add('border-green-500');
+                    } else {
+                        input.classList.remove('border-green-500');
+                    }
+                });
+            });
+        });
+    </script>
+    
 </body>
 </html>

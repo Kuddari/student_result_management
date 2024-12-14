@@ -139,7 +139,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
                             <!-- Select for School -->
                             <select name="school" class="w-full bg-white px-4 py-3 rounded-lg border" onchange="this.form.submit()">
-                                <option value="">เลือกโรงเรียน</option>
+                                <option value="">ทุกโรงเรียน</option>
                                 {% for school in schools %}
                                     <option value="{{ school.id }}" {% if request.GET.school == school.id|stringformat:"s" %}selected{% endif %}>
                                         {{ school.name }}
@@ -149,7 +149,7 @@
                     
                             <!-- Select for Level -->
                             <select name="level" class="w-full bg-white px-4 py-3 rounded-lg border" onchange="this.form.submit()">
-                                <option value="">เลือกชั้นเรียน</option>
+                                <option value="">ทุกชั้นปี</option>
                                 {% for level in levels %}
                                     <option value="{{ level.id }}" {% if request.GET.level == level.id|stringformat:"s" %}selected{% endif %}>
                                         {{ level.name }}
@@ -159,7 +159,7 @@
                     
                             <!-- Select for Academic Year -->
                             <select name="academic_year" class="w-full bg-white px-4 py-3 rounded-lg border" onchange="this.form.submit()">
-                                <option value="">เลือกปีการศึกษา</option>
+                                <option value="">ทุกปีการศึกษา</option>
                                 {% for year in academic_years %}
                                     <option value="{{ year }}" {% if request.GET.academic_year == year|stringformat:"s" %}selected{% endif %}>
                                         {{ year }}
@@ -266,7 +266,7 @@
                             <div class="flex gap-2">
                                 <!-- Profile Button -->
                                 <div class="tooltip-container relative">
-                                    <a href="" class="p-2 text-blue-600 rounded-full transition-colors duration-200">
+                                    <a href="{% url 'profile' student.id %}" class="p-2 text-blue-600 rounded-full transition-colors duration-200">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <circle cx="12" cy="12" r="10"/>
                                             <circle cx="12" cy="10" r="3"/>

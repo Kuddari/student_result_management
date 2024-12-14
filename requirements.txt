@@ -7,3 +7,8 @@ pandas
 django_browser_reload
 Pillow
 openpyxl
+django-autocomplete-light
+django-tailwind[reload]
+djangorestframework
+djangorestframework-simplejwt
+

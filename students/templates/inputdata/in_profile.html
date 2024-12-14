@@ -102,8 +102,17 @@
                         </option>
                     {% endfor %}
                 </select>
+                <!-- Level Dropdown -->
+                <select id="level" name="student-level" class="w-full px-3 py-2 rounded-lg border border-gray-300" required>
+                    <option value="">เลือกระดับชั้น</option>
+                    {% for level in levels %}
+                        <option value="{{ level.id }}" {% if current_study.level.id == level.id %}selected{% endif %}>
+                            {{ level.name }}
+                        </option>
+                    {% endfor %}
+                </select>
                 <!-- Special Status Dropdown -->
-                <select name="special-status" class="w-full px-3 py-2 rounded-lg border border-gray-300" required >
+                <select name="special-status" class="w-full px-3 py-2 rounded-lg border border-gray-300">
                     <option value="">สถานะพิเศษ</option>
                     <option value="เด็กกำพร้า" {% if student.special_status == 'เด็กกำพร้า' %}selected{% endif %}>เด็กกำพร้า</option>
                     <option value="เด็กยากไร้" {% if student.special_status == 'เด็กยากไร้' %}selected{% endif %}>เด็กยากไร้</option>

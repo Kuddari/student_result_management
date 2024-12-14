@@ -1,9 +1,11 @@
 # students/views.py
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import *
 from django.db.models import Q, F, FloatField, ExpressionWrapper
 from django.contrib import messages
 from django.urls import reverse
+from django.contrib.auth import authenticate, login
 from decimal import Decimal
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
@@ -17,9 +19,54 @@ from reportlab.lib.styles import getSampleStyleSheet
 from datetime import datetime  # Import the datetime module
 from django.views.decorators.csrf import csrf_exempt
 import json
+from urllib.parse import urlencode
 
     
 pdfmetrics.registerFont(TTFont('THSarabunNew', 'static/fonts/THSarabunNew.ttf'))
+
+def login_view(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')     # User ID input
+        password = request.POST.get('password') # Student's ID number or Teacher's password
+
+        # Authenticate the user based on the provided user_id and id_number
+        user = authenticate(request, username=user_id, password=password)
+
+        if user is not None:
+            login(request, user)
+            # Set session data after login
+            if Student.objects.filter(id=user_id).exists():
+                request.session['user_type'] = 'student'
+                request.session['student_id'] = user_id
+            elif Teacher.objects.filter(id=user_id).exists():
+                request.session['user_type'] = 'teacher'
+                request.session['teacher_id'] = user_id
+            return redirect('home')  # Redirect to home after successful login
+        else:
+            # Authentication failed
+            return render(request, 'auth/login.html', {
+                'error_message': 'ไอดีผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',  # "Incorrect user ID or password"
+            })
+
+    return render(request, 'auth/login.html')
+
+def student_login(request):
+    if request.method == 'POST':
+        student_id = request.POST.get('student_id')
+        student_id_number = request.POST.get('student_id_number')
+
+        user = authenticate(request, student_id=student_id, student_id_number=student_id_number)
+
+        if user is not None:
+            login(request, user)
+            request.session['student_id'] = student_id
+            return redirect('home')
+        else:
+            return render(request, 'auth/student_login.html', {
+                'error_message': 'รหัสนักเรียนหรือเลขประจำตัวประชาชนไม่ถูกต้อง'
+            })
+
+    return render(request, 'auth/student_login.html')
 
 def get_schools(request):
     schools = list(School.objects.values('id', 'name'))
@@ -74,8 +121,83 @@ def get_zipcode(request):
         return JsonResponse({'zipcode': subdistrict.zipcode})
     return JsonResponse({'zipcode': ''})
 
+
 def Home(request):
+    # Check if 'user_type' is in the session
+    user_type = request.session.get('user_type')
+    
+    if not user_type:
+        return redirect('login_view')  # Redirect to login if no user_type is found in session
+
+
+    if user_type == 'student' and 'student_id' in request.session:
+        user_id = request.session['student_id']
+        
+        # Get student data
+        try:
+            student = Student.objects.get(id=user_id)
+        except Student.DoesNotExist:
+            return redirect('login_view')  # Redirect if student not found
+
+        # Get student statistics
+        students = Student.objects.all()
+        male_students = students.filter(gender='ชาย').count()
+        female_students = students.filter(gender='หญิง').count()
+        orphans = students.filter(special_status='เด็กกำพร้า').count()
+        underprivileged = students.filter(special_status='เด็กยากไร้').count()
+        disabled = students.filter(special_status='เด็กพิการ').count()
+        new_muslims = students.filter(special_status='เด็กมุอัลลัฟ').count()
+
+        context = {
+            'user_type': user_type,
+            'total_students': students.count(),
+            'male_students': male_students,
+            'female_students': female_students,
+            'orphans': orphans,
+            'underprivileged': underprivileged,
+            'disabled': disabled,
+            'new_muslims': new_muslims,
+            'student': student
+        }
+        return render(request, 'student_home.html', context)
+    
+    if user_type == 'teacher' and 'teacher_id' in request.session:
+        user_id = request.session['teacher_id']
+        
+        # Get teeacher data
+        try:
+            teacher = Teacher.objects.get(id=user_id)
+        except Teacher.DoesNotExist:
+            return redirect('login_view')  # Redirect if student not found
+
+        # Get student statistics
+        students = Student.objects.all()
+        male_students = students.filter(gender='ชาย').count()
+        female_students = students.filter(gender='หญิง').count()
+        orphans = students.filter(special_status='เด็กกำพร้า').count()
+        underprivileged = students.filter(special_status='เด็กยากไร้').count()
+        disabled = students.filter(special_status='เด็กพิการ').count()
+        new_muslims = students.filter(special_status='เด็กมุอัลลัฟ').count()
+
+        context = {
+            'user_type': user_type,
+            'total_students': students.count(),
+            'male_students': male_students,
+            'female_students': female_students,
+            'orphans': orphans,
+            'underprivileged': underprivileged,
+            'disabled': disabled,
+            'new_muslims': new_muslims,
+        }
+        return render(request, 'teacher_home.html', context)
+    
+    
+def Homes(request):
     # Get student data
+    # Check if 'student_id' is in the session
+    if 'student_id' not in request.session:
+        return redirect('student_login')
+
     students = Student.objects.all()
     male_students = students.filter(gender='ชาย').count()
     female_students = students.filter(gender='หญิง').count()
@@ -99,10 +221,25 @@ def Home(request):
 
 
 def GR_Student(request):
+    # Check if 'user_type' is in the session
+    user_type = request.session.get('user_type')
+    
+    # If no user_type is found, redirect to login
+    if not user_type:
+        return redirect('login_view')  # Redirect to login if user_type is not in session
+
+    # If user is not a teacher, redirect to home
+    if user_type == 'student':
+        return redirect('home')  # Redirect student back to home
+
+    # Continue with the view if user_type is 'teacher'
     # Fetch filter options
     schools = School.objects.all()
     levels = Level.objects.all()
     current_semester = CurrentSemester.objects.first()
+
+    # Fetch unique academic years from StudentHistory
+    academic_years = StudentHistory.objects.values_list('academic_year', flat=True).distinct().order_by('-academic_year')
 
     # Get filters from the GET request
     school_name = request.GET.get('school')
@@ -136,18 +273,32 @@ def GR_Student(request):
         ).select_related('subject')
 
         subject_totals = {subject.subject.name: subject.subject.total_marks for subject in subject_to_studies}
+
     context = {
         'schools': schools,
         'levels': levels,
+        'academic_years': academic_years,
         'students': histories,
         'subjects': subjects,
         'subject_totals': subject_totals,
         'academic_year': academic_year,
+        'current_semester': current_semester,
     }
 
     return render(request, 'student/gr_student.html', context)
 
 def Student_Rp(request):
+    # Check if 'user_type' is in the session
+    user_type = request.session.get('user_type')
+    
+    # If no user_type is found, redirect to login
+    if not user_type:
+        return redirect('login_view')  # Redirect to login if user_type is not in session
+
+    # If user is not a teacher, redirect to home
+    if user_type == 'student':
+        return redirect('home')  # Redirect student back to home
+
     # รับค่าฟิลเตอร์
     search = request.GET.get('search', '').strip()
     school = request.GET.get('school')
@@ -190,12 +341,13 @@ def Student_Rp(request):
     
     # Check if the action is to download the PDF
     if action == 'download':
-        return download_students_pdf(students, school, level, academic_year, gender, special_status)
+        return download_students_pdf(students)
+
     # ดึงข้อมูลสำหรับตัวเลือก
     levels = Level.objects.all()
     schools = School.objects.all()
     academic_years = CurrentSemester.objects.values_list('year', flat=True).distinct()
-
+    
     context = {
         'students': students,
         'total_students': students.count(),
@@ -213,9 +365,10 @@ def Student_Rp(request):
             'special_status': special_status,
         },
     }
+
     return render(request, 'student/sp_student.html', context)
 
-def download_students_pdf(students, school, level, academic_year, gender, special_status):
+def download_students_pdf(students):
     # Check if there are any students
     if not students.exists():
         student_data = [['ไม่มีข้อมูล']]
@@ -233,22 +386,34 @@ def download_students_pdf(students, school, level, academic_year, gender, specia
                 student.special_status or 'ไม่มีข้อมูล',
             ])
 
-    # Dynamically determine gender and special status from the queryset
+
+    
+    # Dynamically determine unique values from the queryset
     unique_genders = students.values_list('gender', flat=True).distinct()
     unique_special_statuses = students.values_list('special_status', flat=True).distinct()
+    unique_schools = students.values_list('current_study__school__name', flat=True).distinct()
+    unique_levels = students.values_list('current_study__level__name', flat=True).distinct()
+    unique_academic_years = students.values_list('current_study__current_semester__year', flat=True).distinct()
 
-    gender_text = ', '.join(filter(None, unique_genders)) if unique_genders else "ทุกเพศ"
-    status_text = ', '.join(filter(None, unique_special_statuses)) if unique_special_statuses else "ทุกสถานะพิเศษ"
+    # Function to handle the display logic based on the number of unique values
+    def get_unique_text(unique_values, default_text):
+        if len(unique_values) == 1:
+            return unique_values[0]
+        return default_text
 
-    # Header information
-    school_name = School.objects.get(id=school).name if school else "ทุกโรงเรียน"
-    level_name = Level.objects.get(id=level).name if level else "ทุกชั้น"
-    academic_year_text = academic_year if academic_year else "ทุกปี"
+    # Gender and Special Status Text
+    gender_text = get_unique_text(unique_genders, "ทุกเพศ")
+    status_text = get_unique_text(unique_special_statuses, "ทุกสถานะพิเศษ")
+    # School, Level, and Academic Year Text
+    school_name = get_unique_text(unique_schools, "ทุกโรงเรียน")
+    level_name = get_unique_text(unique_levels, "ทุกชั้น")
+    academic_year_text = get_unique_text(unique_academic_years, "ทุกปี")
+
     header_info = f"ชั้น: {level_name} | ปีการศึกษา: {academic_year_text} | เพศ: {gender_text} | สถานะพิเศษ: {status_text}"
 
     # Create PDF Response
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="students_report_{academic_year or "all"}.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="students_report_{academic_year_text or "all"}.pdf"'
 
     # Create PDF Document (A4 Landscape)
     doc = SimpleDocTemplate(
@@ -332,7 +497,7 @@ def edit_Profile(request):
 def in_Profile(request, student_id=None):
     provinces = Province.objects.all()
     schools = School.objects.all()
-    
+    levels = Level.objects.all()
     # Check if editing an existing student
     student = None
     father = None
@@ -370,6 +535,9 @@ def in_Profile(request, student_id=None):
         if not student_id_number.isdigit() or len(student_id_number) != 13:
             return JsonResponse({'error': 'Invalid Thai ID number. It must contain exactly 13 digits.'}, status=400)
         school_id = request.POST.get('student-school')
+        level_id = request.POST.get('student-level')
+        level = Level.objects.get(id=level_id) if level_id else None
+
         special_status = request.POST.get('special-status')
         gender = request.POST.get('gender')  # Add this line to handle gender
 
@@ -409,12 +577,14 @@ def in_Profile(request, student_id=None):
         if current_study:
             current_study.student = student
             current_study.school = student_school
+            current_study.level = level  # Update the level
             current_study.save()
         else:
             if student_school:
                 CurrentStudy.objects.create(
                     student=student,
-                    school=student_school
+                    school=student_school,
+                    level=level  # Set the level when creating the record
                 )
 
          # Function to handle address creation or update
@@ -484,6 +654,7 @@ def in_Profile(request, student_id=None):
         return redirect('profile', student_id=student.id)# Redirect to a success page after submission
 
     return render(request, 'inputdata/in_profile.html', {
+        'levels': levels,
         'provinces': provinces,
         'schools': schools,
         'student': student,
@@ -623,9 +794,24 @@ def student_marks_view(request):
                     'pass_or_fail': "ผ่าน" if grade_percentage >= 50 else "ไม่ผ่าน"
                 }
             )
+        academic_year = current_semester.year
+        # Filter out None values
+        # Build query parameters for redirection
+        query_params = {
+            'school': school_name,
+            'level': level_name,
+            'academic_year': academic_year
+        }
+        # Remove None values
+        query_params = {key: value for key, value in query_params.items() if value}
 
-        return HttpResponseRedirect(reverse('gr_student'))
+        # Reverse the URL and append query parameters
+        base_url = reverse('gr_student')  # Ensure this matches urls.py name
+        redirect_url = f"{base_url}?{urlencode(query_params)}"
 
+        return HttpResponseRedirect(redirect_url)
+        # Build the redirection URL with query string
+       
     context = {
         'schools': schools,
         'levels': levels,
@@ -636,3 +822,5 @@ def student_marks_view(request):
     }
 
     return render(request, 'inputdata/ingr_student.html', context)
+
+

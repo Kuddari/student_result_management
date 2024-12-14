@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _  # ใช้สำหร�
 import logging
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -160,6 +160,63 @@ class Student(models.Model):
         verbose_name = _("นักเรียน")
         verbose_name_plural = _("นักเรียน")
    
+class Teacher(models.Model):
+    id = models.CharField(max_length=9, primary_key=True, editable=False, verbose_name=_("Teacher ID"))
+    first_name = models.CharField(max_length=100, verbose_name=_("ชื่อ"))
+    last_name = models.CharField(max_length=100, verbose_name=_("นามสกุล"))
+    date_of_birth = models.DateField(verbose_name=_("วันเกิด"))
+    id_number = models.CharField(max_length=13, blank=True,
+        null=True, unique=True, verbose_name=_("เลขบัตรประชาชน"))
+
+    gender = models.CharField(
+        max_length=10,
+        choices=[('ชาย', 'ชาย'), ('หญิง', 'หญิง')],
+        blank=True,
+        null=True,
+        verbose_name=_("เพศ")
+    )
+    subject = models.CharField( blank=True,
+        null=True,max_length=100, verbose_name=_("วิชา"))
+    profile_picture = models.ImageField(upload_to='teacher_profile_pics/', blank=True, null=True, verbose_name=_("รูปโปรไฟล์"))
+    status = models.CharField(
+        max_length=20,
+        choices=[('กำลังสอน', 'กำลังสอน'), ('เกษียณ', 'เกษียณ')],
+        default='กำลังสอน',
+        verbose_name=_("สถานะ")
+    )
+    password = models.CharField(max_length=8, editable=False, verbose_name=_("Password"))
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            # Generate Teacher ID
+            thai_year = timezone.now().year + 543
+            year_str = str(thai_year)[-2:]  # Last 2 digits of the Thai year
+            gender_code = '1' if self.gender == 'ชาย' else '2'
+            prefix = 'T'
+            last_teacher = Teacher.objects.filter(
+                id__startswith=f"{prefix}{year_str}{gender_code}"
+            ).order_by('id').last()
+
+            if last_teacher:
+                last_number = int(last_teacher.id[-4:])
+                next_number = f"{last_number + 1:04}"
+            else:
+                next_number = "0001"
+
+            self.id = f"{prefix}{year_str}{gender_code}{next_number}"
+
+        if not self.password:
+            # Generate an 8-digit random numeric password
+            self.password = ''.join([str(random.randint(0, 9)) for _ in range(8)])
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+    class Meta:
+        verbose_name = _("ครู")
+        verbose_name_plural = _("ครู")
 
 class CurrentSemester(models.Model):
     semester = models.IntegerField(

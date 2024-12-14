@@ -61,6 +61,8 @@ INSTALLED_APPS = [
     'jazzmin',
     'dal',
     'dal_select2',
+    'rest_framework',
+    'rest_framework_simplejwt',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -72,6 +74,12 @@ INSTALLED_APPS = [
     'theme',
     'django_browser_reload',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
 
 TAILWIND_APP_NAME = 'theme'
 INTERNAL_IPS = [
@@ -138,6 +146,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
 ]
 
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Default backend
+    'students.backends.AuthBackend',      # Custom student backend
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
