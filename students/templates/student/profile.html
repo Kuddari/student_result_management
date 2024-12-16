@@ -1,7 +1,8 @@
-{% include 'navbar.html' %}
+{% extends 'base.html' %}
 
 <!DOCTYPE html>
 <html lang="en">
+{% block title %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +12,9 @@
     <link rel="stylesheet" href="{% static 'css/font.css' %}">
     <title>ประวัตินักเรียน</title>
 </head>
+{% endblock %}
 
+{% block content %}
 <body class="font-prompt">
     <div class="bg-green-800">
         <h1 class="text-4xl md:text-6xl text-white d py-4 md:py-8 text-center shadow-md shadow-green-900">
@@ -299,9 +302,9 @@
             
             <div class="flex mt-6 gap-4 justify-center md:justify-end">
                 <a class="bg-black text-white py-4 px-4 md:px-8 rounded-xl text-lg md:text-xl transition-transform transform hover:scale-105 hover:bg-gray-800" href="{% url 'in_profile_edit' student.id %}">
-                    ดูผลการเรียน
+                    แก้ไขข้อมูล
                 </a>
-                <a class="bg-green-800 text-white py-4 px-4 md:px-8 rounded-xl text-lg md:text-xl transition-transform transform hover:scale-105 hover:bg-green-700" href="">
+                <a class="bg-green-800 text-white py-4 px-4 md:px-8 rounded-xl text-lg md:text-xl transition-transform transform hover:scale-105 hover:bg-green-700" href="{% url 'student_results' student.id %}">
                     ดูผลการเรียน
                 </a>
             </div>
@@ -309,3 +312,4 @@
     </div>
 </body>
 </html>
+{% endblock %}

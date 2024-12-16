@@ -19,7 +19,7 @@ urlpatterns = [
     path('profile/<int:student_id>/', Profile, name='profile'),
 
     # ดูเกรดนักเรียน
-    path('student_results', student_Results, name='student_results'),
+    path('student_results/<int:student_id>/', student_Results, name='student_results'),
 
     # ใส่ข้อมูล
     path('ingr_student', student_marks_view, name='ingr_student'),
@@ -28,8 +28,8 @@ urlpatterns = [
     path('edit_profile', edit_Profile, name='edit_profile'),
 
     # เพิ่มข้อมูล
-    path('in_profile', in_Profile, name='in_profile'),  # For creating a new profile
-    path('in_profile/<int:student_id>', in_Profile, name='in_profile_edit'),  # For editing an existing profile
+    path('in_profile/', Input_Profile, name='in_profile'),  # For creating a new profile
+    path('in_profile/<int:student_id>/', Input_Profile, name='in_profile_edit'),  # For editing an existing profile
     
 
     # path('', student_list, name='student_list'),  # Student list page

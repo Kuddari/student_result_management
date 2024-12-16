@@ -1,8 +1,10 @@
-{% include 'navbar.html' %}
+{% extends 'base.html' %}
+
 {% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
+{% block title %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +12,9 @@
     <link rel="stylesheet" href="{% static 'css/font.css' %}">
     <title>Student Results</title>
 </head>
+{% endblock %}
+
+{% block content %}
 <body>
     <div class="min-h-screen bg-gradient-to-b from-green-100 to-green-900 font-prompt">
 
@@ -22,11 +27,19 @@
                         <option>ภาคเรียนที่ 1</option>
                         <option>ภาคเรียนที่ 2</option>
                     </select>
-                    <select class="w-36 bg-white px-4 py-1 rounded-lg border border-green-800 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md" name="year">
-                        <option>ปีการศึกษา</option>
-                        <option>2567</option>
-                        <option>2566</option>
+                    <select
+                        class="w-36 bg-white px-4 py-1 rounded-lg border border-green-800 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md"
+                        name="academic_year"
+                        onchange="this.form.submit()"
+                    >
+                        <option value="">ปีการศึกษา</option>
+                        {% for year in academic_years %}
+                            <option value="{{ year }}" {% if year == selected_academic_year %}selected{% endif %}>
+                                {{ year }}
+                            </option>
+                        {% endfor %}
                     </select>
+
                     <button class="bg-green-800 text-white px-4 md:px-8 py-1 rounded-lg">ยืนยัน</button>
                 </div>
             </div>
@@ -55,15 +68,15 @@
 
             <!-- Table Section -->
             <div class="bg-green-700 text-white text-lg md:text-2xl font-bold p-2 rounded-t-md mt-6 px-4">
-                ภาคเรียนที่ 1 ปีการศึกษา 2567
+                ภาคเรียนที่ 1 ปีการศึกษา {{ selected_academic_year }}
             </div>
             <div class="overflow-x-auto text-[14px]">
                 <table class="w-full border-collapse border border-green-800">
                     <thead>
                         <tr class="bg-gray-200">
-                            <th class="border border-green-800 p-2 whitespace-nowrap">ลำดับ</th>
+                          
                             <th class="border border-green-800 p-2 whitespace-nowrap">รายวิชา</th>
-                            <th class="border border-green-800 p-2 whitespace-nowrap">ชื่อผู้สอน</th>
+            
                             <th class="border border-green-800 p-2 whitespace-nowrap">คะแนน</th>
                             <th class="border border-green-800 p-2 whitespace-nowrap">เกรด</th>
                             <th class="border border-green-800 p-2 whitespace-nowrap">ผลการตัดสิน</th>
@@ -72,17 +85,11 @@
                     <tbody>
                         {% for subject in subjects_sem1 %}
                         <tr class="text-center bg-white">
-                            <!-- ลำดับ -->
-                            <td class="border border-green-800 p-2 bg-gray-200 font-bold whitespace-nowrap">{{ subject.id }}</td>
-                
                             <!-- รายวิชา -->
                             <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.name }}</td>
-                
-                            <!-- ชื่อผู้สอน -->
-                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.teacher }}</td>
-                
+            
                             <!-- คะแนน -->
-                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.score }}</td>
+                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.marks }}</td>
                 
                             <!-- เกรด -->
                             <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.grade }}</td>
@@ -106,9 +113,7 @@
                 <table class="w-full border-collapse border border-green-800">
                     <thead>
                         <tr class="bg-gray-200">
-                            <th class="border border-green-800 p-2 whitespace-nowrap">ลำดับ</th>
                             <th class="border border-green-800 p-2 whitespace-nowrap">รายวิชา</th>
-                            <th class="border border-green-800 p-2 whitespace-nowrap">ชื่อผู้สอน</th>
                             <th class="border border-green-800 p-2 whitespace-nowrap">คะแนน</th>
                             <th class="border border-green-800 p-2 whitespace-nowrap">เกรด</th>
                             <th class="border border-green-800 p-2 whitespace-nowrap">ผลการตัดสิน</th>
@@ -117,17 +122,11 @@
                     <tbody>
                         {% for subject in subjects_sem2 %}
                         <tr class="text-center bg-white">
-                            <!-- ลำดับ -->
-                            <td class="border border-green-800 p-2 bg-gray-200 font-bold whitespace-nowrap">{{ subject.id }}</td>
-                
                             <!-- รายวิชา -->
                             <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.name }}</td>
-                
-                            <!-- ชื่อผู้สอน -->
-                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.teacher }}</td>
-                
+            
                             <!-- คะแนน -->
-                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.score }}</td>
+                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.marks }}</td>
                 
                             <!-- เกรด -->
                             <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.grade }}</td>
@@ -150,3 +149,4 @@
     </div>
 </body>
 </html>
+{% endblock %}

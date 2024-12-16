@@ -219,6 +219,62 @@ def Homes(request):
     }
     return render(request, 'student_home.html', context)
 
+def student_Results(request, student_id):
+     # Check if 'user_type' is in the session
+    user_type = request.session.get('user_type')
+    
+    # If no user_type is found, redirect to login
+    if not user_type:
+        return redirect('login_view')  # Redirect to login if user_type is not in session
+    
+    # Check user type in session
+    #user_type = request.session.get('user_type')
+    #if not user_type:
+     #   return redirect('login_view')
+    #if user_type == 'student':
+    #    return redirect('home')
+
+    # Fetch the student and their histories
+    # Get the student object
+    student = get_object_or_404(Student, id=student_id)
+
+    # Current study and semester
+    current_study = CurrentStudy.objects.filter(student=student).first()
+    current_semester = CurrentSemester.objects.first()
+
+    # Fetch academic years and subjects
+    academic_years = StudentHistory.objects.filter(student_id=student.id).values_list('academic_year', flat=True).distinct().order_by('-academic_year')
+    # Determine the selected academic year
+    selected_academic_year = request.GET.get('academic_year') or (academic_years.first() if academic_years else (current_semester.year if current_semester else None))
+    # Fetch the relevant records
+    subjects_sem1_instance = StudentHistory.objects.filter(student_id=student.id, semester=1, academic_year=selected_academic_year).first()
+    subjects_sem2_instance = StudentHistory.objects.filter(student_id=student.id, semester=2, academic_year=selected_academic_year).first()
+
+    # Call get_subject_data on single instances
+    subjects_sem1_data = subjects_sem1_instance.get_subject_data() if subjects_sem1_instance else []
+    subjects_sem2_data = subjects_sem2_instance.get_subject_data() if subjects_sem2_instance else []
+
+    # Fetch subject totals (optional)
+    subject_totals = {}
+    if current_study and current_semester:
+        subject_to_studies = SubjectToStudy.objects.filter(
+            level=current_study.level,
+            semester=current_semester.semester
+        ).select_related('subject')
+        subject_totals = {subject.subject.name: subject.subject.total_marks for subject in subject_to_studies}
+
+    context = {
+        'student': student,
+        'current_study': current_study,
+        'current_semester': current_semester,
+        'selected_academic_year':selected_academic_year,
+        'academic_years': academic_years,
+        'subjects_sem1': subjects_sem1_data,
+        'subjects_sem2': subjects_sem2_data,
+        'subject_totals': subject_totals,
+    }
+
+    return render(request, 'student/student_results.html', context)
 
 def GR_Student(request):
     # Check if 'user_type' is in the session
@@ -492,7 +548,31 @@ def download_students_pdf(students):
 def edit_Profile(request):
     return render(request, 'edit/edit_profile.html')
 
-def student_Results(request):
+def student_Resultss(request, student_id):
+    # Get the student object based on the provided student_id
+    student = get_object_or_404(Student, id=student_id)
+
+    # Combine first_name and last_name to match the student_name field in StudentHistory
+    student_name = f"{student.first_name} {student.last_name}"
+
+    # Retrieve all history records for the given student name
+    history_records = StudentHistory.objects.filter(student_name=student_name)
+
+    # Organize records by semester
+    semester_1_records = history_records.filter(semester='เทอม 1')
+    semester_2_records = history_records.filter(semester='เทอม 2')
+
+    # Pass the data to the template
+    context = {
+        'student': student,
+        'semester_1_records': semester_1_records,
+        'semester_2_records': semester_2_records,
+    }
+
+    return render(request, 'student_results.html', context)
+
+
+def student_Resultss(request):
     subjects_sem1 = [
         {'id': 1, 'name': 'รายวิชา 1', 'teacher': 'ชื่อผู้สอน 1', 'score': 100, 'grade': 4, 'status': 'ผ่าน'},
         {'id': 2, 'name': 'รายวิชา 2', 'teacher': 'ชื่อผู้สอน 2', 'score': 100, 'grade': 4, 'status': 'ผ่าน'},
@@ -515,7 +595,7 @@ def student_Results(request):
     })
 
 
-def in_Profile(request, student_id=None):
+def Input_Profile(request, student_id=None):
     provinces = Province.objects.all()
     schools = School.objects.all()
     levels = Level.objects.all()
@@ -802,10 +882,11 @@ def student_marks_view(request):
                 grade_percentage = 0
 
             StudentHistory.objects.update_or_create(
+                student_id=student.student.id,
                 student_name=f"{student.student.first_name} {student.student.last_name}",
                 school_name=student.school.name,
                 level_name=student.level.name,
-                semester=f"{current_semester.semester} - {current_semester.year}",
+                semester=current_semester.semester,
                 academic_year=current_semester.year,
                 defaults={
                     'total_marks': total_marks,

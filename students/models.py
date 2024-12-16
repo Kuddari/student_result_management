@@ -94,8 +94,8 @@ class Student(models.Model):
     arabic_last_name = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("ชื่อภาษาอาหรับ"))
     date_of_birth = models.DateField(verbose_name=_("วันเกิด"))
     id_number = models.CharField(max_length=13, unique=True, verbose_name=_("เลขบัตรประชาชน"))
-
-    address = models.ForeignKey('Address', on_delete=models.SET_NULL, null=True, verbose_name=_("ที่อยู่"))
+    
+    address = models.ForeignKey('Address',blank=True, on_delete=models.SET_NULL, null=True, verbose_name=_("ที่อยู่"))
     gender = models.CharField(
         max_length=10,
         choices=[('ชาย', 'เด็กชาย'), ('หญิง', 'เด็กหญิง')],
@@ -401,6 +401,7 @@ class StudentMarkForSubject(models.Model):
         verbose_name_plural = _("คะแนนนักเรียนสำหรับวิชา")
 
 class StudentHistory(models.Model):
+    student_id = models.IntegerField(blank=True, null=True, verbose_name=_("รหัสนักเรียน"))
     student_name = models.CharField(blank=True, null=True,max_length=255, verbose_name=_("ชื่อนักเรียน"))
     school_name = models.CharField(blank=True, null=True,max_length=255, verbose_name=_("ชื่อโรงเรียน"))
     level_name = models.CharField(blank=True, null=True,max_length=50, verbose_name=_("ระดับชั้น"))
@@ -430,6 +431,53 @@ class StudentHistory(models.Model):
                 self.pass_or_fail = "ผ่าน" if self.grade_percentage >= 50 else "ไม่ผ่าน"
 
                 self.save()
+    
+    def get_subject_data(self):
+        """Generate subject details with grades and statuses."""
+        from .models import Subject  # Ensure Subject is imported
+        
+        subject_data = []
+        if self.subject_marks:
+            for subject_name, marks_obtained in self.subject_marks.items():
+                try:
+                    subject = Subject.objects.get(name=subject_name)
+                    total_marks = subject.total_marks
+                    percentage = (marks_obtained / total_marks) * 100 if total_marks else 0
+                    grade = self.calculate_grade(percentage)
+                    status = "ผ่าน" if percentage >= 50 else "ไม่ผ่าน"
+                    subject_data.append({
+                        "name": subject_name,
+                        "marks": marks_obtained,
+                        "total_marks": total_marks,
+                        "percentage": percentage,
+                        "grade": grade,
+                        "status": status,
+                    })
+                except Subject.DoesNotExist:
+                    # If the subject is not found, handle it gracefully
+                    subject_data.append({
+                        "name": subject_name,
+                        "marks": marks_obtained,
+                        "total_marks": "N/A",
+                        "percentage": "N/A",
+                        "grade": "N/A",
+                        "status": "N/A",
+                    })
+        return subject_data
+
+    @staticmethod
+    def calculate_grade(percentage):
+        """Calculate grade based on percentage."""
+        if percentage >= 80:
+            return "A"
+        elif percentage >= 70:
+            return "B"
+        elif percentage >= 60:
+            return "C"
+        elif percentage >= 50:
+            return "D"
+        else:
+            return "F"
 
     def __str__(self):
         return f"{self.student_name} - {self.level_name} - {self.academic_year}"
