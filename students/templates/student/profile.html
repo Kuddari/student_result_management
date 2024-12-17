@@ -77,7 +77,7 @@
                             รหัสไปรษณีย์ {{ student.address.zipcode|default:"-" }}</h3>
                     </div>
                     <h3 class="flex text-black p-2"><span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/phone.png' %}" alt=""></span>{{ student.phone_number|default:"-" }}</h3>
-                    <h3 class="flex text-black p-2"><span class="block md:hidden"><img class="w-6 mx-[4px] -mt-1" src="{% static 'images/school.png' %}" alt=""></span>{{ current_study.school.name|default:"-" }}</h3>
+                    <h3 class="flex text-black p-2"><span class="block md:hidden"><img class="w-6 mx-[4px] -mt-[2px]" src="{% static 'images/school.png' %}" alt=""></span>{{ current_study.school.name|default:"-" }}</h3>
                 </div>
             </div>
 
@@ -107,13 +107,13 @@
                 <div class="col-span-3 py-4">
                     <!-- ชื่อ - สกุล -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/name.png' %}" alt=""></span>
+                        <span class="block md:hidden"><img class="w-4 mx-[5px]" src="{% static 'images/name.png' %}" alt=""></span>
                         {{ father.first_name|default:"-" }} {{ father.last_name|default:"-" }}
                     </h3>
             
                     <!-- วันเดือนปีเกิด -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/birthday.png' %}" alt=""></span>
+                        <span class="block md:hidden"><img class="w-4 mx-[5px]" src="{% static 'images/birthday.png' %}" alt=""></span>
                         {{ father.date_of_birth|date:"d/m/Y"|default:"-" }}
                     </h3>
             
@@ -145,7 +145,7 @@
             
                     <!-- อาชีพ -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><img class="w-6 mx-[3px]" src="{% static 'images/workplace.png' %}" alt=""></span>
+                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/workplace.png' %}" alt=""></span>
                         {{ father.occupation|default:"-" }}
                     </h3>
             
@@ -153,7 +153,7 @@
                     
                     <div class="md:grid grid-rows-2">
                         <h3 class="flex text-black p-2">
-                            <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/occ.png' %}" alt=""></span>
+                            <span class="block md:hidden"><img class="w-6 mx-[2px]" src="{% static 'images/occ.png' %}" alt=""></span>
                             {{ father.workplace|default:"-" }}
                         </h3>
                      </div>
@@ -161,7 +161,7 @@
             
                     <!-- รายได้ต่อปี -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><img class="w-6 mx-[2px]" src="{% static 'images/money.png' %}" alt=""></span>
+                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/money.png' %}" alt=""></span>
                         {{ father.income|default:"-" }}
                     </h3>
                 </div>
@@ -227,7 +227,7 @@
             
                     <!-- อาชีพ -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/workplace.png' %}" alt=""></span>
+                        <span class="block md:hidden"><img class="w-6 mx-[3px]" src="{% static 'images/occ.png' %}" alt=""></span>
                         {{ mother.occupation|default:"-" }}
                     </h3>
             
@@ -235,14 +235,14 @@
         
                     <div class="md:grid grid-rows-2">
                         <h3 class="flex text-black p-2">
-                            <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/occ.png' %}" alt=""></span>
+                            <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/workplace.png' %}" alt=""></span>
                             {{ mother.workplace|default:"-" }}
                         </h3>
                      </div>
             
                     <!-- รายได้ต่อปี -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><img class="w-6 mx-[2px]" src="{% static 'images/money.png' %}" alt=""></span>
+                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/money.png' %}" alt=""></span>
                         {{ mother.income|default:"-" }}
                     </h3>
                 </div>
@@ -308,7 +308,7 @@
             
                     <!-- อาชีพ -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/occ.png' %}" alt=""></span>
+                        <span class="block md:hidden"><img class="w-6 mx-[3px]" src="{% static 'images/occ.png' %}" alt=""></span>
                         {{ guardian.occupation|default:"-" }}
                     </h3>
             
