@@ -648,7 +648,8 @@ def Input_Profile(request, student_id=None):
 
         # Create or update student
         if student:
-            student.profile_picture = student_profile_pic
+            if student_profile_pic:
+                student.profile_picture = student_profile_pic  # เซตเฉพาะเมื่อมีไฟล์อัปโหลดใหม่
             student.first_name = student_first_name
             student.last_name = student_last_name
             student.english_first_name = student_english_first_name

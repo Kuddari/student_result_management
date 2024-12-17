@@ -1,0 +1,37 @@
+/* ปุ่มเมนูให้อยู่ตรงกลางซ้ายของจอ */
+#menu-btn {
+    position: fixed;
+    top: 50%;
+    left: 1rem; /* ระยะห่างจากขอบซ้าย */
+    transform: translateY(-50%);
+  }
+  
+  /* ให้เมนูแสดงจากปุ่มไปทางซ้าย */
+  #menu-items {
+    position: relative;
+  }
+  
+  #menu-items a {
+    position: absolute;
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  
+  /* แสดงเมนูเมื่อปุ่มมีคลาส open */
+  #menu-btn.open + #menu-items a {
+    opacity: 1;
+  }
+  
+  /* กำหนดทิศทางการโค้งของเมนู */
+  #menu-items a:nth-child(1) {
+    transform: translateY(-100px) translateX(30px);
+  }
+  
+  #menu-items a:nth-child(2) {
+    transform: translateY(-50px) translateX(80px);
+  }
+  
+  #menu-items a:nth-child(3) {
+    transform: translateY(20px) translateX(30px);
+  }
+  

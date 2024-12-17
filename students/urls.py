@@ -37,5 +37,8 @@ urlpatterns = [
     # path('delete_student/<int:student_id>/', delete_student, name='delete_student'),
     # path('grading/', grading, name='grading'),
     path('download-pdf', download_students_pdf, name='download_students_pdf'),
-
+    path('get-districts/', get_districts, name='get_districts'),
+    path('get-provinces/', get_provinces, name='get_provinces'),
+    path('get-subdistricts/', get_subdistricts, name='get_subdistricts'),
+    path('get-zipcode/', get_zipcode, name='get_zipcode'),
 ]
