@@ -5,7 +5,7 @@ from .models import *
 from django.db.models import Q, F, FloatField, ExpressionWrapper
 from django.contrib import messages
 from django.urls import reverse
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from decimal import Decimal
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
@@ -15,58 +15,41 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 from reportlab.lib import colors
 from reportlab.lib.units import inch
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from datetime import datetime  # Import the datetime module
 from django.views.decorators.csrf import csrf_exempt
 import json
 from urllib.parse import urlencode
 
-    
 pdfmetrics.registerFont(TTFont('THSarabunNew', 'static/fonts/THSarabunNew.ttf'))
 
-def login_view(request):
-    if request.method == 'POST':
-        user_id = request.POST.get('user_id')     # User ID input
-        password = request.POST.get('password') # Student's ID number or Teacher's password
+def convert_to_thai_year(academic_year):
+    # Assuming academic year is in the format "2023-2024", convert to Thai year
+    year_parts = academic_year.split('-')
+    thai_year = int(year_parts[0]) + 543  # Thai year is 543 years ahead of Gregorian year
+    return f"{thai_year}-{int(year_parts[1]) + 543}"
 
-        # Authenticate the user based on the provided user_id and id_number
-        user = authenticate(request, username=user_id, password=password)
+def delete_student(request, student_id):
+    # Fetch the student by ID
 
-        if user is not None:
-            login(request, user)
-            # Set session data after login
-            if Student.objects.filter(id=user_id).exists():
-                request.session['user_type'] = 'student'
-                request.session['student_id'] = user_id
-            elif Teacher.objects.filter(id=user_id).exists():
-                request.session['user_type'] = 'teacher'
-                request.session['teacher_id'] = user_id
-            return redirect('home')  # Redirect to home after successful login
-        else:
-            # Authentication failed
-            return render(request, 'auth/login.html', {
-                'error_message': 'ไอดีผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',  # "Incorrect user ID or password"
-            })
+    # Check if 'user_type' is in the session
+    user_type = request.session.get('user_type')
+    
+    # If no user_type is found, redirect to login
+    if not user_type:
+        return redirect('login_view')  # Redirect to login if user_type is not in session
 
-    return render(request, 'auth/login.html')
+    # If user is not a teacher, redirect to home
+    if user_type == 'student':
+        return redirect('home')  # Redirect student back to home
+    
+    student = get_object_or_404(Student, id=student_id)
+    # Soft delete the student by setting delete_status to 'deleted'
+    student.delete_status = 'deleted'
+    student.save()
 
-def student_login(request):
-    if request.method == 'POST':
-        student_id = request.POST.get('student_id')
-        student_id_number = request.POST.get('student_id_number')
-
-        user = authenticate(request, student_id=student_id, student_id_number=student_id_number)
-
-        if user is not None:
-            login(request, user)
-            request.session['student_id'] = student_id
-            return redirect('home')
-        else:
-            return render(request, 'auth/student_login.html', {
-                'error_message': 'รหัสนักเรียนหรือเลขประจำตัวประชาชนไม่ถูกต้อง'
-            })
-
-    return render(request, 'auth/student_login.html')
+    # Redirect back to the student report page
+    return redirect('sp_student_report')  # Replace 'student_report' with the correct URL name for your student list page
 
 def get_schools(request):
     schools = list(School.objects.values('id', 'name'))
@@ -79,7 +62,6 @@ def safe_int(value):
     except (TypeError, ValueError):
         return 0
 
-@csrf_exempt
 def add_school(request):
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -121,8 +103,70 @@ def get_zipcode(request):
         return JsonResponse({'zipcode': subdistrict.zipcode})
     return JsonResponse({'zipcode': ''})
 
+#Auth 
+def login_view(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')  # User ID input
+        password = request.POST.get('password')  # User's password
+        remember_me = request.POST.get('remember_me')  # Checkbox value
 
+        # Validate input
+        if not user_id or not password:
+            return render(request, 'auth/login.html', {
+                'error_message': 'กรุณาใส่ไอดีผู้ใช้และรหัสผ่าน',  # "Please enter both user ID and password"
+            })
+
+        # Authenticate the user
+        user = authenticate(request, username=user_id, password=password)
+
+        if user is not None:
+            # Log the user in
+            login(request, user)
+
+            # Set session expiration based on "Remember Me"
+            if remember_me:
+                request.session.set_expiry(1209600)  # 2 weeks
+            else:
+                request.session.set_expiry(0)  # Browser close to expire the session
+
+            # Set session data based on user type
+            if user.is_superuser:  # Check if the user is a superuser
+                request.session['user_type'] = 'superuser'
+                return redirect('home')  # Redirect superusers to the admin dashboard
+            elif Student.objects.filter(id=user_id, delete_status='not_deleted').exists():
+                request.session['user_type'] = 'student'
+                request.session['student_id'] = user_id
+                return redirect('home')  # Redirect students to the home page
+            elif Teacher.objects.filter(id=user_id).exists():
+                request.session['user_type'] = 'teacher'
+                request.session['teacher_id'] = user_id
+                return redirect('home')  # Redirect teachers to the home page
+            else:
+                # Log the user out if the category is unknown
+                logout(request)
+                return render(request, 'auth/login.html', {
+                    'error_message': 'ไม่สามารถเข้าสู่ระบบได้',  # "Unable to log in"
+                })
+        else:
+            # Authentication failed
+            return render(request, 'auth/login.html', {
+                'error_message': 'ไอดีผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',  # "Incorrect user ID or password"
+            })
+
+    # For GET requests, render the login page
+    return render(request, 'auth/login.html')
+
+# Auth
+def logout_view(request):
+    # Log the user out
+    logout(request)
+    
+    # Redirect to login page after logout
+    return redirect('login_view')  # Replace 'login' with the name of your login URL
+
+#Home page
 def Home(request):
+
     # Check if 'user_type' is in the session
     user_type = request.session.get('user_type')
     
@@ -140,7 +184,7 @@ def Home(request):
             return redirect('login_view')  # Redirect if student not found
 
         # Get student statistics
-        students = Student.objects.all()
+        students = Student.objects.filter(delete_status='not_deleted')
         male_students = students.filter(gender='ชาย').count()
         female_students = students.filter(gender='หญิง').count()
         orphans = students.filter(special_status='เด็กกำพร้า').count()
@@ -161,17 +205,10 @@ def Home(request):
         }
         return render(request, 'student_home.html', context)
     
-    if user_type == 'teacher' and 'teacher_id' in request.session:
-        user_id = request.session['teacher_id']
+    elif user_type in ['teacher', 'superuser']:
         
-        # Get teeacher data
-        try:
-            teacher = Teacher.objects.get(id=user_id)
-        except Teacher.DoesNotExist:
-            return redirect('login_view')  # Redirect if student not found
-
         # Get student statistics
-        students = Student.objects.all()
+        students = Student.objects.filter(delete_status='not_deleted')
         male_students = students.filter(gender='ชาย').count()
         female_students = students.filter(gender='หญิง').count()
         orphans = students.filter(special_status='เด็กกำพร้า').count()
@@ -190,159 +227,163 @@ def Home(request):
             'new_muslims': new_muslims,
         }
         return render(request, 'teacher_home.html', context)
+    else:
+        return redirect('login_view')  # Redirect for unauthorized access
     
-    
-def Homes(request):
-    # Get student data
-    # Check if 'student_id' is in the session
-    if 'student_id' not in request.session:
-        return redirect('student_login')
-
-    students = Student.objects.all()
-    male_students = students.filter(gender='ชาย').count()
-    female_students = students.filter(gender='หญิง').count()
-
-    # Get special statuses
-    orphans = students.filter(special_status='เด็กกำพร้า').count()
-    underprivileged = students.filter(special_status='เด็กยากไร้').count()
-    disabled = students.filter(special_status='เด็กพิการ').count()
-    new_muslims = students.filter(special_status='เด็กมุอัลลัฟ').count()
-
-    context = {
-        'total_students': students.count(),
-        'male_students': male_students,
-        'female_students': female_students,
-        'orphans': orphans,
-        'underprivileged': underprivileged,
-        'disabled': disabled,
-        'new_muslims': new_muslims,
-    }
-    return render(request, 'student_home.html', context)
-
-def student_Results(request, student_id):
-     # Check if 'user_type' is in the session
-    user_type = request.session.get('user_type')
-    
-    # If no user_type is found, redirect to login
-    if not user_type:
-        return redirect('login_view')  # Redirect to login if user_type is not in session
-    
-    # Check user type in session
-    #user_type = request.session.get('user_type')
-    #if not user_type:
-     #   return redirect('login_view')
-    #if user_type == 'student':
-    #    return redirect('home')
-
-    # Fetch the student and their histories
-    # Get the student object
-    student = get_object_or_404(Student, id=student_id)
-
-    # Current study and semester
-    current_study = CurrentStudy.objects.filter(student=student).first()
-    current_semester = CurrentSemester.objects.first()
-
-    # Fetch academic years and subjects
-    academic_years = StudentHistory.objects.filter(student_id=student.id).values_list('academic_year', flat=True).distinct().order_by('-academic_year')
-    # Determine the selected academic year
-    selected_academic_year = request.GET.get('academic_year') or (academic_years.first() if academic_years else (current_semester.year if current_semester else None))
-    # Fetch the relevant records
-    subjects_sem1_instance = StudentHistory.objects.filter(student_id=student.id, semester=1, academic_year=selected_academic_year).first()
-    subjects_sem2_instance = StudentHistory.objects.filter(student_id=student.id, semester=2, academic_year=selected_academic_year).first()
-
-    # Call get_subject_data on single instances
-    subjects_sem1_data = subjects_sem1_instance.get_subject_data() if subjects_sem1_instance else []
-    subjects_sem2_data = subjects_sem2_instance.get_subject_data() if subjects_sem2_instance else []
-
-    # Fetch subject totals (optional)
-    subject_totals = {}
-    if current_study and current_semester:
-        subject_to_studies = SubjectToStudy.objects.filter(
-            level=current_study.level,
-            semester=current_semester.semester
-        ).select_related('subject')
-        subject_totals = {subject.subject.name: subject.subject.total_marks for subject in subject_to_studies}
-
-    context = {
-        'student': student,
-        'current_study': current_study,
-        'current_semester': current_semester,
-        'selected_academic_year':selected_academic_year,
-        'academic_years': academic_years,
-        'subjects_sem1': subjects_sem1_data,
-        'subjects_sem2': subjects_sem2_data,
-        'subject_totals': subject_totals,
-    }
-
-    return render(request, 'student/student_results.html', context)
-
-def GR_Student(request):
+#students input
+def Input_Profile(request, student_id=None):
     # Check if 'user_type' is in the session
     user_type = request.session.get('user_type')
     
     # If no user_type is found, redirect to login
     if not user_type:
         return redirect('login_view')  # Redirect to login if user_type is not in session
-
-    # If user is not a teacher, redirect to home
-    if user_type == 'student':
-        return redirect('home')  # Redirect student back to home
-
-    # Continue with the view if user_type is 'teacher'
-    # Fetch filter options
+    
+    provinces = Province.objects.all()
     schools = School.objects.all()
     levels = Level.objects.all()
-    current_semester = CurrentSemester.objects.first()
 
-    # Fetch unique academic years from StudentHistory
-    academic_years = StudentHistory.objects.values_list('academic_year', flat=True).distinct().order_by('-academic_year')
+    student = None
+    father, mother, guardian, current_study = None, None, None, None
 
-    # Get filters from the GET request
-    school_name = request.GET.get('school')
-    level_name = request.GET.get('level')
-    academic_year = request.GET.get('academic_year', current_semester.year if current_semester else None)
+    if student_id:
+        student = get_object_or_404(Student, id=student_id)
+        father = Father.objects.filter(student=student).first()
+        mother = Mother.objects.filter(student=student).first()
+        guardian = Guardian.objects.filter(student=student).first()
+        current_study = CurrentStudy.objects.filter(student=student).first()
 
-    # Filtered query
-    histories = StudentHistory.objects.all()
+    if request.method == 'POST':
+        def parse_date(date_str):
+            try:
+                return datetime.strptime(date_str, "%d/%m/%Y").date()
+            except (ValueError, TypeError):
+                return None
 
-    if school_name:
-        histories = histories.filter(school_name=school_name)
+        def safe_int(value):
+            try:
+                return int(value)
+            except (ValueError, TypeError):
+                return None
 
-    if level_name:
-        histories = histories.filter(level_name=level_name)
+        def handle_address(prefix):
+            address_data = {
+                'house_number': request.POST.get(f'{prefix}-house-number'),
+                'street': request.POST.get(f'{prefix}-street'),
+                'moo': safe_int(request.POST.get(f'{prefix}-village')),
+                'province_id': request.POST.get(f'{prefix}-province'),
+                'district_id': request.POST.get(f'{prefix}-district'),
+                'subdistrict_id': request.POST.get(f'{prefix}-subdistrict'),
+                'zipcode': request.POST.get(f'{prefix}-zipcode'),
+            }
+            return Address.objects.create(**address_data)
 
-    if academic_year:
-        histories = histories.filter(academic_year=academic_year)
+        # Student Data
+        student_data = {
+            'first_name': request.POST.get('student-first-name'),
+            'last_name': request.POST.get('student-last-name'),
+            'english_first_name': request.POST.get('student-english-first-name'),
+            'english_last_name': request.POST.get('student-english-last-name'),
+            'arabic_first_name': request.POST.get('student-arabic-first-name'),
+            'arabic_last_name': request.POST.get('student-arabic-last-name'),
+            'date_of_birth': parse_date(request.POST.get('student-dob')),
+            'id_number': request.POST.get('student-id-number', '').replace(' ', ''),
+            'special_status': request.POST.get('special-status'),
+            'gender': request.POST.get('gender'),
+        }
 
-    # Extract subjects dynamically (assuming subject marks are stored in JSON format)
-    subjects = []
-    if histories.exists():
-        first_entry = histories.first()
-        subjects = first_entry.subject_marks.keys() if first_entry.subject_marks else []
-    
-    # Fetch total marks for each subject (assuming SubjectToStudy holds subject and total marks)
-    subject_totals = {}
-    if level_name and current_semester:
-        subject_to_studies = SubjectToStudy.objects.filter(
-            level__name__iexact=level_name,
-            semester=current_semester.semester
-        ).select_related('subject')
+        # Validate ID number
+        if not student_data['id_number'].isdigit() or len(student_data['id_number']) != 13:
+            return JsonResponse({'error': 'Invalid Thai ID number. It must contain exactly 13 digits.'}, status=400)
 
-        subject_totals = {subject.subject.name: subject.subject.total_marks for subject in subject_to_studies}
+        if student:
+            for field, value in student_data.items():
+                setattr(student, field, value)
+            if 'profile_picture' in request.FILES:
+                student.profile_picture = request.FILES['profile_picture']
+            student.save()
+        else:
+            student = Student.objects.create(
+                **student_data,
+                profile_picture=request.FILES.get('profile_picture', None)
+            )
 
-    context = {
-        'schools': schools,
+        # Current Study
+        school_id = request.POST.get('student-school')
+        level_id = request.POST.get('student-level')
+        student_school = get_object_or_404(School, id=school_id) if school_id else None
+        level = Level.objects.get(id=level_id) if level_id else None
+
+        if current_study:
+            current_study.school = student_school
+            current_study.level = level
+            current_study.save()
+        else:
+            if student_school:
+                CurrentStudy.objects.create(student=student, school=student_school, level=level)
+
+        # Family Data
+        for role, model in [('father', Father), ('mother', Mother), ('guardian', Guardian)]:
+            address = handle_address(role)
+            data = {
+                'first_name': request.POST.get(f'{role}-first-name'),
+                'last_name': request.POST.get(f'{role}-last-name'),
+                'date_of_birth': parse_date(request.POST.get(f'{role}-dob')),
+                'phone_number': request.POST.get(f'{role}-phone'),
+                'occupation': request.POST.get(f'{role}-occupation'),
+                'workplace': request.POST.get(f'{role}-workplace'),
+                'income': safe_int(request.POST.get(f'{role}-income')),
+                'address': address,
+            }
+            if role == 'guardian':
+                data['relationship_with_student'] = request.POST.get('relationship')
+            model.objects.update_or_create(student=student, defaults=data)
+
+        return redirect('profile', student_id=student.id)
+
+    return render(request, 'inputdata/in_profile.html', {
         'levels': levels,
-        'academic_years': academic_years,
-        'students': histories,
-        'subjects': subjects,
-        'subject_totals': subject_totals,
-        'academic_year': academic_year,
-        'current_semester': current_semester,
+        'provinces': provinces,
+        'schools': schools,
+        'student': student,
+        'father': father,
+        'mother': mother,
+        'guardian': guardian,
+        'current_study': current_study
+    })
+
+def Profile(request, student_id=None):
+    # Check if 'user_type' is in the session
+    user_type = request.session.get('user_type')
+    
+    # If no user_type is found, redirect to login
+    if not user_type:
+        return redirect('login_view')  # Redirect to login if user_type is not in session
+    
+    if not student_id:
+        return redirect('login_view')  # Redirect to login if student_id is not provided
+
+    # Get the student instance or return 404 if not found
+    student = get_object_or_404(Student, id=student_id)
+    
+    # Fetch related data
+    current_study = CurrentStudy.objects.filter(student=student).first()
+    father = Father.objects.filter(student=student).first()
+    mother = Mother.objects.filter(student=student).first()
+    guardian = Guardian.objects.filter(student=student).first()
+
+    # Pass the data to the template
+    context = {
+        'student': student,
+        'current_study': current_study,
+        'father': father,
+        'mother': mother,
+        'guardian': guardian,
     }
 
-    return render(request, 'student/gr_student.html')
+    return render(request, 'student/profile.html', context)
 
+#student output
 def Student_Rp(request):
     # Check if 'user_type' is in the session
     user_type = request.session.get('user_type')
@@ -367,7 +408,7 @@ def Student_Rp(request):
     print(f"gender: {gender}")  # Debugging
 
     # Query นักเรียน
-    students = Student.objects.filter(current_study__isnull=False)
+    students = Student.objects.filter(current_study__isnull=False, delete_status='not_deleted')
 
     # กรองตามคำค้นหา
     if search:
@@ -544,251 +585,19 @@ def download_students_pdf(students):
 
     return response
 
-
-def edit_Profile(request):
-    return render(request, 'edit/edit_profile.html')
-
-def student_Resultss(request, student_id):
-    # Get the student object based on the provided student_id
-    student = get_object_or_404(Student, id=student_id)
-
-    # Combine first_name and last_name to match the student_name field in StudentHistory
-    student_name = f"{student.first_name} {student.last_name}"
-
-    # Retrieve all history records for the given student name
-    history_records = StudentHistory.objects.filter(student_name=student_name)
-
-    # Organize records by semester
-    semester_1_records = history_records.filter(semester='เทอม 1')
-    semester_2_records = history_records.filter(semester='เทอม 2')
-
-    # Pass the data to the template
-    context = {
-        'student': student,
-        'semester_1_records': semester_1_records,
-        'semester_2_records': semester_2_records,
-    }
-
-    return render(request, 'student_results.html', context)
-
-
-def student_Resultss(request):
-    subjects_sem1 = [
-        {'id': 1, 'name': 'รายวิชา 1', 'teacher': 'ชื่อผู้สอน 1', 'score': 100, 'grade': 4, 'status': 'ผ่าน'},
-        {'id': 2, 'name': 'รายวิชา 2', 'teacher': 'ชื่อผู้สอน 2', 'score': 100, 'grade': 4, 'status': 'ผ่าน'},
-        {'id': 3, 'name': 'รายวิชา 3', 'teacher': 'ชื่อผู้สอน 3', 'score': 45, 'grade': 0, 'status': 'ไม่ผ่าน'},
-        {'id': 4, 'name': 'รายวิชา 4', 'teacher': 'ชื่อผู้สอน 4', 'score': 85, 'grade': 4, 'status': 'ผ่าน'},
-        {'id': 5, 'name': 'รายวิชา 5', 'teacher': 'ชื่อผู้สอน 5', 'score': 55, 'grade': 1, 'status': 'ผ่าน'},
-    ]
-
-    subjects_sem2 = [
-        {'id': 1, 'name': 'รายวิชา 1', 'teacher': 'ชื่อผู้สอน 1', 'score': 100, 'grade': 4, 'status': 'ผ่าน'},
-        {'id': 2, 'name': 'รายวิชา 2', 'teacher': 'ชื่อผู้สอน 2', 'score': 70, 'grade': 2, 'status': 'ผ่าน'},
-        {'id': 3, 'name': 'รายวิชา 3', 'teacher': 'ชื่อผู้สอน 3', 'score': 45, 'grade': 0, 'status': 'ไม่ผ่าน'},
-        {'id': 4, 'name': 'รายวิชา 4', 'teacher': 'ชื่อผู้สอน 4', 'score': 85, 'grade': 4, 'status': 'ผ่าน'},
-        {'id': 5, 'name': 'รายวิชา 5', 'teacher': 'ชื่อผู้สอน 5', 'score': 55, 'grade': 1, 'status': 'ผ่าน'},
-    ]
-
-    return render(request, 'student/student_results.html', {
-        'subjects_sem1': subjects_sem1,
-        'subjects_sem2': subjects_sem2,
-    })
-
-
-def Input_Profile(request, student_id=None):
-    provinces = Province.objects.all()
-    schools = School.objects.all()
-    levels = Level.objects.all()
-    # Check if editing an existing student
-    student = None
-    father = None
-    mother = None
-    guardian = None
-    current_study = None
-
-    if student_id:
-        student = get_object_or_404(Student, id=student_id)
-        father = Father.objects.filter(student=student).first()
-        mother = Mother.objects.filter(student=student).first()
-        guardian = Guardian.objects.filter(student=student).first()
-        current_study = CurrentStudy.objects.filter(student=student).first()
-
-    if request.method == 'POST':
-        def parse_date(date_str):
-            try:
-                return datetime.strptime(date_str, "%d/%m/%Y").date()
-            except (ValueError, TypeError):
-                return None
-        # Handle Student Data
-        student_profile_pic = request.FILES.get('profile_picture')
-        if student_profile_pic:
-            student.profile_picture = student_profile_pic
-        student_first_name = request.POST.get('student-first-name')
-        student_last_name = request.POST.get('student-last-name')
-        student_english_first_name = request.POST.get('student-english-first-name')
-        student_english_last_name = request.POST.get('student-english-last-name')
-        student_arabic_first_name = request.POST.get('student-arabic-first-name')
-        student_arabic_last_name = request.POST.get('student-arabic-last-name')
-        student_dob =  parse_date(request.POST.get('student-dob'))
-        # Get the Thai ID number from the form
-        student_id_number = request.POST.get('student-id-number', '').replace(' ', '')
-        # Validate the Thai ID number (should be exactly 13 digits)
-        if not student_id_number.isdigit() or len(student_id_number) != 13:
-            return JsonResponse({'error': 'Invalid Thai ID number. It must contain exactly 13 digits.'}, status=400)
-        school_id = request.POST.get('student-school')
-        level_id = request.POST.get('student-level')
-        level = Level.objects.get(id=level_id) if level_id else None
-
-        special_status = request.POST.get('special-status')
-        gender = request.POST.get('gender')  # Add this line to handle gender
-
-        student_school = None
-        if school_id:
-            student_school = get_object_or_404(School, id=school_id)
-
-        # Create or update student
-        if student:
-            if student_profile_pic:
-                student.profile_picture = student_profile_pic  # เซตเฉพาะเมื่อมีไฟล์อัปโหลดใหม่
-            student.first_name = student_first_name
-            student.last_name = student_last_name
-            student.english_first_name = student_english_first_name
-            student.english_last_name = student_english_last_name
-            student.arabic_first_name = student_arabic_first_name
-            student.arabic_last_name = student_arabic_last_name
-            student.date_of_birth = student_dob  # Add this line
-            student.id_number = student_id_number  # Add this line
-            student.special_status = special_status
-            student.gender = gender
-            student.save()
-        else:
-            student = Student.objects.create(
-                first_name=student_first_name,
-                last_name=student_last_name,
-                english_first_name=student_english_first_name,
-                english_last_name=student_english_last_name,
-                arabic_first_name=student_arabic_first_name,
-                arabic_last_name=student_arabic_last_name,
-                date_of_birth=student_dob,  # Add this line
-                id_number=student_id_number,  # Add this line
-                special_status=special_status,
-                gender = gender
-            )
-
-        # Create or update CurrentStudy
-        if current_study:
-            current_study.student = student
-            current_study.school = student_school
-            current_study.level = level  # Update the level
-            current_study.save()
-        else:
-            if student_school:
-                CurrentStudy.objects.create(
-                    student=student,
-                    school=student_school,
-                    level=level  # Set the level when creating the record
-                )
-
-         # Function to handle address creation or update
-        def handle_address(prefix):
-            address_data = {
-                'house_number': request.POST.get(f'{prefix}-house-number'),
-                'street': request.POST.get(f'{prefix}-street'),
-                'moo': safe_int(request.POST.get(f'{prefix}-village')),
-                'province_id': request.POST.get(f'{prefix}-province'),
-                'district_id': request.POST.get(f'{prefix}-district'),
-                'subdistrict_id': request.POST.get(f'{prefix}-subdistrict'),
-                'zipcode': request.POST.get(f'{prefix}-zipcode'),
-            }
-            address, created = Address.objects.update_or_create(
-                house_number=address_data['house_number'],
-                street=address_data['street'],
-                moo=address_data['moo'],
-                defaults=address_data
-            )
-            return address
-
-        # Handle Father Data
-        father_address = handle_address('father')
-        father_data = {
-            'first_name': request.POST.get('father-first-name'),
-            'last_name': request.POST.get('father-last-name'),
-            'date_of_birth':  parse_date(request.POST.get('father-dob')),
-            'phone_number': request.POST.get('father-phone'),
-            'occupation': request.POST.get('father-occupation'),
-            'workplace': request.POST.get('father-workplace'),
-            'income': safe_int(request.POST.get('father-income')),
-            'address': father_address,
-        }
-        Father.objects.update_or_create(student=student, defaults=father_data)
-
-        # Handle Mother Data
-        mother_address = handle_address('mother')
-        mother_data = {
-            'first_name': request.POST.get('mother-first-name'),
-            'last_name': request.POST.get('mother-last-name'),
-            'date_of_birth':  parse_date(request.POST.get('mother-dob')),
-            'phone_number': request.POST.get('mother-phone'),
-            'occupation': request.POST.get('mother-occupation'),
-            'workplace': request.POST.get('mother-workplace'),
-            'income': safe_int(request.POST.get('mother-income')),
-            'address': mother_address,
-        }
-        Mother.objects.update_or_create(student=student, defaults=mother_data)
-
-        
-        guardian_address = handle_address('guardian')
-        guardian_data = {
-            'relationship_with_student': request.POST.get('relationship'), # Save relationship
-            'first_name': request.POST.get('guardian-first-name'),
-            'last_name': request.POST.get('guardian-last-name'),
-            'date_of_birth': parse_date(request.POST.get('guardian-dob')),
-            'phone_number': request.POST.get('guardian-phone'),
-            'occupation': request.POST.get('guardian-occupation'),
-            'workplace': request.POST.get('guardian-workplace'),
-            'income': safe_int(request.POST.get('guardian-income')),
-            'address': guardian_address,
-        }
-
-        Guardian.objects.update_or_create(student=student, defaults=guardian_data)
-
-
-        return redirect('profile', student_id=student.id)# Redirect to a success page after submission
-
-    return render(request, 'inputdata/in_profile.html', {
-        'levels': levels,
-        'provinces': provinces,
-        'schools': schools,
-        'student': student,
-        'father': father,
-        'mother': mother,
-        'guardian': guardian,
-        'current_study': current_study
-    })
-
-def Profile(request, student_id):
-    # Get the student instance or return 404 if not found
-    student = get_object_or_404(Student, id=student_id)
-    
-    # Fetch related data
-    current_study = CurrentStudy.objects.filter(student=student).first()
-    father = Father.objects.filter(student=student).first()
-    mother = Mother.objects.filter(student=student).first()
-    guardian = Guardian.objects.filter(student=student).first()
-
-    # Pass the data to the template
-    context = {
-        'student': student,
-        'current_study': current_study,
-        'father': father,
-        'mother': mother,
-        'guardian': guardian,
-    }
-
-    return render(request, 'student/profile.html', context)
-
-
+#grade input
 def student_marks_view(request):
+     # Check if 'user_type' is in the session
+    user_type = request.session.get('user_type')
+    
+    # If no user_type is found, redirect to login
+    if not user_type:
+        return redirect('login_view')  # Redirect to login if user_type is not in session
+
+    # If user is not a teacher, redirect to home
+    if user_type == 'student':
+        return redirect('home')  # Redirect student back to home
+
     current_semester = CurrentSemester.objects.first()
 
     if not current_semester:
@@ -838,6 +647,7 @@ def student_marks_view(request):
             current_semester=current_semester,
             school__name__iexact=school_name,
             level__name__iexact=level_name,
+            student__delete_status='not_deleted'
         ).select_related('student', 'level', 'school')
 
         subjects = SubjectToStudy.objects.filter(
@@ -916,6 +726,7 @@ def student_marks_view(request):
         # Build the redirection URL with query string
        
     context = {
+        'user_type': user_type,
         'schools': schools,
         'levels': levels,
         'students': students,
@@ -925,5 +736,262 @@ def student_marks_view(request):
     }
 
     return render(request, 'inputdata/ingr_student.html', context)
+
+
+#grade output
+def GR_Student(request):
+    # Check if 'user_type' is in the session
+    user_type = request.session.get('user_type')
+    
+    # If no user_type is found, redirect to login
+    if not user_type:
+        return redirect('login_view')  # Redirect to login if user_type is not in session
+
+    # If user is not a teacher, redirect to home
+    if user_type == 'student':
+        return redirect('home')  # Redirect student back to home
+
+    # Continue with the view if user_type is 'teacher'
+    # Fetch filter options
+    schools = School.objects.all()
+    levels = Level.objects.all()
+    current_semester = CurrentSemester.objects.first()
+
+    # Fetch unique academic years from StudentHistory
+    academic_years = StudentHistory.objects.values_list('academic_year', flat=True).distinct().order_by('-academic_year')
+
+    # Get filters from the GET request
+    school_name = request.GET.get('school')
+    level_name = request.GET.get('level')
+    academic_year = request.GET.get('academic_year', current_semester.year if current_semester else None)
+
+    # Filtered query
+    histories = StudentHistory.objects.all()
+
+    if school_name:
+        histories = histories.filter(school_name=school_name)
+
+    if level_name:
+        histories = histories.filter(level_name=level_name)
+
+    if academic_year:
+        histories = histories.filter(academic_year=academic_year)
+
+    # Extract subjects dynamically (assuming subject marks are stored in JSON format)
+    subjects = []
+    if histories.exists():
+        first_entry = histories.first()
+        subjects = first_entry.subject_marks.keys() if first_entry.subject_marks else []
+    
+    # Fetch total marks for each subject (assuming SubjectToStudy holds subject and total marks)
+    subject_totals = {}
+    if level_name and current_semester:
+        subject_to_studies = SubjectToStudy.objects.filter(
+            level__name__iexact=level_name,
+            semester=current_semester.semester
+        ).select_related('subject')
+
+        subject_totals = {subject.subject.name: subject.subject.total_marks for subject in subject_to_studies}
+
+    context = {
+        'user_type': user_type,
+        'schools': schools,
+        'levels': levels,
+        'academic_years': academic_years,
+        'students': histories,
+        'subjects': subjects,
+        'subject_totals': subject_totals,
+        'academic_year': academic_year,
+        'current_semester': current_semester,
+    }
+
+    return render(request, 'student/gr_student.html', context)
+
+def student_Results(request, student_id):
+     # Check if 'user_type' is in the session
+    user_type = request.session.get('user_type')
+    
+    # If no user_type is found, redirect to login
+    if not user_type:
+        return redirect('login_view')  # Redirect to login if user_type is not in session
+    
+    # Get the student object
+    student = get_object_or_404(Student, id=student_id)
+
+    # Current study and semester
+    current_study = CurrentStudy.objects.filter(student=student).first()
+    current_semester = CurrentSemester.objects.first()
+
+    # Fetch academic years and subjects
+    academic_years = StudentHistory.objects.filter(student_id=student.id).values_list('academic_year', flat=True).distinct().order_by('-academic_year')
+    # Determine the selected academic year
+    selected_academic_year = request.GET.get('academic_year') or (academic_years.first() if academic_years else (current_semester.year if current_semester else None))
+    # Fetch the relevant records
+    subjects_sem1_instance = StudentHistory.objects.filter(student_id=student.id, semester=1, academic_year=selected_academic_year).first()
+    subjects_sem2_instance = StudentHistory.objects.filter(student_id=student.id, semester=2, academic_year=selected_academic_year).first()
+
+    # Call get_subject_data on single instances
+    subjects_sem1_data = subjects_sem1_instance.get_subject_data() if subjects_sem1_instance else []
+    subjects_sem2_data = subjects_sem2_instance.get_subject_data() if subjects_sem2_instance else []
+    
+    if 'download_pdf' in request.GET:
+        # Prepare data for PDF
+        semester_1_data = [
+            (s['name'], s['marks'], s['grade'], s['status']) for s in subjects_sem1_data
+        ]
+        semester_2_data = [
+            (s['name'], s['marks'], s['grade'], s['status']) for s in subjects_sem2_data
+        ]
+        
+        # Pass the school name as well
+        school_name = current_study.school.name if current_study and current_study.school else "-"
+        level_name = current_study.level.name if current_study and current_study.level else "-"  # Assuming the level name is stored in current_study
+        return download_result_pdf(
+            students=[student],
+            semester_1_data=semester_1_data,
+            semester_2_data=semester_2_data,
+            academic_year=int(selected_academic_year)+543,
+            student_name=f"{student.first_name}_{student.last_name}",
+            school_name=school_name,
+            level_name=level_name
+        )
+
+    # Fetch subject totals (optional)
+    subject_totals = {}
+    if current_study and current_semester:
+        subject_to_studies = SubjectToStudy.objects.filter(
+            level=current_study.level,
+            semester=current_semester.semester
+        ).select_related('subject')
+        subject_totals = {subject.subject.name: subject.subject.total_marks for subject in subject_to_studies}
+
+    context = {
+        'student': student,
+        'current_study': current_study,
+        'current_semester': current_semester,
+        'selected_academic_year':selected_academic_year,
+        'academic_years': academic_years,
+        'subjects_sem1': subjects_sem1_data,
+        'subjects_sem2': subjects_sem2_data,
+        'subject_totals': subject_totals,
+    }
+
+    return render(request, 'student/student_results.html', context)
+
+def download_result_pdf(students, semester_1_data, semester_2_data, academic_year, student_name, school_name, level_name):
+    # Create PDF response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{student_name}_results_{academic_year}.pdf"'
+
+# Document setup: Landscape A4 with margins
+    doc = SimpleDocTemplate(
+        response,
+        pagesize=A4,
+        topMargin=0.5 * inch,
+        bottomMargin=0.5 * inch,
+        leftMargin=0.5 * inch,
+        rightMargin=0.5 * inch,
+    )
+
+    # Styles
+    styles = getSampleStyleSheet()
+    styles['Normal'].fontName = 'THSarabunNew'
+    styles['Normal'].fontSize = 12
+
+    title_style = ParagraphStyle(
+        name='Title',
+        fontName='THSarabunNew',
+        fontSize=24,
+        alignment=1  # Center alignment
+    )
+
+    sub_title_style = ParagraphStyle(
+        name='SubTitle',
+        fontName='THSarabunNew',
+        fontSize=20,
+        alignment=1  # Center alignment
+    )
+
+    normal_style = ParagraphStyle(
+        name='Normal',
+        fontName='THSarabunNew',
+        fontSize=16,
+        alignment=0  # Left alignment
+    )
+
+    # Add logo
+    logo_path = "static/images/logo.png"
+    logo = Image(logo_path, width=120, height=120)  # Adjust size as needed
+    logo.hAlign = 'CENTER'
+
+    # Headings
+    header = Paragraph("สมาคมคุรุสัมพันธ์อิสลามแห่งประเทษไทย ประจำหน่วยสอบที่ 80", title_style)
+    school_name_paragraph = Paragraph(f"โรงเรียน {school_name}", sub_title_style)
+    student_info = Paragraph(f"บันทึกผลการเรียนของ {student_name} {level_name}", normal_style)
+    academic_year_text = Paragraph(f"ประจำปีการศึกษา {academic_year}", normal_style)
+
+    # Table data for Semester 1 and Semester 2
+    table_data_sem1 = [
+        ['วิชา', 'คะแนน', 'เกรด', 'ผ่าน/ไม่ผ่าน']
+    ] + semester_1_data
+
+    table_data_sem2 = [
+        ['วิชา', 'คะแนน', 'เกรด', 'ผ่าน/ไม่ผ่าน']
+    ] + semester_2_data
+
+    # Handle empty data for Semester 1
+    if len(table_data_sem1) == 1:
+        table_sem1 = Paragraph("ยังไม่มีข้อมูลสำหรับภาคการศึกษานี้", sub_title_style)
+    else:
+        table_sem1 = Table(table_data_sem1, colWidths=[200, 100, 100, 100])
+        table_sem1.setStyle(TableStyle([ 
+            ('FONTNAME', (0, 0), (-1, -1), 'THSarabunNew'),  # Custom font
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),  # Header row color
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Table grid
+            ('TOPPADDING', (0, 0), (-1, 0), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ]))
+
+    # Handle empty data for Semester 2
+    if len(table_data_sem2) == 1:
+        table_sem2 = Paragraph("ยังไม่มีข้อมูลสำหรับภาคการศึกษานี้", sub_title_style)
+    else:
+        table_sem2 = Table(table_data_sem2, colWidths=[200, 100, 100, 100])
+        table_sem2.setStyle(TableStyle([ 
+            ('FONTNAME', (0, 0), (-1, -1), 'THSarabunNew'),  # Custom font
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),  # Header row color
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Table grid
+            ('TOPPADDING', (0, 0), (-1, 0), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ]))
+
+    # Build the PDF with elements
+    elements = [
+        logo,
+        Spacer(1, 10),  # Space below logo
+        header,
+        Spacer(1, 20),
+        school_name_paragraph,
+        Spacer(1, 20),
+        student_info,
+        Spacer(1, 10),
+        academic_year_text,
+        Spacer(1, 20),  # Space below academic year
+        Paragraph(f"ผลการศึกษาภาคการศึกษาที่ 1", title_style),
+        Spacer(1, 20),
+        table_sem1,
+        Spacer(1, 15),  # Space between tables
+        Paragraph(f"ผลการศึกษาภาคการศึกษาที่ 2", title_style),
+        Spacer(1, 20),
+        table_sem2
+    ]
+
+    # Generate the document
+    doc.build(elements)
+
+    return response
+
 
 
