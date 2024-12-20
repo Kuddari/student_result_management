@@ -1,5 +1,8 @@
-{% include 'navbar.html' %}
+
+{% extends 'base.html' %}
+
 {% load custom_filters %}
+{% block title %}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -46,6 +49,9 @@
             }
         </style>
     </head>
+{% endblock %}
+
+{% block content %}
 <body class="font-prompt">
     <div class="min-h-screen bg-gradient-to-b from-green-100 to-green-900 font-prompt">
         <!-- Header -->
@@ -147,3 +153,4 @@
     </div>
 </body>
 </html>
+{% endblock %}

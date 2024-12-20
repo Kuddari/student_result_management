@@ -20,7 +20,7 @@
 
 
 
-    <body class="bg-gradient-to-b from-green-100 to-green-800 font-prompt min-h-screen">
+    <body class="bg-gradient-to-b from-green-100 to-green-900 font-prompt min-h-screen">
 
         <!-- Header -->
         <div class="bg-green-800">
@@ -30,25 +30,20 @@
         </div>
 
         <div class="max-w-4xl mx-auto p-4 my-8">
-            <form method="post" action="{% if student %}{% url 'in_profile_edit' student.id %}{% else %}{% url 'in_profile' %}{% endif %}">
+            <form method="post" enctype="multipart/form-data" action="{% if student %}{% url 'in_profile_edit' student.id %}{% else %}{% url 'in_profile' %}{% endif %}">
                 {% csrf_token %}
                 
                 <div class="flex justify-center mb-4">
                     <label class="w-28 h-32 bg-white flex items-center justify-center relative overflow-hidden cursor-pointer group">
-                        <!-- รูปภาพตัวอย่าง -->
                         {% if student.profile_picture %}
                             <img id="preview" src="{{ student.profile_picture.url }}" class="w-full h-full object-cover border-2 border-green-900" />
                         {% else %}
                             <img id="preview" class="w-full h-full object-cover border-2 border-green-900" />
+                            <svg id="defaultIcon" class="w-24 h-24 text-green-700 absolute" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-4 0-8 2-8 4v2h16v-2c0-2-4-4-8-4z"/>
+                            </svg>
                         {% endif %}
-                            
-                        <!-- ไอคอนเริ่มต้น -->
-                        <svg id="defaultIcon" class="w-24 h-24 text-green-700 absolute" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-4 0-8 2-8 4v2h16v-2c0-2-4-4-8-4z"/>
-                        </svg>
-                
-                        <!-- Input สำหรับอัปโหลดรูปภาพ -->
-                        <input type="file" id="imageUpload" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*">
+                        <input type="file" id="imageUpload" name="profile_picture" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*">
                 
                         <!-- พื้นหลังดำโปร่งแสงและข้อความเมื่อ Hover -->
                         <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -279,19 +274,31 @@
                 </div>
 
                 <!-- Relationship Checkbox -->
-                <div class="mb-6" {% if guardian.relationship_with_student %}style="display: none;"{% endif %} >
-                    <div class="flex items-center gap-4">
-                        <input type="checkbox" id="relationship-father" name="relationship" value="father" class="mr-2" onclick="selectRelationship(this)">
-                        <label for="relationship-father">พ่อ</label>
-                
-                        <input type="checkbox" id="relationship-mother" name="relationship" value="mother" class="mr-2" onclick="selectRelationship(this)">
-                        <label for="relationship-mother">แม่</label>
-                
-                        <input type="checkbox" id="relationship-guardian" name="relationship" value="guardian" class="mr-2" onclick="selectRelationship(this)">
-                        <label for="relationship-guardian">ผู้ปกครองอื่นๆ</label>
+                <div class="mb-6" >
+                    <div class="flex flex-wrap gap-4 items-center ">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="relationship-father" name="relationship" value="father" class="hidden peer"{% if guardian.relationship_with_student == 'father' %}checked{% endif %}   onclick="selectRelationship(this)">
+                            <label for="relationship-father" class="flex items-center cursor-pointer select-none rounded-lg border-2 border-gray-300 px-4 py-2 text-white peer-checked:border-green-500 peer-checked:bg-green-100 peer-checked:text-green-700 transition-colors duration-300">
+                                พ่อ
+                            </label>
+                        </div>
+
+                        <div class="flex items-center">
+                            <input type="checkbox" id="relationship-mother" name="relationship" value="mother" class="hidden peer" {% if guardian.relationship_with_student == 'mother' %}checked{% endif %}  onclick="selectRelationship(this)">
+                            <label for="relationship-mother" class="flex items-center cursor-pointer select-none rounded-lg border-2 border-gray-300 px-4 py-2 text-white peer-checked:border-green-500 peer-checked:bg-green-100 peer-checked:text-green-700 transition-colors duration-300">
+                                แม่
+                            </label>
+                        </div>
+
+                        <div class="flex items-center">
+                            <input type="checkbox" id="relationship-guardian" name="relationship" value="guardian" class="hidden peer" {% if guardian.relationship_with_student == 'guardian' %}checked{% endif %} onclick="selectRelationship(this)">
+                            <label for="relationship-guardian" class="flex items-center cursor-pointer select-none rounded-lg border-2 border-gray-300 px-4 py-2 text-white peer-checked:border-green-500 peer-checked:bg-green-100 peer-checked:text-green-700 transition-colors duration-300">
+                                ผู้ปกครองอื่นๆ
+                            </label>
+                        </div>
                     </div>
                 </div>
-                
+
                 <div id="guardian-details" class="grid grid-cols-2 gap-6 mb-10">
                 <!-- Relationship with Student Dropdown -->
                     
@@ -346,12 +353,26 @@
                     
                 <!-- Submit Button -->
                 <div class="text-center md:text-right">
-                    <button type="submit" class="bg-green-500 text-white font-semibold px-4 md:px-8 py-2 md:py-3 text-lg md:text-xl rounded-lg md:rounded-xl hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 drop-shadow-2xl shadow-md shadow-black/75">
+                    <button type="submit" class="bg-green-800 text-white py-2 px-3 md:px-8 rounded-xl text-lg md:text-xl transition-transform transform hover:scale-105 hover:bg-green-700 border-2 border-green-200">
                         ยืนยัน
                     </button>
                 </div>
             </form>
         </div>
+
+        <script>
+            document.getElementById('imageUpload').addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('preview').src = e.target.result;
+                        document.getElementById('defaultIcon').style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        </script>
         
         
         <script>

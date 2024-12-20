@@ -23,7 +23,7 @@ from django.urls import path, include
 from students import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls, name='admin'),
     path('', include('students.urls')),
     path("__reload__/", include("django_browser_reload.urls")),
     path("set_language/", include("django.conf.urls.i18n")),  # Add this line

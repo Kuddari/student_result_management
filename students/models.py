@@ -124,7 +124,12 @@ class Student(models.Model):
     )
     
     exam_unit_number = models.CharField(max_length=2, default="80", verbose_name=_("หน่วยสอบ"))
-
+    delete_status = models.CharField(
+        max_length=15,
+        choices=[('not_deleted', 'ยังไม่ลบ'), ('deleted', 'ลบแล้ว')],
+        default='not_deleted',
+        verbose_name=_("สถานะการลบ")
+    )
     def save(self, *args, **kwargs):
         if not self.id:
             # Get the current year in the Thai calendar
