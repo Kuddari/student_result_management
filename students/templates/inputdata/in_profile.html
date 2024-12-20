@@ -274,24 +274,39 @@
                 </div>
 
                 <!-- Relationship Checkbox -->
+<<<<<<< HEAD
+                <div class="mb-6" >
+                    <div class="flex flex-wrap gap-4 items-center ">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="relationship-father" name="relationship" value="father" class="hidden peer"{% if guardian.relationship_with_student == 'father' %}checked{% endif %}   onclick="selectRelationship(this)">
+=======
                 <div class="mb-6" {% if guardian.relationship_with_student %}style="display: none;"{% endif %}>
                     <div class="flex flex-wrap gap-4 items-center ">
                         <div class="flex items-center">
                             <input type="checkbox" id="relationship-father" name="relationship" value="father" class="hidden peer" onclick="selectRelationship(this)">
+>>>>>>> d2811916c25a77f88284f3a87ab233d9af3a1677
                             <label for="relationship-father" class="flex items-center cursor-pointer select-none rounded-lg border-2 border-gray-300 px-4 py-2 text-white peer-checked:border-green-500 peer-checked:bg-green-100 peer-checked:text-green-700 transition-colors duration-300">
                                 พ่อ
                             </label>
                         </div>
 
                         <div class="flex items-center">
+<<<<<<< HEAD
+                            <input type="checkbox" id="relationship-mother" name="relationship" value="mother" class="hidden peer" {% if guardian.relationship_with_student == 'mother' %}checked{% endif %}  onclick="selectRelationship(this)">
+=======
                             <input type="checkbox" id="relationship-mother" name="relationship" value="mother" class="hidden peer" onclick="selectRelationship(this)">
+>>>>>>> d2811916c25a77f88284f3a87ab233d9af3a1677
                             <label for="relationship-mother" class="flex items-center cursor-pointer select-none rounded-lg border-2 border-gray-300 px-4 py-2 text-white peer-checked:border-green-500 peer-checked:bg-green-100 peer-checked:text-green-700 transition-colors duration-300">
                                 แม่
                             </label>
                         </div>
 
                         <div class="flex items-center">
+<<<<<<< HEAD
+                            <input type="checkbox" id="relationship-guardian" name="relationship" value="guardian" class="hidden peer" {% if guardian.relationship_with_student == 'guardian' %}checked{% endif %} onclick="selectRelationship(this)">
+=======
                             <input type="checkbox" id="relationship-guardian" name="relationship" value="guardian" class="hidden peer" onclick="selectRelationship(this)">
+>>>>>>> d2811916c25a77f88284f3a87ab233d9af3a1677
                             <label for="relationship-guardian" class="flex items-center cursor-pointer select-none rounded-lg border-2 border-gray-300 px-4 py-2 text-white peer-checked:border-green-500 peer-checked:bg-green-100 peer-checked:text-green-700 transition-colors duration-300">
                                 ผู้ปกครองอื่นๆ
                             </label>
