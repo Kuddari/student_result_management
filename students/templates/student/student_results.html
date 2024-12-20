@@ -22,11 +22,6 @@
         <div class="max-w-4xl mx-auto mb-4 pt-12">
             <div class="grid grid-cols-1 md:flex justify-end items-center mb-0 md:mb-6 px-4 md:px-0">
                 <div class="flex space-x-2">
-                    <select class="w-36 bg-white px-4 py-1 rounded-lg border border-green-800 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md" name="term">
-                        <option>ภาคเรียน</option>
-                        <option>ภาคเรียนที่ 1</option>
-                        <option>ภาคเรียนที่ 2</option>
-                    </select>
                     <select
                         class="w-36 bg-white px-4 py-1 rounded-lg border border-green-800 focus:outline-none duration-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 appearance-none cursor-pointer hover:shadow-md"
                         name="academic_year"
@@ -39,8 +34,10 @@
                             </option>
                         {% endfor %}
                     </select>
-
-                    <button class="bg-green-800 text-white px-4 md:px-8 py-1 rounded-lg">ยืนยัน</button>
+                    <form method="get">
+                        <input type="hidden" name="academic_year" value="{{ selected_academic_year }}">
+                        <button name="download_pdf" class="bg-green-800 text-white px-4 md:px-8 py-1 rounded-lg">บันทึกเป็น PDF</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -107,7 +104,7 @@
             </div>
 
             <div class="bg-green-700 text-white text-lg md:text-2xl font-bold p-2 rounded-t-md mt-6 px-4">
-                ภาคเรียนที่ 2 ปีการศึกษา 2567
+                ภาคเรียนที่ 2 ปีการศึกษา {{ selected_academic_year }}
             </div>
             <div class="overflow-x-auto text-[14px]">
                 <table class="w-full border-collapse border border-green-800">
