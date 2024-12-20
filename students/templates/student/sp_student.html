@@ -1,6 +1,7 @@
-{% include 'navbar.html' %}
+{% extends 'base.html' %}
 <!DOCTYPE html>
 <html lang="en">
+{% block title %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -96,6 +97,9 @@
         }
     </script>
 </head>
+{% endblock %}
+
+{% block content %}
 <body>
     <div class="min-h-screen bg-gradient-to-b from-green-200 to-green-900 font-prompt"> 
         <!-- Header -->
@@ -105,11 +109,33 @@
             </h1>
         </div>
         
+        <!-- Modal Structure for Delete Confirmation -->
+        <div id="deleteModal" class="modal hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+            <div class="modal-content bg-white rounded-lg p-6 w-80">
+                <h3 class="text-xl text-center mb-4">คุณแน่ใจหรือไม่ว่าต้องการลบนักเรียนคนนี้ออกจากระบบ?</h3>
+                <div class="flex justify-between">
+                    <button id="confirmDelete" class="bg-red-500 text-white px-4 py-2 rounded-lg">ลบ</button>
+                    <button id="cancelDelete" class="bg-gray-300 text-black px-4 py-2 rounded-lg">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Styling -->
+        <style>
+            .modal {
+                display: none;
+            }
+            .modal.active {
+                display: flex;
+            }
+        </style>
+
         <div class="max-w-7xl mx-auto p-4 md:my-12">
             <!-- Filters & Stats Container -->
             <div class="flex flex-col lg:flex-row lg:justify-between gap-6 mb-8">
                 <!-- Search and Filters -->
                 <div class="flex flex-col gap-3 w-full lg:w-[65%]">
+                
                     <!-- Search Box -->
                     <form method="get" id="filterForm">
                         {% if current_filters.gender %}
@@ -169,6 +195,17 @@
                         </div>
                     </form>
                 </div>
+                <!-- Delete Confirmation Modal -->
+                <div id="deleteModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+                    <div class="bg-white rounded-lg shadow-lg w-96 p-6">
+                        <h2 class="text-lg font-semibold text-gray-800">ยืนยันการลบ</h2>
+                        <p class="mt-2 text-gray-600">คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนักเรียนคนนี้?</p>
+                        <div class="mt-4 flex justify-end gap-2">
+                            <button id="cancelDelete" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">ยกเลิก</button>
+                            <a id="confirmDelete" href="" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">ลบ</a>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Stats -->
                 <div class="grid grid-cols-3 gap-3 w-full lg:w-auto">
@@ -211,6 +248,7 @@
                 {% for student in students %}
                 <div class="bg-white rounded-lg shadow-sm p-4 space-y-3 relative top-6">
                     <!-- Profile Image -->
+                     
                     <div class="absolute left-1/2 transform -translate-x-1/2 -top-10">
                         {% if student.profile_picture %}
                         <img 
@@ -293,7 +331,9 @@
 
                                 <!-- Delete Button -->
                                 <div class="tooltip-container relative">
-                                    <a href="" class="p-2 text-red-600 rounded-full transition-colors duration-200">
+                                    <a href="#" 
+                                    class="p-2 text-red-600 rounded-full transition-colors duration-200"
+                                    onclick="showDeleteModal(event, '{{ student.id }}')">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M3 6h18"/>
                                             <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
@@ -313,7 +353,8 @@
                 {% endfor %}
 
             </div>
-
+            
+           
             <!-- Desktop Table View -->
             <div class="hidden lg:block bg-white rounded-lg shadow-sm overflow-hidden">
                 <div class="overflow-x-auto relative">
@@ -390,10 +431,12 @@
                                                         แก้ไข
                                                     </div>
                                                 </div>
-
-                                                <!-- Delete Button -->
+                                                
+                                                <!-- Delete Link -->
+                                                <!-- Tooltip container with delete button -->
                                                 <div class="tooltip-container relative">
-                                                    <a href="" class="p-2 text-red-600  rounded-full transition-colors duration-200">
+                                                    <a href="#" onclick="showDeleteModal(event, '{{ student.id }}')" 
+                                                    class="p-2 text-red-600 rounded-full transition-colors duration-200">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                             <path d="M3 6h18"/>
                                                             <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
@@ -402,7 +445,7 @@
                                                             <line x1="14" y1="11" x2="14" y2="17"/>
                                                         </svg>
                                                     </a>
-                                                    <div class="tooltip absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-1  text-white text-xs rounded whitespace-nowrap">
+                                                    <div class="tooltip absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-1 text-white text-xs rounded whitespace-nowrap">
                                                         ลบ
                                                     </div>
                                                 </div>
@@ -422,6 +465,25 @@
             </div>
         </div>
     </div>
+
+    <!-- JavaScript for Modal -->
+    <script>
+        function showDeleteModal(event, studentId) {
+            event.preventDefault(); // Prevent the default action (page redirect)
+            document.getElementById('deleteModal').classList.add('active'); // Show the modal
+
+            // Add the delete confirmation logic
+            document.getElementById('confirmDelete').onclick = function() {
+                window.location.href = '/delete_student/' + studentId; // Redirect to delete student URL
+            };
+
+            // If the user clicks "Cancel" button
+            document.getElementById('cancelDelete').onclick = function() {
+                document.getElementById('deleteModal').classList.remove('active'); // Close the modal
+            };
+        }
+    </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const animateValue = (element, start, end, duration) => {
@@ -489,5 +551,25 @@
                 .catch(error => console.error('Error:', error));
         }
     </script>
+    <script>
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+        
+        // Attach the toggleModal function to buttons dynamically
+        document.querySelectorAll('[data-modal-target]').forEach(button => {
+            button.addEventListener('click', () => {
+                const modalId = button.getAttribute('data-modal-target');
+                toggleModal(modalId);
+            });
+        });
+    </script>
+        
 </body>
 </html>
+{% endblock %}
