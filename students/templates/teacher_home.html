@@ -1,7 +1,7 @@
-
-{% include 'navbar.html' %}
+{% extends 'bases.html' %}
 <!DOCTYPE html>
 <html lang="en">
+{% block title %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +11,9 @@
 
     <title>หน้าแรก</title>
 </head>
+{% endblock %}
+
+{% block content %}
 <body>
     <div class="h-screen bg-green-800 px-4 sm:px-6 font-prompt"> 
         <!-- Header Section -->
@@ -19,12 +22,12 @@
                 <img class="w-24 h-24 md:w-32 md:h-32" src="{% static 'images/logo.png' %}" alt="">
                 <div class="mt-4 sm:mt-0 sm:ml-4">
                     <h1 class="text-3xl md:text-4xl">ระบบการจัดการหน่วยสอบ</h1>
-                    <span class="text-xl md:text-2xl block mt-2">สมาคมครูสัมพันธ์ หน่วยสอบ 86</span>
+                    <span class="text-xl md:text-2xl block mt-2">สมาคมครูสัมพันธ์ หน่วยสอบ 80</span>
                 </div>
             </div>
 
             <div class="flex flex-row gap-4">
-                <a href="{% url 'register'  %}" class="md:mt-12 lg:mt-0 md:text-xl inline-flex items-center justify-center px-6 py-3 bg-white text-green-900 hover:bg-gray-200 hover:text-green-700 rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:scale-105">
+                <a href="{% url 'in_profile'  %}" class="md:mt-12 lg:mt-0 md:text-xl inline-flex items-center justify-center px-6 py-3 bg-white text-green-900 hover:bg-gray-200 hover:text-green-700 rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:scale-105">
                     <span class="mr-2">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-pen">
                         <path d="M11.5 15H7a4 4 0 0 0-4 4v2"></path>
@@ -34,9 +37,10 @@
                     </span>
                     ลงทะเบียน
                 </a>
-                <a href="{% url 'ingr_student'  %}" class="md:mt-12 lg:mt-0 md:text-xl inline-flex items-center justify-center px-6 py-3 bg-[#06D001] text-white rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:bg-[#04a801] hover:scale-105">
+                {% if user.is_superuser %}
+                <a href="{% url 'admin:index' %}" class="md:mt-12 lg:mt-0 md:text-xl inline-flex items-center justify-center px-6 py-3 bg-[#06D001] text-white rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:bg-[#04a801] hover:scale-105">
                     <span class="mr-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notepad-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notepad-text">
                         <path d="M8 2v4"></path>
                         <path d="M12 2v4"></path>
                         <path d="M16 2v4"></path>
@@ -44,10 +48,27 @@
                         <path d="M8 10h6"></path>
                         <path d="M8 14h8"></path>
                         <path d="M8 18h5"></path>
-                      </svg>
+                    </svg>
+                    </span>
+                    หน้าแอดมิน
+                </a>
+                {% else %}
+                <a href="{% url 'ingr_student' %}" class="md:mt-12 lg:mt-0 md:text-xl inline-flex items-center justify-center px-6 py-3 bg-[#06D001] text-white rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:bg-[#04a801] hover:scale-105">
+                    <span class="mr-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notepad-text">
+                        <path d="M8 2v4"></path>
+                        <path d="M12 2v4"></path>
+                        <path d="M16 2v4"></path>
+                        <rect width="16" height="18" x="4" y="4" rx="2"></rect>
+                        <path d="M8 10h6"></path>
+                        <path d="M8 14h8"></path>
+                        <path d="M8 18h5"></path>
+                    </svg>
                     </span>
                     ลงคะแนน
                 </a>
+                {% endif %}
+
             </div>
         </header>
 
@@ -176,4 +197,5 @@
         });
         </script>
 </body>
+{% endblock %}
 </html>
