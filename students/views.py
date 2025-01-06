@@ -20,6 +20,8 @@ from datetime import datetime  # Import the datetime module
 from django.views.decorators.csrf import csrf_exempt
 import json
 from urllib.parse import urlencode
+from django.core.paginator import Paginator
+
 
 pdfmetrics.registerFont(TTFont('THSarabunNew', 'static/fonts/THSarabunNew.ttf'))
 
@@ -383,18 +385,15 @@ def Profile(request, student_id=None):
 
     return render(request, 'student/profile.html', context)
 
-#student output
+from django.core.paginator import Paginator
+
 def Student_Rp(request):
     # Check if 'user_type' is in the session
     user_type = request.session.get('user_type')
-    
-    # If no user_type is found, redirect to login
     if not user_type:
-        return redirect('login_view')  # Redirect to login if user_type is not in session
-
-    # If user is not a teacher, redirect to home
+        return redirect('login_view')
     if user_type == 'student':
-        return redirect('home')  # Redirect student back to home
+        return redirect('home')
 
     # รับค่าฟิลเตอร์
     search = request.GET.get('search', '').strip()
@@ -403,50 +402,42 @@ def Student_Rp(request):
     academic_year = request.GET.get('academic_year')
     gender = request.GET.get('gender')
     special_status = request.GET.get('special_status')
-    action = request.GET.get('action')  # Check for download action
-    print(f"special_status: {special_status}")  # Debugging
-    print(f"gender: {gender}")  # Debugging
+    action = request.GET.get('action')
+    items_per_page = int(request.GET.get('items_per_page', 10))  # รับค่าจำนวนข้อมูลต่อหน้า (ค่าเริ่มต้นคือ 10)
 
     # Query นักเรียน
     students = Student.objects.filter(current_study__isnull=False, delete_status='not_deleted')
 
-    # กรองตามคำค้นหา
     if search:
         students = students.filter(
             Q(first_name__icontains=search) | Q(last_name__icontains=search)
         )
-
-    # กรองตามโรงเรียน
     if school:
         students = students.filter(current_study__school__id=school)
-
-    # กรองตามระดับชั้น
     if level:
         students = students.filter(current_study__level__id=level)
-
-    # กรองตามปีการศึกษา
     if academic_year:
         students = students.filter(current_study__current_semester__year=academic_year)
-
-    # กรองตามเพศ
     if gender:
         students = students.filter(gender=gender)
-
-    # กรองตามสถานะพิเศษ
     if special_status:
         students = students.filter(special_status=special_status)
-    
-    # Check if the action is to download the PDF
+
     if action == 'download':
         return download_students_pdf(students)
+
+    # Pagination
+    paginator = Paginator(students, items_per_page)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
 
     # ดึงข้อมูลสำหรับตัวเลือก
     levels = Level.objects.all()
     schools = School.objects.all()
     academic_years = CurrentSemester.objects.values_list('year', flat=True).distinct()
-    
+
     context = {
-        'students': students,
+        'page_obj': page_obj,
         'total_students': students.count(),
         'male_students': students.filter(gender='ชาย').count(),
         'female_students': students.filter(gender='หญิง').count(),
@@ -460,10 +451,12 @@ def Student_Rp(request):
             'academic_year': academic_year,
             'gender': gender,
             'special_status': special_status,
+            'items_per_page': items_per_page,
         },
     }
 
     return render(request, 'student/sp_student.html', context)
+
 
 def download_students_pdf(students):
     # Check if there are any students
@@ -803,11 +796,168 @@ def GR_Student(request):
         'subject_totals': subject_totals,
         'academic_year': academic_year,
         'current_semester': current_semester,
+        'school_name': school_name,
+        'level_name': level_name,
+        'academic_year': academic_year,
     }
 
     return render(request, 'student/gr_student.html', context)
 
 def student_Results(request, student_id):
+    user_type = request.session.get('user_type')
+
+    if not user_type:
+        return redirect('login_view')
+
+    student = get_object_or_404(Student, id=student_id)
+    current_study = CurrentStudy.objects.filter(student=student).first()
+    current_semester = CurrentSemester.objects.first()
+
+    academic_years = StudentHistory.objects.filter(student_id=student.id).values_list('academic_year', flat=True).distinct().order_by('-academic_year')
+    selected_academic_year = request.GET.get('academic_year') or (academic_years.first() if academic_years else (current_semester.year if current_semester else None))
+
+    student_history_instance = StudentHistory.objects.filter(
+    student_id=student.id, academic_year=selected_academic_year
+    ).first()
+
+    subjects_cat1_data = student_history_instance.get_subject_data(category=1) if student_history_instance else []
+    subjects_cat2_data = student_history_instance.get_subject_data(category=2) if student_history_instance else []
+
+    if 'download_pdf' in request.GET:
+        category_1_data = [
+            (s['name'], s['marks'], s['percentage'], s['status']) for s in subjects_cat1_data
+        ]
+        category_2_data = [
+            (s['name'], s['marks'], s['percentage'], s['status']) for s in subjects_cat2_data
+        ]
+
+        school_name = current_study.school.name if current_study and current_study.school else "-"
+        level_name = current_study.level.name if current_study and current_study.level else "-"
+        
+        return download_result_pdf(
+            students=[student],
+            category_1_data=category_1_data,
+            category_2_data=category_2_data,
+            academic_year=int(selected_academic_year) + 543,
+            student_name=f"{student.first_name}_{student.last_name}",
+            school_name=school_name,
+            level_name=level_name
+        )
+
+    subject_totals = {}
+    if current_study and current_semester:
+        subject_to_studies = SubjectToStudy.objects.filter(
+            level=current_study.level,
+            semester=current_semester.semester
+        ).select_related('subject')
+        subject_totals = {subject.subject.name: subject.subject.total_marks for subject in subject_to_studies}
+
+    context = {
+        'student': student,
+        'current_study': current_study,
+        'current_semester': current_semester,
+        'selected_academic_year': selected_academic_year,
+        'academic_years': academic_years,
+        'subjects_cat1': subjects_cat1_data,
+        'subjects_cat2': subjects_cat2_data,
+        'subject_totals': subject_totals,
+    }
+
+    return render(request, 'student/student_results.html', context)
+
+def download_result_pdf(students, category_1_data, category_2_data, academic_year, student_name, school_name, level_name):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{student_name}_results_{academic_year}.pdf"'
+
+    doc = SimpleDocTemplate(
+        response,
+        pagesize=A4,
+        topMargin=0.5 * inch,
+        bottomMargin=0.5 * inch,
+        leftMargin=0.5 * inch,
+        rightMargin=0.5 * inch,
+    )
+
+    styles = getSampleStyleSheet()
+    styles['Normal'].fontName = 'THSarabunNew'
+    styles['Normal'].fontSize = 18
+
+    title_style_header = ParagraphStyle(name='Title', fontName='THSarabunNew', fontSize=16, alignment=1)
+    title_style_para = ParagraphStyle(name='Title', fontName='THSarabunNew', fontSize=16, alignment=0)
+    sub_title_style = ParagraphStyle(name='SubTitle', fontName='THSarabunNew', fontSize=16, alignment=1)
+    normal_style = ParagraphStyle(name='Normal', fontName='THSarabunNew', fontSize=16, alignment=0)
+
+    logo_path = "static/images/logo.png"
+    logo = Image(logo_path, width=80, height=80)
+    logo.hAlign = 'CENTER'
+
+    header = Paragraph("สมาคมคุรุสัมพันธ์อิสลามแห่งประเทศไทย ประจำหน่วยสอบที่ 80", title_style_header)
+    school_name_paragraph = Paragraph(f"โรงเรียน {school_name}", sub_title_style)
+    student_info = Paragraph(f"บันทึกผลการเรียนของ {student_name} {level_name}", normal_style)
+    academic_year_text = Paragraph(f"ประจำปีการศึกษา {academic_year}", normal_style)
+
+    table_data_cat1 = [['วิชา', 'คะแนน', 'เกรด', 'ผ่าน/ไม่ผ่าน']] + category_1_data
+    table_data_cat2 = [['วิชา', 'คะแนน', 'เกรด', 'ผ่าน/ไม่ผ่าน']] + category_2_data
+
+    # Handle empty data for Category 1 (Theoretical)
+    if len(table_data_cat1) == 1:
+        table_cat1 = Paragraph("\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e20\u0e32\u0e04\u0e17\u0e24\u0e28\u0e14\u0e35", sub_title_style)
+    else:
+        table_cat1 = Table(table_data_cat1, colWidths=[200, 100, 100, 100])
+        table_cat1.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), 'THSarabunNew'),
+            ('FONTSIZE', (0, 0), (-1, -1), 14),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('ALIGN', (0, 1), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('TOPPADDING', (0, 0), (-1, 0), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ]))
+
+    # Handle empty data for Category 2 (Practical)
+    if len(table_data_cat2) == 1:
+        table_cat2 = Paragraph("\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e20\u0e32\u0e04\u0e1b\u0e0f\u0e34\u0e1a\u0e31\u0e15\u0e34", sub_title_style)
+    else:
+        table_cat2 = Table(table_data_cat2, colWidths=[200, 100, 100, 100])
+        table_cat2.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), 'THSarabunNew'),
+            ('FONTSIZE', (0, 0), (-1, -1), 14),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('ALIGN', (0, 1), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 1), (-1, -1), 'CENTER'),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+            ('TOPPADDING', (0, 0), (-1, 0), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ]))
+
+    elements = [
+        logo,
+        Spacer(1, 10),
+        header,
+        Spacer(1, 20),
+        school_name_paragraph,
+        Spacer(1, 20),
+        student_info,
+        Spacer(1, 10),
+        academic_year_text,
+        Spacer(1, 20),
+        Paragraph("ผลการศึกษาภาคทฤษฎี", title_style_para),
+        Spacer(1, 20),
+        table_cat1,
+        Spacer(1, 15),
+        Paragraph("ผลการศึกษาภาคปฏิบัติ", title_style_para),
+        Spacer(1, 20),
+        table_cat2
+    ]
+
+    doc.build(elements)
+
+    return response
+
+def student_Resultss(request, student_id):
      # Check if 'user_type' is in the session
     user_type = request.session.get('user_type')
     
@@ -878,7 +1028,7 @@ def student_Results(request, student_id):
 
     return render(request, 'student/student_results.html', context)
 
-def download_result_pdf(students, semester_1_data, semester_2_data, academic_year, student_name, school_name, level_name):
+def download_result_pdfs(students, semester_1_data, semester_2_data, academic_year, student_name, school_name, level_name):
     # Create PDF response
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{student_name}_results_{academic_year}.pdf"'
@@ -896,19 +1046,19 @@ def download_result_pdf(students, semester_1_data, semester_2_data, academic_yea
     # Styles
     styles = getSampleStyleSheet()
     styles['Normal'].fontName = 'THSarabunNew'
-    styles['Normal'].fontSize = 12
+    styles['Normal'].fontSize = 18
 
     title_style = ParagraphStyle(
         name='Title',
         fontName='THSarabunNew',
-        fontSize=24,
+        fontSize=16,
         alignment=1  # Center alignment
     )
 
     sub_title_style = ParagraphStyle(
         name='SubTitle',
         fontName='THSarabunNew',
-        fontSize=20,
+        fontSize=16,
         alignment=1  # Center alignment
     )
 
@@ -921,11 +1071,11 @@ def download_result_pdf(students, semester_1_data, semester_2_data, academic_yea
 
     # Add logo
     logo_path = "static/images/logo.png"
-    logo = Image(logo_path, width=120, height=120)  # Adjust size as needed
+    logo = Image(logo_path, width=80, height=80)  # Adjust size as needed
     logo.hAlign = 'CENTER'
 
     # Headings
-    header = Paragraph("สมาคมคุรุสัมพันธ์อิสลามแห่งประเทษไทย ประจำหน่วยสอบที่ 80", title_style)
+    header = Paragraph("สมาคมคุรุสัมพันธ์อิสลามแห่งประเทศไทย ประจำหน่วยสอบที่ 80", title_style)
     school_name_paragraph = Paragraph(f"โรงเรียน {school_name}", sub_title_style)
     student_info = Paragraph(f"บันทึกผลการเรียนของ {student_name} {level_name}", normal_style)
     academic_year_text = Paragraph(f"ประจำปีการศึกษา {academic_year}", normal_style)
@@ -944,13 +1094,16 @@ def download_result_pdf(students, semester_1_data, semester_2_data, academic_yea
         table_sem1 = Paragraph("ยังไม่มีข้อมูลสำหรับภาคการศึกษานี้", sub_title_style)
     else:
         table_sem1 = Table(table_data_sem1, colWidths=[200, 100, 100, 100])
-        table_sem1.setStyle(TableStyle([ 
+        table_sem1.setStyle(TableStyle([
             ('FONTNAME', (0, 0), (-1, -1), 'THSarabunNew'),  # Custom font
+            ('FONTSIZE', (0, 0), (-1, -1), 14),  # Set font size to 16
             ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),  # Header row color
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),  # Center align for the header row
+            ('ALIGN', (0, 1), (0, -1), 'LEFT'),  # Align first column (Subject) to the left
+            ('ALIGN', (1, 1), (-1, -1), 'CENTER'),  # Align other columns to the center
             ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Table grid
-            ('TOPPADDING', (0, 0), (-1, 0), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, 0), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
         ]))
 
     # Handle empty data for Semester 2
@@ -958,15 +1111,17 @@ def download_result_pdf(students, semester_1_data, semester_2_data, academic_yea
         table_sem2 = Paragraph("ยังไม่มีข้อมูลสำหรับภาคการศึกษานี้", sub_title_style)
     else:
         table_sem2 = Table(table_data_sem2, colWidths=[200, 100, 100, 100])
-        table_sem2.setStyle(TableStyle([ 
+        table_sem2.setStyle(TableStyle([
             ('FONTNAME', (0, 0), (-1, -1), 'THSarabunNew'),  # Custom font
+            ('FONTSIZE', (0, 0), (-1, -1), 14),  # Set font size to 16
             ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),  # Header row color
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),  # Center align for the header row
+            ('ALIGN', (0, 1), (0, -1), 'LEFT'),  # Align first column (Subject) to the left
+            ('ALIGN', (1, 1), (-1, -1), 'CENTER'),  # Align other columns to the center
             ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Table grid
-            ('TOPPADDING', (0, 0), (-1, 0), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, 0), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
         ]))
-
     # Build the PDF with elements
     elements = [
         logo,

@@ -57,13 +57,27 @@
                     <h3 class=" text-white p-2">ชื่ออังกฤษ</h3>
                     <h3 class=" text-white p-2">ชื่ออาหรับ</h3>
                     <h3 class=" text-white p-2">วันเดือนปีเกิด</h3>
+                    <div class="md:grid grid-rows-2">
+                        <h3 class=" text-white p-2">ที่อยู่ปัจจุบัน</h3>
+                    </div>
+                    <h3 class=" text-white p-2">เบอร์โทรศัพท์</h3>
                     <h3 class=" text-white p-2">ชื่อโรงเรียนเดิม</h3>
                 </div>
                 <div class="md:col-span-2 py-4">
-                    <h3 class="flex text-black p-2"><span class="block md:hidden"><i class="fa-regular fa-user mx-2 text-xl"></i></span></i>{{ student.english_first_name }} {{ student.english_last_name }}</h3>
+                    <h3 class="flex text-black p-2"><span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/name.png' %}" alt=""></span>{{ student.english_first_name }} {{ student.english_last_name }}</h3>
                     <h3 class=" text-black p-2 ml-8 md:ml-0">{{ student.arabic_first_name }} {{ student.arabic_last_name }}</h3>
-                    <h3 class="flex text-black p-2"><span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/birthday.png' %}" alt=""></span></i>{{ student.date_of_birth|date:"d/m/Y" }}</h3>
-                    <h3 class="flex text-black p-2"><span class="block md:hidden"><i class="fa-solid fa-school mx-2 text-xl"></i></span></i>{{ current_study.school.name|default:"-" }}</h3>
+                    <h3 class="flex text-black p-2"><span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/birthday.png' %}" alt=""></span>{{ student.date_of_birth|date:"d/m/Y" }}</h3>
+                    <div class="grid grid-row-2">
+                        <h3 class="flex text-black p-2"><span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/address.png' %}" alt=""></span>บ้านเลขที่ {{ student.address.house_number|default:"-" }}
+                            ซอย/ถนน {{ student.address.street|default:"-" }}
+                            หมู่ที่ {{ student.address.moo|default:"-" }} ตำบล {{ student.address.subdistrict.name|default:"-" }}</h3>
+                        <h3 class=" text-black p-2 hidden md:block"> ตำบล {{ student.address.subdistrict.name|default:"-" }}
+                            อำเภอ {{ student.address.district.name|default:"-" }}
+                            จังหวัด {{ student.address.province.name|default:"-" }}
+                            รหัสไปรษณีย์ {{ student.address.zipcode|default:"-" }}</h3>
+                    </div>
+                    <h3 class="flex text-black p-2"><span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/phone.png' %}" alt=""></span>{{ student.phone_number|default:"-" }}</h3>
+                    <h3 class="flex text-black p-2"><span class="block md:hidden"><img class="w-6 mx-[4px] -mt-[2px]" src="{% static 'images/school.png' %}" alt=""></span>{{ current_study.school.name|default:"-" }}</h3>
                 </div>
             </div>
 
@@ -78,13 +92,13 @@
                 <div class="bg-black md:col-span-1 pl-4 py-4 hidden md:block">
                     <h3 class="text-white p-2">ชื่อ - สกุล</h3>
                     <h3 class="text-white p-2">วันเดือนปีเกิด</h3>
-                    <div class="grid grid-rows-2">
+                    <div class="md:grid grid-rows-2">
                         <h3 class="text-white p-2">ที่อยู่ปัจจุบัน</h3>
                     </div>
                     <h3 class="text-white p-2">เบอร์โทรศัพท์</h3>
                     <h3 class="text-white p-2">อาชีพ</h3>
                 
-                    <div class="grid grid-rows-2">
+                    <div class="md:grid grid-rows-2">
                         <h3 class="text-white p-2">สถานที่ทำงาน</h3>
                     </div>
                     
@@ -93,23 +107,27 @@
                 <div class="col-span-3 py-4">
                     <!-- ชื่อ - สกุล -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><i class="fa-regular fa-user mx-2 text-xl"></i></span>
+                        <span class="block md:hidden"><img class="w-4 mx-[5px]" src="{% static 'images/name.png' %}" alt=""></span>
                         {{ father.first_name|default:"-" }} {{ father.last_name|default:"-" }}
                     </h3>
             
                     <!-- วันเดือนปีเกิด -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/birthday.png' %}" alt=""></span>
+                        <span class="block md:hidden"><img class="w-4 mx-[5px]" src="{% static 'images/birthday.png' %}" alt=""></span>
                         {{ father.date_of_birth|date:"d/m/Y"|default:"-" }}
                     </h3>
             
                     <!-- ที่อยู่ปัจจุบัน -->
                     <div class="grid grid-row-2">
-                        <h3 class="flex text-black p-2">
-                            <span class="block md:hidden"><i class="fa-solid fa-location-dot mx-2 text-xl"></i></span>
+                        <h3 class="flex flex-wrap text-black p-2">
+                            <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/address.png' %}" alt=""></span>
                             บ้านเลขที่ {{ father.address.house_number|default:"-" }}
                             หมู่ที่ {{ father.address.moo|default:"-" }}
                             ซอย/ถนน {{ father.address.street|default:"-" }}
+                            <span class="mx-8 md:mx-0 block md:hidden">ตำบล {{ father.address.subdistrict.name|default:"-" }}
+                                อำเภอ {{ father.address.district.name|default:"-" }}
+                                จังหวัด {{ father.address.province.name|default:"-" }}
+                                รหัสไปรษณีย์ {{ father.address.zipcode|default:"-" }}</span>
                         </h3>
                         <h3 class="text-black p-2 hidden md:block">
                             ตำบล {{ father.address.subdistrict.name|default:"-" }}
@@ -121,21 +139,21 @@
             
                     <!-- เบอร์โทรศัพท์ -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><i class="fa-solid fa-phone mx-2 text-xl"></i></span>
+                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/phone.png' %}" alt=""></span>
                         {{ father.phone_number|default:"-" }}
                     </h3>
             
                     <!-- อาชีพ -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><i class="fa-solid fa-user-doctor mx-2 text-xl"></i></span>
+                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/workplace.png' %}" alt=""></span>
                         {{ father.occupation|default:"-" }}
                     </h3>
             
                     <!-- สถานที่ทำงาน -->
                     
-                    <div class="grid grid-rows-2">
+                    <div class="md:grid grid-rows-2">
                         <h3 class="flex text-black p-2">
-                            <span class="block md:hidden"><i class="fa-solid fa-briefcase mx-2 text-xl"></i></span>
+                            <span class="block md:hidden"><img class="w-6 mx-[2px]" src="{% static 'images/occ.png' %}" alt=""></span>
                             {{ father.workplace|default:"-" }}
                         </h3>
                      </div>
@@ -143,7 +161,7 @@
             
                     <!-- รายได้ต่อปี -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><i class="fa-solid fa-money-bill mx-2 text-xl"></i></span>
+                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/money.png' %}" alt=""></span>
                         {{ father.income|default:"-" }}
                     </h3>
                 </div>
@@ -154,16 +172,16 @@
                 ประวัติมารดา
             </div>
 
-            <div class="md:grid md:grid-cols-4 gap-4 bg-white shadow-xl mt-8">
+            <div class="md:grid md:grid-cols-4 gap-4 bg-white shadow-xl">
                 <div class="bg-black md:col-span-1 pl-4 py-4 hidden md:block">
                     <h3 class="text-white p-2">ชื่อ - สกุล</h3>
                     <h3 class="text-white p-2">วันเดือนปีเกิด</h3>
-                    <div class="grid grid-rows-2">
+                    <div class="md:grid grid-rows-2">
                         <h3 class="text-white p-2">ที่อยู่ปัจจุบัน</h3>
                     </div>
                     <h3 class="text-white p-2">เบอร์โทรศัพท์</h3>
                     <h3 class="text-white p-2">อาชีพ</h3>
-                    <div class="grid grid-rows-2">
+                    <div class="md:grid grid-rows-2">
                         <h3 class="text-white p-2">สถานที่ทำงาน</h3>
                     </div>
                     <h3 class="text-white p-2">รายได้ต่อปี</h3>
@@ -171,7 +189,7 @@
                 <div class="col-span-3 py-4">
                     <!-- ชื่อ - สกุล -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><i class="fa-regular fa-user mx-2 text-xl"></i></span>
+                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/name.png' %}" alt=""></span>
                         {{ mother.first_name|default:"-" }} {{ mother.last_name|default:"-" }}
                     </h3>
             
@@ -183,11 +201,15 @@
             
                     <!-- ที่อยู่ปัจจุบัน -->
                     <div class="grid grid-row-2">
-                        <h3 class="flex text-black p-2">
-                            <span class="block md:hidden"><i class="fa-solid fa-location-dot mx-2 text-xl"></i></span>
+                        <h3 class="flex flex-wrap text-black p-2">
+                            <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/address.png' %}" alt=""></span>
                             บ้านเลขที่ {{ mother.address.house_number|default:"-" }}
                             หมู่ที่ {{ mother.address.moo|default:"-" }}
                             ซอย/ถนน {{ mother.address.street|default:"-" }}
+                            <span class="mx-8 md:mx-0 block md:hidden">ตำบล {{ mother.address.subdistrict.name|default:"-" }}
+                                อำเภอ {{ mother.address.district.name|default:"-" }}
+                                จังหวัด {{ mother.address.province.name|default:"-" }}
+                                รหัสไปรษณีย์ {{ mother.address.zipcode|default:"-" }}</span>
                         </h3>
                         <h3 class="text-black p-2 hidden md:block">
                             ตำบล {{ mother.address.subdistrict.name|default:"-" }}
@@ -199,28 +221,28 @@
             
                     <!-- เบอร์โทรศัพท์ -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><i class="fa-solid fa-phone mx-2 text-xl"></i></span>
+                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/phone.png' %}" alt=""></span>
                         {{ mother.phone_number|default:"-" }}
                     </h3>
             
                     <!-- อาชีพ -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><i class="fa-solid fa-user-doctor mx-2 text-xl"></i></span>
+                        <span class="block md:hidden"><img class="w-6 mx-[3px]" src="{% static 'images/occ.png' %}" alt=""></span>
                         {{ mother.occupation|default:"-" }}
                     </h3>
             
                     <!-- สถานที่ทำงาน -->
         
-                    <div class="grid grid-rows-2">
+                    <div class="md:grid grid-rows-2">
                         <h3 class="flex text-black p-2">
-                            <span class="block md:hidden"><i class="fa-solid fa-briefcase mx-2 text-xl"></i></span>
+                            <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/workplace.png' %}" alt=""></span>
                             {{ mother.workplace|default:"-" }}
                         </h3>
                      </div>
             
                     <!-- รายได้ต่อปี -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><i class="fa-solid fa-money-bill mx-2 text-xl"></i></span>
+                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/money.png' %}" alt=""></span>
                         {{ mother.income|default:"-" }}
                     </h3>
                 </div>
@@ -231,16 +253,16 @@
                 ประวัติผู้ปกครอง
             </div>
 
-            <div class="md:grid md:grid-cols-4 gap-4 bg-white shadow-xl mt-8">
+            <div class="md:grid md:grid-cols-4 gap-4 bg-white shadow-xl">
                 <div class="bg-black md:col-span-1 pl-4 py-4 hidden md:block">
                     <h3 class="text-white p-2">ชื่อ - สกุล</h3>
                     <h3 class="text-white p-2">วันเดือนปีเกิด</h3>
-                    <div class="grid grid-rows-2">
+                    <div class="md:grid grid-rows-2">
                         <h3 class="text-white p-2">ที่อยู่ปัจจุบัน</h3>
                     </div>
                     <h3 class="text-white p-2">เบอร์โทรศัพท์</h3>
                     <h3 class="text-white p-2">อาชีพ</h3>
-                    <div class="grid grid-rows-2">
+                    <div class="md:grid grid-rows-2">
                         <h3 class="text-white p-2">สถานที่ทำงาน</h3>
                     </div>
                     <h3 class="text-white p-2">รายได้ต่อปี</h3>
@@ -248,7 +270,7 @@
                 <div class="col-span-3 py-4">
                     <!-- ชื่อ - สกุล -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><i class="fa-regular fa-user mx-2 text-xl"></i></span>
+                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/name.png' %}" alt=""></span>
                         {{ guardian.first_name|default:"-" }} {{ guardian.last_name|default:"-" }}
                     </h3>
             
@@ -259,12 +281,16 @@
                     </h3>
             
                     <!-- ที่อยู่ปัจจุบัน -->
-                    <div class="grid grid-row-2">
-                        <h3 class="flex text-black p-2">
-                            <span class="block md:hidden"><i class="fa-solid fa-location-dot mx-2 text-xl"></i></span>
+                    <div class="md:grid grid-row-2">
+                        <h3 class="flex flex-wrap text-black p-2">
+                            <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/address.png' %}" alt=""></span>
                             บ้านเลขที่ {{ guardian.address.house_number|default:"-" }}
                             หมู่ที่ {{ guardian.address.moo|default:"-" }}
                             ซอย/ถนน {{ guardian.address.street|default:"-" }}
+                            <span class="mx-8 md:mx-0 block md:hidden">ตำบล {{ guardian.address.subdistrict.name|default:"-" }}
+                                อำเภอ {{ guardian.address.district.name|default:"-" }}
+                                จังหวัด {{ guardian.address.province.name|default:"-" }}
+                                รหัสไปรษณีย์ {{ guardian.address.zipcode|default:"-" }}</span>
                         </h3>
                         <h3 class="text-black p-2 hidden md:block">
                             ตำบล {{ guardian.address.subdistrict.name|default:"-" }}
@@ -276,28 +302,28 @@
             
                     <!-- เบอร์โทรศัพท์ -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><i class="fa-solid fa-phone mx-2 text-xl"></i></span>
+                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/phone.png' %}" alt=""></span>
                         {{ guardian.phone_number|default:"-" }}
                     </h3>
             
                     <!-- อาชีพ -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><i class="fa-solid fa-user-doctor mx-2 text-xl"></i></span>
+                        <span class="block md:hidden"><img class="w-6 mx-[3px]" src="{% static 'images/occ.png' %}" alt=""></span>
                         {{ guardian.occupation|default:"-" }}
                     </h3>
             
                     <!-- สถานที่ทำงาน -->
 
-                    <div class="grid grid-rows-2">
+                    <div class="md:md:grid grid-rows-2">
                         <h3 class="flex text-black p-2">
-                            <span class="block md:hidden"><i class="fa-solid fa-briefcase mx-2 text-xl"></i></span>
+                            <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/workplace.png' %}" alt=""></span>
                             {{ guardian.workplace|default:"-" }}
                         </h3>
                     </div>
             
                     <!-- รายได้ต่อปี -->
                     <h3 class="flex text-black p-2">
-                        <span class="block md:hidden"><i class="fa-solid fa-money-bill mx-2 text-xl"></i></span>
+                        <span class="block md:hidden"><img class="w-5 mx-[5px]" src="{% static 'images/money.png' %}" alt=""></span>
                         {{ guardian.income|default:"-" }}
                     </h3>
                 </div>

@@ -257,11 +257,11 @@ class CurrentStudyAdmin(admin.ModelAdmin):
 
 @admin.register(CurrentSemester)
 class CurrentSemesterAdmin(admin.ModelAdmin):
-    # Exclude the 'year' field from the form
-    exclude = ('year',)
+    # Include the 'year' field from the form
+    exclude = ('semester',)
 
     # Display fields in the admin list view
-    list_display = ('semester', 'year')
+    list_display = ('year',)
     
     # Ordering of records in the list view
     ordering = ['year']

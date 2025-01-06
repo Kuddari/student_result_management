@@ -1,4 +1,4 @@
-{% extends 'bases.html' %}
+{% extends 'base.html' %}
 <!DOCTYPE html>
 <html lang="en">
 {% block title %}
@@ -15,14 +15,14 @@
 
 {% block content %}
 <body>
-    <div class="h-screen bg-green-800 px-4 sm:px-6 font-prompt"> 
+    <div class="min-h-screen bg-green-800 px-4 sm:px-6 font-prompt"> 
         <!-- Header Section -->
-        <header class="py-4 md:py-20 flex flex-col lg:flex-row justify-between items-center lg:max-w-5xl mx-auto space-y-3 md:space-y-0 z-30">
+        <header class="py-10 md:py-20 flex flex-col lg:flex-row justify-between items-center lg:max-w-5xl mx-auto space-y-3 md:space-y-0 z-30">
             <div class="flex flex-col sm:flex-row items-center text-white text-center md:text-left">
                 <img class="w-24 h-24 md:w-32 md:h-32" src="{% static 'images/logo.png' %}" alt="">
                 <div class="mt-4 sm:mt-0 sm:ml-4">
                     <h1 class="text-3xl md:text-4xl">ระบบการจัดการหน่วยสอบ</h1>
-                    <span class="text-xl md:text-2xl block mt-2">สมาคมครูสัมพันธ์ หน่วยสอบ 80</span>
+                    <span class="text-xl md:text-2xl block mt-2">สมาคมคุรุสัมพันธ์ หน่วยสอบ 80</span>
                 </div>
             </div>
 
@@ -72,9 +72,8 @@
             </div>
         </header>
 
-        <!-- Stats Grid -->
          <!-- Stats Grid -->
-         <div class="lg:max-w-3xl mx-auto pb-8 lg:mt-14 z-30">
+         <div class="lg:max-w-3xl mx-auto pb-8 lg:mt-12 z-30">
             <!-- First Row Stats -->
             <div class="grid grid-cols-3 gap-4 sm:gap-5 mb-5">
                 <a href="{% url 'sp_student_report' %}" class="block group">
@@ -151,9 +150,9 @@
             alt="Background Right">
     </div> -->
 
-        <div class="text-center pb-8 sm:mt-40 lg:mt-28 text-lg sm:text-base md:text-3xl text-green-300 underline">
+        <!-- <div class="text-center pb-8 sm:mt-40 lg:mt-28 text-lg sm:text-base md:text-3xl text-green-300 underline">
             <a href="">สมาคมคุรุสัมพันธ์อิสลามแห่งประเทศไทยในพระบรมราชูปถัมภ์</a>
-        </div>
+        </div> -->
         
     </div>
 

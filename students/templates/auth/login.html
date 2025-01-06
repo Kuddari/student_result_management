@@ -8,8 +8,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <title>เข้าสู่ระบบจัดการผลการเรียน</title>
 </head>
-<body class="bg-green-800 h-screen flex items-center justify-center flex-col p-4">
-    <h1 class="text-3xl md:text-5xl text-center text-white mb-6 md:mb-8">เข้าสู่ระบบเกรดนักเรียน</h1>
+<body >
+    <div class="bg-gradient-to-b from-green-100 to-green-900 h-screen flex items-center justify-center flex-col p-4 font-prompt">
+        <h1 class="text-3xl md:text-5xl text-center text-green-900 mb-6 md:mb-8">เข้าสู่ระบบเกรดนักเรียน</h1>
 
     <div class="w-full max-w-md md:max-w-2xl px-6 py-8 md:px-24 md:py-16 bg-white rounded-2xl md:rounded-3xl shadow-2xl">
         <form method="post">
@@ -32,7 +33,7 @@
                         <path d="M19 3h-14c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-14c0-1.1-.9-2-2-2zm-14 16v-14h14l.002 14h-14zm7-4h-4v-2h4v2zm4-4h-8v-2h8v2z"/>
                     </svg>
                 </span>
-                <input type="password" id="password" name="password" class="w-full pl-12 md:pl-16 pr-4 md:pr-6 py-3 md:py-5 text-lg md:text-xl border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="รหัผ่าน" required>
+                <input type="password" id="password" name="password" class="w-full pl-12 md:pl-16 pr-4 md:pr-6 py-3 md:py-5 text-lg md:text-xl border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="รหัสผ่าน" required>
             </div>
 
             <!-- Remember Me -->
@@ -57,6 +58,7 @@
                 </button>
             </div>
         </form>
+    </div>
     </div>
 </body>
 </html>
