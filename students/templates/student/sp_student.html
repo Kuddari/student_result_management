@@ -196,7 +196,7 @@
                 <!-- Delete Confirmation Modal -->
                 <div id="deleteModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
                     <div class="bg-white rounded-lg shadow-lg w-96 p-6">
-                        <h2 class="text-lg font-semibold text-gray-800">ยืนยันการลบ</h2>
+                        <h2 class="text-lg  text-gray-800">ยืนยันการลบ</h2>
                         <p class="mt-2 text-gray-600">คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนักเรียนคนนี้?</p>
                         <div class="mt-4 flex justify-end gap-2">
                             <button id="cancelDelete" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">ยกเลิก</button>
@@ -231,7 +231,7 @@
                 </a>
             </div>
 
-            <form method="get" class="flex flex-col col-span-1 items-end md:translate-y-8 lg:translate-y-0 md:flex-row md:items-center space-x-2 mb-4 text-green-900 text-lg font-medium">
+            <form method="get" class="flex flex-col col-span-1 items-end md:translate-y-8 lg:translate-y-0 md:flex-row md:items-center space-x-2 mb-4 text-gray-200 text-lg font-medium">
                 <!-- ตัวเลือกจำนวนรายการต่อหน้า -->
                 <div>
                     <label class="" for="items_per_page">แสดง:</label>
@@ -294,10 +294,7 @@
                             <span class="">ชื่อ-สกุล:</span>
                             <span>{{ student.first_name }} {{ student.last_name }}</span>
                         </div>
-                        <div class="flex justify-between items-center border-b py-2">
-                            <span class="">เขตการศึกษา:</span>
-                            <span>{{ student.current_study.school.education_district.name }}</span>
-                        </div>
+                       
                         <div class="flex justify-between items-center border-b py-2">
                             <span class="">โรงเรียน:</span>
                             <span>{{ student.current_study.school.name }}</span>
@@ -378,7 +375,6 @@
                                         <th class="px-2 py-3 text-center text-gray-600 border-b w-16">ลำดับ</th>
                                         <th class="px-2 py-3 text-center text-gray-600 border-b w-10"></th>
                                         <th class="px-2 py-3 text-left pl-8 text-gray-600 border-b w-48">ชื่อ-สกุล</th>
-                                        <th class="px-2 py-3 text-center text-gray-600 border-b w-32">เขตการศึกษา</th>
                                         <th class="px-2 py-3 text-center text-gray-600 border-b w-48">โรงเรียน</th>
                                         <th class="px-2 py-3 text-center text-gray-600 border-b w-32">สถานะ</th>
                                         <th class="px-2 py-3 text-center text-gray-600 border-b w-40">จัดการ</th>
@@ -407,7 +403,6 @@
                                         <td class="px-2 py-2 text-left">
                                            {{ student.first_name }} {{ student.last_name }}
                                         </td>
-                                        <td class="px-2 py-2 text-center">{{ student.current_study.school.education_district.name }}</td>
                                         <td class="px-2 py-2 text-center">{{ student.current_study.school.name }}</td>
                                         <td class="px-2 py-2 text-center">{{ student.status }}</td>
                                         <td class="px-2 py-2">

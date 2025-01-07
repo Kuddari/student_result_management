@@ -60,7 +60,7 @@
                 </div>
                 <div class="text-left md:ml-6">
                     <h1 class="text-xl md:text-4xl d text-green-800 font-bold">{{ student.first_name }} {{ student.last_name }}</h1>
-                    <p class="text-lg mt-2 font-semibold text-gray-700">{{ current_study.school.name|default:"-" }}</p>
+                    <p class="text-lg mt-2  text-gray-700">{{ current_study.school.name|default:"-" }}</p>
                     <ul class="text-gray-700 mt-2">
                         <li><span class="text-green-700 text-[16px]">สถานะปัจจุบัน </span><span class="font-bold text-[16px]">{{ student.status|default:"-" }}</span></li>
                         <li><span class="text-green-700 text-[16px]">สถานะพิเศษ </span><span class="font-bold text-[16px]">{{ student.special_status|default:"-" }}</span></li>

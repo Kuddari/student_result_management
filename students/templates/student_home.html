@@ -1,4 +1,4 @@
-{% extends 'bases.html' %}
+{% extends 'base.html' %}
 <!DOCTYPE html>
 <html lang="en">
 {% block title %}
@@ -62,20 +62,20 @@
                     <a href="" class="block group">
                         <div class="bg-white h-24 md:h-48 pt-4 md:pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
                             <h1 class="text-[20px] md:text-5xl  group-hover:text-green-700 counter" data-target="{{total_students}}">0</h1>
-                            <h2 class="text-[20px] md:text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">นักเรียน</h2>
+                            <h2 class="text-[20px] md:text-3xl   text-green-900 mt-2 group-hover:text-green-700">นักเรียน</h2>
                         </div>
                     </a>
                     <a href="" class="block group">
                         <div class="bg-white h-24 md:h-48 pt-4 md:pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
                             <h1 class="text-[20px] md:text-5xl d group-hover:text-green-700 counter" data-target="{{male_students}}">0</h1>
-                            <h2 class="text-[20px] flex justify-center md:text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700"><img class="w-8 h-8 md:w-12 md:h-12 md:-mt-1" src="{% static 'images/male.png' %}">ชาย</h2>
+                            <h2 class="text-[20px] flex justify-center md:text-3xl   text-green-900 mt-2 group-hover:text-green-700"><img class="w-8 h-8 md:w-12 md:h-12 md:-mt-1" src="{% static 'images/male.png' %}">ชาย</h2>
                         </div>
                     </a>
 
                     <a href="" class="block group">
                         <div class="bg-white h-24 md:h-48 pt-4 md:pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
                             <h1 class="text-[20px] md:text-5xl d group-hover:text-green-700 counter" data-target="{{female_students}}">0</h1>
-                            <h2 class="text-[20px] flex justify-center md:text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700"><img class="w-8 h-8 md:w-12 md:h-12 md:-mt-1" src="{% static 'images/male.png' %}">หญิง</h2>
+                            <h2 class="text-[20px] flex justify-center md:text-3xl   text-green-900 mt-2 group-hover:text-green-700"><img class="w-8 h-8 md:w-12 md:h-12 md:-mt-1" src="{% static 'images/female.png' %}">หญิง</h2>
                         </div>
                     </a>
                 </div>
