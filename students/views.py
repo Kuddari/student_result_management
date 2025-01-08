@@ -436,6 +436,11 @@ def Student_Rp(request):
     schools = School.objects.all()
     academic_years = CurrentSemester.objects.values_list('year', flat=True).distinct()
 
+    # สร้าง URL ที่รวมฟิลเตอร์ทั้งหมด
+    query_params = request.GET.copy()
+    query_params.pop('page', None)  # ลบพารามิเตอร์ page ออกเพื่อไม่ให้ URL ซ้ำกัน
+    filter_params = query_params.urlencode()  # สร้าง URL ของพารามิเตอร์ที่เหลือ
+
     context = {
         'page_obj': page_obj,
         'total_students': students.count(),
@@ -453,6 +458,7 @@ def Student_Rp(request):
             'special_status': special_status,
             'items_per_page': items_per_page,
         },
+        'filter_params': filter_params,  # ส่งค่าพารามิเตอร์ฟิลเตอร์
     }
 
     return render(request, 'student/sp_student.html', context)
@@ -500,6 +506,7 @@ def download_students_pdf(students):
     academic_year_text = get_unique_text(unique_academic_years, "ทุกปี")
 
     header_info = f"ชั้น: {level_name} | ปีการศึกษา: {academic_year_text} | เพศ: {gender_text} | สถานะพิเศษ: {status_text}"
+    
 
     # Create PDF Response
     response = HttpResponse(content_type='application/pdf')
@@ -527,7 +534,15 @@ def download_students_pdf(students):
     school_paragraph = Paragraph(f"<b>{school_name}</b>", styles['Normal'])
 
     # Info Paragraph
-    info_paragraph = Paragraph(header_info, styles['Normal'])
+    # Custom Style for Info Paragraph
+    custom_style = styles['Normal'].clone('CustomNormal')
+    custom_style.fontName = 'THSarabunNew'
+    custom_style.fontSize = 18
+    custom_style.leading = 16  # เพิ่มระยะห่างระหว่างบรรทัด
+    custom_style.alignment = 1
+
+    # Info Paragraph
+    info_paragraph = Paragraph(header_info, custom_style)
 
     # Header Table Layout
     header_table_data = [

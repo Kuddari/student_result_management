@@ -400,7 +400,7 @@
                                             class="w-12 h-12 rounded-full object-cover  shadow-md"
                                         >
                                         </td>
-                                        <td class="px-2 py-2 text-left">
+                                        <td class="pl-5 py-2 text-left">
                                            {{ student.first_name }} {{ student.last_name }}
                                         </td>
                                         <td class="px-2 py-2 text-center">{{ student.current_study.school.name }}</td>
@@ -456,7 +456,7 @@
                                     </tr>
                                     {% empty %}
                                     <tr>
-                                        <td colspan="5" class="px-2 py-4 text-center text-gray-500">ไม่มีข้อมูล</td>
+                                        <td colspan="12" class="px-2 py-4 text-center text-gray-500">ไม่มีข้อมูล</td>
                                     </tr>
                                 {% endfor %}                                 
                                 </tbody>
@@ -467,40 +467,41 @@
             </div>
         </div>
     <!-- ปุ่ม Pagination -->
-        <div class="flex justify-center my-12">
-            <div class="flex items-center space-x-2 bg-white py-2 px-4 rounded-lg shadow-md">
-                <!-- ปุ่มก่อนหน้า -->
-                {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}&items_per_page={{ current_filters.items_per_page }}" 
-                class="flex items-center px-3 py-2 text-gray-600 hover:text-white hover:bg-blue-500 rounded-md transition duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
-                    ก่อนหน้า
-                </a>
-                {% endif %}
+<div class="flex justify-center my-12">
+    <div class="flex items-center space-x-2 bg-white py-2 px-4 rounded-lg shadow-md">
+        <!-- ปุ่มก่อนหน้า -->
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}" 
+        class="flex items-center px-3 py-2 text-gray-600 hover:text-white hover:bg-blue-500 rounded-md transition duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            ก่อนหน้า
+        </a>
+        {% endif %}
 
-                <!-- หมายเลขหน้า -->
-                {% for num in page_obj.paginator.page_range %}
-                <a href="?page={{ num }}&items_per_page={{ current_filters.items_per_page }}" 
-                class="px-3 py-2 rounded-md transition duration-300 
-                {% if num == page_obj.number %}bg-blue-500 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-blue-100{% endif %}">
-                    {{ num }}
-                </a>
-                {% endfor %}
+        <!-- หมายเลขหน้า -->
+        {% for num in page_obj.paginator.page_range %}
+        <a href="?page={{ num }}&{{ request.GET.urlencode }}" 
+        class="px-3 py-2 rounded-md transition duration-300 
+        {% if num == page_obj.number %}bg-blue-500 text-white{% else %}bg-gray-100 text-gray-600 hover:bg-blue-100{% endif %}">
+            {{ num }}
+        </a>
+        {% endfor %}
 
-                <!-- ปุ่มถัดไป -->
-                {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}&items_per_page={{ current_filters.items_per_page }}" 
-                class="flex items-center px-3 py-2 text-gray-600 hover:text-white hover:bg-blue-500 rounded-md transition duration-300">
-                    ถัดไป
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                </a>
-                {% endif %}
-            </div>
-        </div>
+        <!-- ปุ่มถัดไป -->
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}" 
+        class="flex items-center px-3 py-2 text-gray-600 hover:text-white hover:bg-blue-500 rounded-md transition duration-300">
+            ถัดไป
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+        </a>
+        {% endif %}
+    </div>
+</div>
+
 
 
     </div>
