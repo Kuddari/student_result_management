@@ -107,6 +107,8 @@ def get_zipcode(request):
 
 #Auth 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')  # Replace 'home' with the desired URL name
     if request.method == 'POST':
         user_id = request.POST.get('user_id')  # User ID input
         password = request.POST.get('password')  # User's password
@@ -436,6 +438,11 @@ def Student_Rp(request):
     schools = School.objects.all()
     academic_years = CurrentSemester.objects.values_list('year', flat=True).distinct()
 
+    # สร้าง URL ที่รวมฟิลเตอร์ทั้งหมด
+    query_params = request.GET.copy()
+    query_params.pop('page', None)  # ลบพารามิเตอร์ page ออกเพื่อไม่ให้ URL ซ้ำกัน
+    filter_params = query_params.urlencode()  # สร้าง URL ของพารามิเตอร์ที่เหลือ
+
     context = {
         'page_obj': page_obj,
         'total_students': students.count(),
@@ -453,6 +460,7 @@ def Student_Rp(request):
             'special_status': special_status,
             'items_per_page': items_per_page,
         },
+        'filter_params': filter_params,  # ส่งค่าพารามิเตอร์ฟิลเตอร์
     }
 
     return render(request, 'student/sp_student.html', context)
@@ -500,6 +508,7 @@ def download_students_pdf(students):
     academic_year_text = get_unique_text(unique_academic_years, "ทุกปี")
 
     header_info = f"ชั้น: {level_name} | ปีการศึกษา: {academic_year_text} | เพศ: {gender_text} | สถานะพิเศษ: {status_text}"
+    
 
     # Create PDF Response
     response = HttpResponse(content_type='application/pdf')
@@ -516,7 +525,7 @@ def download_students_pdf(students):
     )
 
     # Logo
-    logo_path = "static/images/logo.png"
+    logo_path = "static/images/logopdf.png"
     logo = Image(logo_path, width=1 * inch, height=1 * inch)
 
     # School Title
@@ -527,7 +536,15 @@ def download_students_pdf(students):
     school_paragraph = Paragraph(f"<b>{school_name}</b>", styles['Normal'])
 
     # Info Paragraph
-    info_paragraph = Paragraph(header_info, styles['Normal'])
+    # Custom Style for Info Paragraph
+    custom_style = styles['Normal'].clone('CustomNormal')
+    custom_style.fontName = 'THSarabunNew'
+    custom_style.fontSize = 18
+    custom_style.leading = 19  # เพิ่มระยะห่างระหว่างบรรทัด
+    custom_style.alignment = 1
+
+    # Info Paragraph
+    info_paragraph = Paragraph(header_info, custom_style)
 
     # Header Table Layout
     header_table_data = [
@@ -825,10 +842,10 @@ def student_Results(request, student_id):
 
     if 'download_pdf' in request.GET:
         category_1_data = [
-            (s['name'], s['marks'], s['percentage'], s['status']) for s in subjects_cat1_data
+            (s['name'], s['marks'], f"{round(s['percentage'])}%", s['status']) for s in subjects_cat1_data
         ]
         category_2_data = [
-            (s['name'], s['marks'], s['percentage'], s['status']) for s in subjects_cat2_data
+            (s['name'], s['marks'], f"{round(s['percentage'])}%", s['status']) for s in subjects_cat2_data
         ]
 
         school_name = current_study.school.name if current_study and current_study.school else "-"
@@ -887,7 +904,7 @@ def download_result_pdf(students, category_1_data, category_2_data, academic_yea
     sub_title_style = ParagraphStyle(name='SubTitle', fontName='THSarabunNew', fontSize=16, alignment=1)
     normal_style = ParagraphStyle(name='Normal', fontName='THSarabunNew', fontSize=16, alignment=0)
 
-    logo_path = "static/images/logo.png"
+    logo_path = "static/images/logopdf.png"
     logo = Image(logo_path, width=80, height=80)
     logo.hAlign = 'CENTER'
 
@@ -1070,7 +1087,7 @@ def download_result_pdfs(students, semester_1_data, semester_2_data, academic_ye
     )
 
     # Add logo
-    logo_path = "static/images/logo.png"
+    logo_path = "static/images/logopdf.png"
     logo = Image(logo_path, width=80, height=80)  # Adjust size as needed
     logo.hAlign = 'CENTER'
 

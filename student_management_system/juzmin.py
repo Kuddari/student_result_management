@@ -1,4 +1,6 @@
+
 JAZZMIN_SETTINGS = {
+
     # title of the window (Will default to current_admin_site.site_title if absent or None)
     "site_title": "ส.ค.อ.ท.",
 
@@ -9,11 +11,12 @@ JAZZMIN_SETTINGS = {
     "site_brand": "ส.ค.อ.ท.",
 
     # Logo to use for your site, must be present in static files, used for brand on top left
-    "site_logo": "images/logo.png",
+    "site_logo": "images/logo.png",  # โลโก้
+    "site_logo_classes": "img-circle",
+
 
     # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
     "login_logo": "images/logo.png",
-
     # Logo to use for login form in dark themes (defaults to login_logo)
     "login_logo_dark": None,
 
@@ -135,35 +138,47 @@ JAZZMIN_SETTINGS = {
     "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
     # Add a language dropdown into the admin
     "language_chooser": True,
+    "search_model": ["auth.User"],
     "icons": {
         "students.Student": "fas fa-user-graduate",  # ไอคอนสำหรับโมเดลนักเรียน
         "students.Father": "fas fa-male",           # ไอคอนสำหรับบิดา
         "students.Mother": "fas fa-female",         # ไอคอนสำหรับมารดา
         "students.Guardian": "fas fa-user-shield",  # ไอคอนสำหรับผู้ปกครอง
-        "students.CurrentStudy": "fas fa-book",     # ไอคอนสำหรับการศึกษาในปัจจุบัน
+        "students.CurrentStudy": "fa-solid fa-graduation-cap",     # ไอคอนสำหรับการศึกษาในปัจจุบัน
         "students.Subject": "fas fa-book-open",     # ไอคอนสำหรับวิชา
         "students.School": "fas fa-school",         # ไอคอนสำหรับโรงเรียน
         "students.Level": "fas fa-layer-group",     # ไอคอนสำหรับระดับชั้น
         "students.EducationDistrict": "fas fa-map-marker-alt",  # ไอคอนสำหรับเขตการศึกษา
         "students.CurrentSemester": "fas fa-calendar",          # ไอคอนสำหรับภาคการศึกษา
+        "auth": "fas fa-users-cog",  # ไอคอนสำหรับแอป auth
+        "auth.user": "fas fa-user",  # ไอคอนสำหรับโมเดล User
+        "students.SubjectToStudy": "fa-solid fa-book",
+        "students.StudentHistory": "fa-regular fa-address-card",
+        "students.Teacher": "fa-solid fa-person-chalkboard",
+
     },
     # การตั้งค่า Sidebar
     "order_with_respect_to": [
-        "students.CurrentSemester",
         "students.Student",
-        "students.Father",
-        "students.Mother",
-        "students.Guardian",
+        "students.Teacher",
         "students.CurrentStudy",
-        "students.Subject",
-        "students.School",
-        "students.Level",
         "students.SubjectToStudy",
         "students.StudentHistory",
+        "students.CurrentSemester",
     ],
     "hide_models": [
         "students.Address",
         "students.Occupation",
         "students.Workplace",
+        "students.Father",
+        "students.Mother",
+        "students.Guardian",
+        "students.Province",
+        "students.Amphoe",
+        "students.Tambon",
+        "students.AcademicYear",
+        "students.Subject",
+        "students.Level",
+        "students.School",
     ],
 }

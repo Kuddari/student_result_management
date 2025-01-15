@@ -2,6 +2,10 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import *
 from django import forms
+from django.contrib.auth.models import Group
+
+# ลบ Group ออกจากแผง Admin
+admin.site.unregister(Group)
 
 @admin.register(Province)
 class ProvinceAdmin(admin.ModelAdmin):
@@ -120,9 +124,9 @@ class TeacherAdmin(admin.ModelAdmin):
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name_info','english_first_name','arabic_first_name','gender_icon', 'address_info', 'status_icon')
+    list_display = ('id', 'name_info','english_first_name','arabic_first_name','gender_icon', 'status_icon')
     list_filter = ('status', 'gender')
-    search_fields = ('first_name', 'last_name', 'id_number','english_first_name','arabic_first_name')
+    search_fields = ('first_name', 'last_name', 'id_number','english_first_name','arabic_first_name','id')
     # Order of fields in the admin form
     fields = [
         'gender',          # Gender first
@@ -163,14 +167,7 @@ class StudentAdmin(admin.ModelAdmin):
 
     gender_icon.short_description = "เพศ"
 
-    def address_info(self, obj):
-        """แสดงข้อมูลที่อยู่"""
-        if obj.address:
-            return f"{obj.address.house_number} {obj.address.street} ต.{obj.address.subdistrict} อ.{obj.address.district} จ.{obj.address.province}"
-        return "ไม่มีข้อมูลที่อยู่"
-
-    address_info.short_description = "ที่อยู่"
-
+    
     def status_icon(self, obj):
         """แสดงไอคอนสถานะ"""
         if obj.status == 'กำลังศึกษา':

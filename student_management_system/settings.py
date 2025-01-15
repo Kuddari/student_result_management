@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 import logging
 from .juzmin import JAZZMIN_SETTINGS
-
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -64,7 +63,6 @@ CSRF_TRUSTED_ORIGINS = [
     'https://www.kurusampanstgr80.com',
     'https://kurusampanstgr80.com',
 ]
-
 
 # Application definition
 
@@ -152,8 +150,8 @@ DATABASES = {
 #         "ENGINE": "django.db.backends.mysql",  # ใช้ MySQL backend
 #         "NAME": "kurusampanst",               # ชื่อฐานข้อมูล
 #         "USER": "kurusampanst",               # ชื่อผู้ใช้ฐานข้อมูล
-#         "PASSWORD": "@kurusampanst",          # รหัสผ่านของผู้ใช้
-#         "HOST": "host.docker.internal",       # ใช้ host.docker.internal สำหรับเชื่อมต่อกับโฮสต์
+#         "PASSWORD": "kurusampanst",          # รหัสผ่านของผู้ใช้
+#         "HOST": "195.35.22.151",       # ใช้ host.docker.internal สำหรับเชื่อมต่อกับโฮสต์
 #         "PORT": "3306",                       # พอร์ตของ MariaDB
 #         "OPTIONS": {
 #             "charset": "utf8mb4",             # ใช้ charset สำหรับภาษาไทย
@@ -193,11 +191,15 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
-import os
-# Static files
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
+STATIC_URL = '/static/'
+
+# กำหนดเส้นทางที่เก็บไฟล์ static ที่รวบรวมจากคำสั่ง collectstatic
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),  # โฟลเดอร์ที่มีไฟล์ static ของโปรเจค
+]
 
 # Media files
 MEDIA_URL = '/media/'
@@ -245,5 +247,5 @@ JAZZMIN_UI_TWEAKS = {
         "success": "btn-success"
     },
     "actions_sticky_top": False,
-    
+    "user_avatar": True,  # เพิ่มการตั้งค่านี้เพื่อแสดงรูปโปรไฟล์
 }

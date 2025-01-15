@@ -10,6 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/font.css' %}">
+    <link rel="icon" href="{% static 'images/logo.ico' %}" type="image/x-icon">
     <title>Student Results</title>
 </head>
 {% endblock %}
@@ -113,7 +114,7 @@
                             <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.marks }}</td>
                 
                             <!-- เกรด -->
-                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.percentage }}</td>
+                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.percentage|floatformat:0 }}%</td>
                 
                             <!-- ผลการตัดสิน -->
                             <td class="border border-green-800 p-2 {% if subject.status == 'ไม่ผ่าน' %}bg-red-500 text-white{% else %}bg-green-500 text-white{% endif %} whitespace-nowrap">
@@ -149,8 +150,9 @@
                             <!-- คะแนน -->
                             <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.marks }}</td>
                 
-                            <!-- เกรด -->
-                            <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.percentage }}</td>
+                           <!-- เกรด -->
+                           <td class="border border-green-800 p-2 whitespace-nowrap">{{ subject.percentage|floatformat:0 }}%</td>
+
                 
                             <!-- ผลการตัดสิน -->
                             <td class="border border-green-800 p-2 {% if subject.status == 'ไม่ผ่าน' %}bg-red-500 text-white{% else %}bg-green-500 text-white{% endif %} whitespace-nowrap">

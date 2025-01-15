@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/font.css' %}">
+    <link rel="icon" href="{% static 'images/logo.ico' %}" type="image/x-icon">
     <title>เข้าสู่ระบบจัดการผลการเรียน</title>
 </head>
 <body >
@@ -30,8 +31,9 @@
             <!-- เลขประจำตัวประชาชน -->
             <div class="relative mb-6 md:mb-10">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-4">
-                    <svg class="w-6 h-6 md:w-8 md:h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M19 3h-14c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-14c0-1.1-.9-2-2-2zm-14 16v-14h14l.002 14h-14zm7-4h-4v-2h4v2zm4-4h-8v-2h8v2z"/>
+                    
+                    <svg class="w-5 h-4 md:w-6 md:h-6 text-gray-400" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                        <path d="M144 144l0 48 160 0 0-48c0-44.2-35.8-80-80-80s-80 35.8-80 80zM80 192l0-48C80 64.5 144.5 0 224 0s144 64.5 144 144l0 48 16 0c35.3 0 64 28.7 64 64l0 192c0 35.3-28.7 64-64 64L64 512c-35.3 0-64-28.7-64-64L0 256c0-35.3 28.7-64 64-64l16 0z"/>
                     </svg>
                 </span>
                 <input type="password" id="password" name="password" class="w-full pl-12 md:pl-16 pr-4 md:pr-6 py-3 md:py-5 text-lg md:text-xl border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="รหัสผ่าน" required>
@@ -54,7 +56,7 @@
 
             <!-- ปุ่มยืนยัน -->
             <div class="text-center">
-                <button type="submit" class="bg-green-500 text-white  px-6 md:px-10 py-3 md:py-4 text-lg md:text-xl rounded-lg md:rounded-xl hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 drop-shadow-lg shadow-md shadow-black/50">
+                <button type="submit" class="bg-green-500 text-white  px-6 md:px-10 py-2 md:py-3 text-xl md:text-2xl rounded-lg md:rounded-xl hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 drop-shadow-lg shadow-md shadow-black/50 transition-all duration-300 hover:scale-105">
                     ยืนยัน
                 </button>
             </div>
