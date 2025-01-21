@@ -9,28 +9,29 @@
         
         {% load static %}
         <link rel="stylesheet" href="{% static 'css/font.css' %}">
+    <link rel="icon" href="{% static 'images/logo.ico' %}" type="image/x-icon">
 
         <title>หน้าแรก</title>
     </head>
- {% endblock %}
+{% endblock %}
 
 {% block content %}
     <body>
-        <div class="h-screen bg-green-800 px-4 sm:px-6 font-prompt"> 
+        <div class="min-h-screen bg-green-800 px-4 sm:px-6 font-prompt"> 
             <!-- Header Section -->
-            <header class="py-4 md:py-20 flex flex-col lg:flex-row justify-between items-center lg:max-w-5xl mx-auto space-y-3 md:space-y-0 z-30">
+            <header class="py-8 md:py-20 2xl:pt-28 2xl:pb-24 flex flex-col lg:flex-row justify-between items-center lg:max-w-5xl mx-auto space-y-3 md:space-y-0 z-30">
                 <div class="flex flex-col sm:flex-row items-center text-white text-center md:text-left">
-                    <img class="w-24 h-24 md:w-32 md:h-32" src="{% static 'images/logo.png' %}" alt="">
-                    <div class="mt-4 sm:mt-0 sm:ml-4">
+                    <a href="https://kurusampanst80.com/"><img class="w-24 h-24 md:w-32 md:h-32" src="{% static 'images/logo.png' %}" alt=""></a>
+                    <div class="mt-4 md:ml-4">
                         <h1 class="text-2xl md:text-4xl">ระบบการจัดการหน่วยสอบ</h1>
-                        <span class="text-lg md:text-2xl block mt-2">สมาคมครูสัมพันธ์ หน่วยสอบ 86</span>
+                        <span class="text-[1.2rem] md:text-[1.78rem] block -mt-0 md:mt-2">สมาคมคุรุสัมพันธ์ หน่วยสอบ 80</span>
                     </div>
                 </div>
 
-                <div class="flex flex-row gap-4">
-                    <a href="" class="md:mt-12 lg:mt-0  md:text-xl inline-flex items-center justify-center px-6 py-3 bg-white text-green-900 hover:bg-gray-200 hover:text-green-700 rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:scale-105">
+                <div class="hidden lg:flex flex-row gap-4">
+                    <a href="{% url 'profile' student.id %}" class="md:mt-12 lg:mt-0  md:text-xl inline-flex items-center justify-center px-6 py-3 bg-white text-green-900 hover:bg-gray-200 hover:text-green-700 rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:scale-105">
                         <span class="mr-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-pen">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-pen">
                                 <path d="M11.5 15H7a4 4 0 0 0-4 4v2"></path>
                                 <path d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"></path>
                                 <circle cx="10" cy="7" r="4"></circle>
@@ -38,7 +39,7 @@
                         </span>
                         โปรไฟล์
                     </a>
-                    <a href="" class="md:mt-12 lg:mt-0 md:text-xl inline-flex items-center justify-center px-6 py-3 bg-[#06D001] text-white rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:bg-[#04a801] hover:scale-105">
+                    <a href="{% url 'student_results' student.id %}" class="md:mt-12 lg:mt-0 md:text-xl inline-flex items-center justify-center px-6 py-3 bg-[#06D001] text-white rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:bg-[#04a801] hover:scale-105">
                         <span class="mr-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notepad-text">
                                 <path d="M8 2v4"></path>
@@ -56,26 +57,26 @@
             </header>
            
             <!-- Stats Grid -->
-            <div class="lg:max-w-3xl mx-auto pb-8 lg:mt-14 z-30">
+            <div class="lg:max-w-3xl mx-auto pb-8 lg:-mt-8 z-30">
                 <!-- First Row Stats -->
                 <div class="grid grid-cols-3 gap-4 sm:gap-5 mb-5">
                     <a href="" class="block group">
                         <div class="bg-white h-24 md:h-48 pt-4 md:pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
                             <h1 class="text-[20px] md:text-5xl  group-hover:text-green-700 counter" data-target="{{total_students}}">0</h1>
-                            <h2 class="text-[20px] md:text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">นักเรียน</h2>
+                            <h2 class="text-[20px] md:text-3xl   text-green-900 mt-2 group-hover:text-green-700">นักเรียน</h2>
                         </div>
                     </a>
                     <a href="" class="block group">
                         <div class="bg-white h-24 md:h-48 pt-4 md:pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
                             <h1 class="text-[20px] md:text-5xl d group-hover:text-green-700 counter" data-target="{{male_students}}">0</h1>
-                            <h2 class="text-[20px] flex justify-center md:text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700"><img class="w-8 h-8 md:w-12 md:h-12 md:-mt-1" src="{% static 'images/male.png' %}">ชาย</h2>
+                            <h2 class="text-[20px] flex justify-center md:text-3xl   text-green-900 mt-2 group-hover:text-green-700"><img class="w-8 h-8 md:w-12 md:h-12 md:-mt-1" src="{% static 'images/male.png' %}">ชาย</h2>
                         </div>
                     </a>
 
                     <a href="" class="block group">
                         <div class="bg-white h-24 md:h-48 pt-4 md:pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
                             <h1 class="text-[20px] md:text-5xl d group-hover:text-green-700 counter" data-target="{{female_students}}">0</h1>
-                            <h2 class="text-[20px] flex justify-center md:text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700"><img class="w-8 h-8 md:w-12 md:h-12 md:-mt-1" src="{% static 'images/male.png' %}">หญิง</h2>
+                            <h2 class="text-[20px] flex justify-center md:text-3xl   text-green-900 mt-2 group-hover:text-green-700"><img class="w-8 h-8 md:w-12 md:h-12 md:-mt-1" src="{% static 'images/female.png' %}">หญิง</h2>
                         </div>
                     </a>
                 </div>
@@ -112,7 +113,47 @@
             </div>
           
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const animateValue = (element, start, end, duration) => {
+                    let startTimestamp = null;
+                    const step = (timestamp) => {
+                        if (!startTimestamp) startTimestamp = timestamp;
+                        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                        const currentValue = Math.floor(progress * (end - start) + start);
+                        element.textContent = currentValue;
+                        
+                        if (progress < 1) {
+                            window.requestAnimationFrame(step);
+                        } else {
+                            element.textContent = end;
+                        }
+                    };
+                    window.requestAnimationFrame(step);
+                };
+        
+                // สร้าง Intersection Observer สำหรับ lazy loading animation
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting && !entry.target.dataset.animated) {
+                            const target = parseInt(entry.target.dataset.target);
+                            animateValue(entry.target, 0, target, 300); 
+                            entry.target.dataset.animated = true;
+                        }
+                    });
+                }, {
+                    threshold: 0.1
+                });
+        
+                // เริ่มสังเกตทุก counter elements
+                document.querySelectorAll('.counter').forEach(counter => {
+                    observer.observe(counter);
+                });
+            });
+            </script>
     </body>
     </html>
 
-{% endblock %}
+
+    {% endblock %}

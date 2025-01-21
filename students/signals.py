@@ -11,21 +11,28 @@ def create_default_current_semester(sender, **kwargs):
 
 @receiver(post_migrate)
 def create_default_subjects(sender, **kwargs):
+    # Default subjects for Theory Semester
     subjects_data = [
-        {"name": "อัลกะบาอิร", "total_marks": 100.00},
-        {"name": "ตัจญ์วีด", "total_marks": 100.00},
-        {"name": "ตะเซาวุฟ", "total_marks": 100.00},
-        {"name": "ศาสนประวัติ", "total_marks": 100.00},
-        {"name": "อัล - หะดิษ", "total_marks": 100.00},
-        {"name": "อัลกรุอาน", "total_marks": 100.00},
-        {"name": "ฟิกห์", "total_marks": 100.00},
-        {"name": "เตาฮีด", "total_marks": 100.00},
+        {"name": "อัลกะบาอิร", "total_marks": 100.00, "category": 1},
+        {"name": "ตัจญ์วีด", "total_marks": 100.00, "category": 1},
+        {"name": "ตะเซาวุฟ", "total_marks": 100.00, "category": 1},
+        {"name": "ศาสนประวัติ", "total_marks": 100.00, "category": 1},
+        {"name": "อัล - หะดิษ", "total_marks": 100.00, "category": 1},
+        {"name": "อัลกรุอาน", "total_marks": 100.00, "category": 1},
+        {"name": "ฟิกห์", "total_marks": 100.00, "category": 1},
+        {"name": "เตาฮีด", "total_marks": 100.00, "category": 1},
     ]
 
     for subject_data in subjects_data:
-        Subject.objects.get_or_create(name=subject_data["name"], defaults={"total_marks": subject_data["total_marks"]})
+        Subject.objects.get_or_create(
+            name=subject_data["name"],
+            defaults={
+                "total_marks": subject_data["total_marks"],
+                "category": subject_data["category"]
+            },
+        )
 
-    print("Default Subjects created.")
+    print("Default Subjects for ภาคทฤษฎี created.")
 
 
 @receiver(post_migrate)

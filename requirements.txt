@@ -11,4 +11,4 @@ django-autocomplete-light
 django-tailwind[reload]
 djangorestframework
 djangorestframework-simplejwt
-
+django-import-export
