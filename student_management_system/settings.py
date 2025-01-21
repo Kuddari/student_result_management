@@ -51,12 +51,7 @@ SECRET_KEY = "django-insecure-9#2@6x1nay(sfuwg&wsg$73)ro+mw!et_at%bl4frb-5#=l_y$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'www.kurusampanstgr80.com',
-    'kurusampanstgr80.com',  # Include the non-www version for good measure
-    '127.0.0.1',
-    '195.35.22.151',
-]
+ALLOWED_HOSTS = ["*"]
 
 
 CSRF_TRUSTED_ORIGINS = [
@@ -198,7 +193,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),  # โฟลเดอร์ที่มีไฟล์ static ของโปรเจค
+    BASE_DIR / "static",  # ตำแหน่งที่เก็บไฟล์ static
 ]
 
 # Media files
