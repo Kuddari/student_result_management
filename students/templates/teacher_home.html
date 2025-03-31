@@ -1,29 +1,35 @@
-
-{% include 'navbar.html' %}
+{% extends 'base.html' %}
 <!DOCTYPE html>
 <html lang="en">
+{% block title %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js" defer></script>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/font.css' %}">
+        <link rel="icon" href="{% static 'images/logo.ico' %}" type="image/x-icon">
 
     <title>หน้าแรก</title>
 </head>
+{% endblock %}
+
+{% block content %}
 <body>
-    <div class="h-screen bg-green-800 px-4 sm:px-6 font-prompt"> 
+    <div class="min-h-screen bg-green-800 px-4 sm:px-6 font-prompt"> 
         <!-- Header Section -->
-        <header class="py-4 md:py-20 flex flex-col lg:flex-row justify-between items-center lg:max-w-5xl mx-auto space-y-3 md:space-y-0 z-30">
+        <header class="pt-10 md:pt-20  2xl:pt-28 2xl:pb-14 flex flex-col lg:flex-row justify-between items-center lg:max-w-5xl mx-auto space-y-3 md:space-y-0 z-30">
             <div class="flex flex-col sm:flex-row items-center text-white text-center md:text-left">
-                <img class="w-24 h-24 md:w-32 md:h-32" src="{% static 'images/logo.png' %}" alt="">
-                <div class="mt-4 sm:mt-0 sm:ml-4">
-                    <h1 class="text-3xl md:text-4xl">ระบบการจัดการหน่วยสอบ</h1>
-                    <span class="text-xl md:text-2xl block mt-2">สมาคมครูสัมพันธ์ หน่วยสอบ 86</span>
+                <a href="https://kurusampanst80.com/">
+                    <img class="w-24 h-24 md:w-36 md:h-36 2xl:w-40 2xl:h-40 -mt-6 md:mt-0" src="{% static 'images/logo.png' %}" alt="">
+                </a>                
+                <div class="mt-4 sm:mt-0 md:ml-4">
+                    <h1 class="text-2xl md:text-4xl">ระบบการจัดการหน่วยสอบ</h1>
+                    <span class="text-[1.2rem] md:text-[1.78rem] block -mt-0 md:mt-2">สมาคมคุรุสัมพันธ์ หน่วยสอบ 80</span>
                 </div>
             </div>
 
-            <div class="flex flex-row gap-4">
+            <div class="flex flex-row gap-4 pb-5 md:pb-12 lg:pb-0">
                 <a href="{% url 'in_profile'  %}" class="md:mt-12 lg:mt-0 md:text-xl inline-flex items-center justify-center px-6 py-3 bg-white text-green-900 hover:bg-gray-200 hover:text-green-700 rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:scale-105">
                     <span class="mr-2">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-pen">
@@ -34,9 +40,10 @@
                     </span>
                     ลงทะเบียน
                 </a>
-                <a href="{% url 'ingr_student'  %}" class="md:mt-12 lg:mt-0 md:text-xl inline-flex items-center justify-center px-6 py-3 bg-[#06D001] text-white rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:bg-[#04a801] hover:scale-105">
+                {% if user.is_superuser %}
+                <a href="{% url 'admin:index' %}" class="md:mt-12 lg:mt-0 md:text-xl inline-flex items-center justify-center px-6 py-3 bg-[#06D001] text-white rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:bg-[#04a801] hover:scale-105">
                     <span class="mr-2">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notepad-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notepad-text">
                         <path d="M8 2v4"></path>
                         <path d="M12 2v4"></path>
                         <path d="M16 2v4"></path>
@@ -44,60 +51,76 @@
                         <path d="M8 10h6"></path>
                         <path d="M8 14h8"></path>
                         <path d="M8 18h5"></path>
-                      </svg>
+                    </svg>
+                    </span>
+                    หน้าแอดมิน
+                </a>
+                {% else %}
+                <a href="{% url 'ingr_student' %}" class="md:mt-12 lg:mt-0 md:text-xl inline-flex items-center justify-center px-6 py-3 bg-[#06D001] text-white rounded-xl drop-shadow-sm shadow-md transition-all duration-300 hover:bg-[#04a801] hover:scale-105">
+                    <span class="mr-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notepad-text">
+                        <path d="M8 2v4"></path>
+                        <path d="M12 2v4"></path>
+                        <path d="M16 2v4"></path>
+                        <rect width="16" height="18" x="4" y="4" rx="2"></rect>
+                        <path d="M8 10h6"></path>
+                        <path d="M8 14h8"></path>
+                        <path d="M8 18h5"></path>
+                    </svg>
                     </span>
                     ลงคะแนน
                 </a>
+                {% endif %}
+
             </div>
         </header>
 
-        <!-- Stats Grid -->
          <!-- Stats Grid -->
-         <div class="lg:max-w-3xl mx-auto pb-8 lg:mt-14 z-30">
+         <div class="lg:max-w-3xl mx-auto pb-8 lg:mt-12 z-30">
             <!-- First Row Stats -->
-            <div class="grid grid-cols-3 gap-4 sm:gap-5 mb-5">
-                <a href="{% url 'sp_student_report' %}" class="block group">
+            <div class="grid grid-cols-3 gap-4 sm:gap-5 lg:mb-8 mb-5">
+                <a href="{% url 'sp_student_report' %}?&page=1" class="block group">
                     <div class="bg-white h-24 md:h-48 pt-4 md:pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
                         <h1 class="text-[20px] md:text-5xl  group-hover:text-green-700 counter" data-target="{{total_students}}">0</h1>
-                        <h2 class="text-[20px] md:text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700">นักเรียน</h2>
+                        <h2 class="text-[20px] md:text-3xl   text-green-900 mt-2 group-hover:text-green-700">นักเรียน</h2>
                     </div>
                 </a>
-                <a href="{% url 'sp_student_report' %}?gender=ชาย" class="block group">
+                <a href="{% url 'sp_student_report' %}?gender=ชาย&page=1" class="block group">
                     <div class="bg-white h-24 md:h-48 pt-4 md:pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
                         <h1 class="text-[20px] md:text-5xl d group-hover:text-green-700 counter" data-target="{{male_students}}">0</h1>
-                        <h2 class="text-[20px] flex justify-center md:text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700"><img class="w-8 h-8 md:w-12 md:h-12 md:-mt-1" src="{% static 'images/male.png' %}">ชาย</h2>
+                        <h2 class="text-[20px] flex justify-center md:text-3xl   text-green-900 mt-2 group-hover:text-green-700"><img class="w-8 h-8 md:w-12 md:h-12 md:-mt-1" src="{% static 'images/male.png' %}">ชาย</h2>
                     </div>
                 </a>
                 
-                <a href="{% url 'sp_student_report' %}?gender=หญิง" class="block group">
+                <a href="{% url 'sp_student_report' %}?gender=หญิง&page=1" class="block group">
                     <div class="bg-white h-24 md:h-48 pt-4 md:pt-12 p-6 text-center rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 group-hover:bg-slate-100 group-hover:scale-105 group-hover:shadow-xl">
                         <h1 class="text-[20px] md:text-5xl d group-hover:text-green-700 counter" data-target="{{female_students}}">0</h1>
-                        <h2 class="text-[20px] flex justify-center md:text-3xl  font-semibold text-green-900 mt-2 group-hover:text-green-700"><img class="w-8 h-8 md:w-12 md:h-12 md:-mt-1" src="{% static 'images/male.png' %}">หญิง</h2>
+                        <h2 class="text-[20px] flex justify-center md:text-3xl   text-green-900 mt-2 group-hover:text-green-700"><img class="w-8 h-8 md:w-12 md:h-12 md:-mt-1" src="{% static 'images/female.png' %}">หญิง</h2>
                     </div>
                 </a>
             </div>
             <!-- Second Row Stats -->
             <div class="bg-white rounded-xl drop-shadow-lg shadow-lg transition-all duration-300 hover:bg-slate-100  py-3 md:p-6 relative z-10">
                 <div class="grid grid-cols-2  md:grid-cols-4 gap-8">
-                    <a href="{% url 'sp_student_report' %}?special_status=เด็กกำพร้า" class="group">
+                    <a href="{% url 'sp_student_report' %}?special_status=เด็กกำพร้า&page=1" class="group">
                         <div class="text-center transition-all duration-300 group-hover:scale-105">
                             <h1 class="text-[18px] md:text-5xl  group-hover:text-green-700 counter" data-target="{{orphans}}">0</h1>
                             <h1 class="text-[18px] md:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กกำพร้า</h1>
                         </div>
                     </a>
-                    <a href="{% url 'sp_student_report' %}?special_status=เด็กยากไร้" class="group">
+                    <a href="{% url 'sp_student_report' %}?special_status=เด็กยากไร้&page=1" class="group">
                         <div class="text-center transition-all duration-300 group-hover:scale-105">
                             <h1 class="text-[18px] md:text-5xl  group-hover:text-green-700 counter" data-target="{{underprivileged}}">0</h1>
                             <h1 class="text-[18px] md:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กยากไร้</h1>
                         </div>
                     </a>
-                    <a href="{% url 'sp_student_report' %}?special_status=เด็กพิการ" class="group">
+                    <a href="{% url 'sp_student_report' %}?special_status=เด็กพิการ&page=1" class="group">
                         <div class="text-center transition-all duration-300 group-hover:scale-105">
                             <h1 class="text-[18px] md:text-5xl  group-hover:text-green-700 counter" data-target="{{disabled}}">0</h1>
                             <h1 class="text-[18px] md:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กพิการ</h1>
                         </div>
                     </a>
-                    <a href="{% url 'sp_student_report' %}?special_status=เด็กมุอัลลัฟ" class="group">
+                    <a href="{% url 'sp_student_report' %}?special_status=เด็กมุอัลลัฟ&page=1" class="group">
                         <div class="text-center transition-all duration-300 group-hover:scale-105">
                             <h1 class="text-[18px] md:text-5xl group-hover:text-green-700 counter" data-target="{{new_muslims}}">0</h1>
                             <h1 class="text-[18px] md:text-2xl text-green-900 mt-2 group-hover:text-green-700">เด็กมุอัลลัฟ</h1>
@@ -130,9 +153,9 @@
             alt="Background Right">
     </div> -->
 
-        <div class="text-center pb-8 sm:mt-40 lg:mt-28 text-lg sm:text-base md:text-3xl text-green-300 underline">
+        <!-- <div class="text-center pb-8 sm:mt-40 lg:mt-28 text-lg sm:text-base md:text-3xl text-green-300 underline">
             <a href="">สมาคมคุรุสัมพันธ์อิสลามแห่งประเทศไทยในพระบรมราชูปถัมภ์</a>
-        </div>
+        </div> -->
         
     </div>
 
@@ -176,4 +199,5 @@
         });
         </script>
 </body>
+{% endblock %}
 </html>

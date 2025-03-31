@@ -1,13 +1,14 @@
-{% include 'navbar.html' %}
+{% extends 'base.html' %}
 {% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
+{% block title %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js" defer></script>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/font.css' %}">
+    <link rel="icon" href="{% static 'images/logo.ico' %}" type="image/x-icon">
     <title>ดูผลการเรียน</title>
     <style>
         /* Custom Scrollbar Styles */
@@ -41,6 +42,9 @@
         }
     </style>
 </head>
+{% endblock %}
+
+{% block content %}
 <body>
     <div class="min-h-screen bg-gradient-to-b from-green-100 to-green-900 font-prompt">
         <!-- Header -->
@@ -108,7 +112,7 @@
             {% endif %}
 
             <!-- Table -->
-            {% if students and subjects %}
+            {% if school_name and level_name and academic_year and students and subjects %}
             <div class="overflow-x-auto bg-white rounded-lg shadow custom-scrollbar">
                 <div class="min-w-max">
                     <table class="w-full text-sm text-left text-gray-800">
@@ -132,8 +136,8 @@
                         <tbody>
                             {% for student in students %}
                             <tr class="hover:bg-gray-50">
-                                <td class="px-4 py-3 border-b">{{ forloop.counter }}</td>
-                                <td class="px-4 py-3 border-b truncate">{{ student.student_name }}</td>
+                                <td class="px-4 py-3 border-b text-center">{{ forloop.counter }}</td>
+                                <td class="px-4 py-3 border-b truncate text-center">{{ student.student_name }}</td>
                                 {% for subject in subjects %}
                                 <td class="px-4 py-3 border-b text-center">
                                     {{ student.subject_marks|get_item:subject|default:"-" }}
@@ -197,3 +201,4 @@
     
 </body>
 </html>
+{% endblock %}

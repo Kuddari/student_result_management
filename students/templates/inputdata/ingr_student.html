@@ -1,5 +1,8 @@
-{% include 'navbar.html' %}
+
+{% extends 'base.html' %}
+
 {% load custom_filters %}
+{% block title %}
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -8,6 +11,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js" defer></script>
         {% load static %}
         <link rel="stylesheet" href="{% static 'css/font.css' %}">
+    <link rel="icon" href="{% static 'images/logo.ico' %}" type="image/x-icon">
         <title>กรอกคะแนนนักเรียน</title>
         <style>
             /* Custom Scrollbar Styles */
@@ -46,6 +50,9 @@
             }
         </style>
     </head>
+{% endblock %}
+
+{% block content %}
 <body class="font-prompt">
     <div class="min-h-screen bg-gradient-to-b from-green-100 to-green-900 font-prompt">
         <!-- Header -->
@@ -139,7 +146,7 @@
                 </div>
             </form>
             {% else %}
-            <div class="text-center text-gray-700 mt-4">
+            <div class="text-center text-green-900 mt-4 text-xl">
                 <p> กรุณาเลือกโรงเรียนและชั้นเรียน</p>
             </div>
             {% endif %}
@@ -147,3 +154,4 @@
     </div>
 </body>
 </html>
+{% endblock %}

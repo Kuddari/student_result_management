@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .      # Location of the Dockerfile
+    ports:
+      - "9000:9000"   # Map port 9000 on host to 9000 in the container
+    volumes:
+      - .:/kurusampanst  # Mount current directory into container
+    image: kurusampanst:django  # Image name
+    container_name: kurusampanst  # Name for the container
+    command: ["sh", "start.sh"]  # Command to run
